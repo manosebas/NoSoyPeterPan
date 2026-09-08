@@ -15,11 +15,17 @@ Settings > Environment Variables. Marcar el ambiente correspondiente.
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | prod_NoSoyPeterPan | dev_NoSoyPeterPan | Project URL de Supabase |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | prod_NoSoyPeterPan | dev_NoSoyPeterPan | Clave publica (anon) |
-| `NEXT_PUBLIC_API_URL` | dominio prod del API | dominio dev del API | URL de Railway, sin `/` final |
+| `NEXT_PUBLIC_API_URL` | `https://nosoypeterpan-production.up.railway.app` | `https://nosoypeterpan-dev.up.railway.app` | URL de Railway, sin `/` final |
+
+La misma variable se define dos veces, cambiando el ambiente marcado. Nunca
+marcar Production y Preview en la misma entrada: produccion terminaria pegandole
+a la base de dev. *Development* no se usa nunca: el proyecto no corre en local.
 
 `NEXT_PUBLIC_*` se inlinea en build: cambiarla exige un redeploy, no basta con
 guardar. Nunca poner aqui la service role key: todo lo que empieza con
 `NEXT_PUBLIC_` viaja al navegador.
+
+Al pegar valores: sin comillas, sin `/` al final y sin espacios invisibles.
 
 ## Railway — `apps/api`
 
@@ -34,10 +40,12 @@ Variables del servicio, un set por ambiente.
 | `CORS_ORIGINS` | Origenes permitidos, separados por coma. Admite `*` |
 | `PORT` | La inyecta Railway. No definirla a mano |
 
-Valor sugerido de `CORS_ORIGINS`:
+Valor actual de `CORS_ORIGINS`:
 
-- dev: `https://*.vercel.app`
-- prod: `https://tudominio.com,https://www.tudominio.com`
+- dev: `https://*.vercel.app` — el comodin es necesario, cada push genera un
+  dominio de preview distinto.
+- prod: `https://nosoypeterpan.vercel.app`. Cuando haya dominio propio se agrega
+  separado por coma.
 
 ## Donde se sacan las claves de Supabase
 

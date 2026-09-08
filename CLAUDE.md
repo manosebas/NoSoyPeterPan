@@ -123,14 +123,30 @@ Plataforma web donde la gente entra a organizar sus objetivos y cumplirlos. Ese 
 
 Lo que falta es el producto: el dominio del juego está tipado en `packages/shared` pero no implementado. No existe todavía ninguna tabla de Norte, Rutas, Misiones ni Nunca Jamás.
 
+### Próximos pasos
+
+Orden propuesto, cada pieza aterriza un tramo de la cadena `Algún día → hoy`. No confirmado con el usuario todavía.
+
+1. **El Norte** — tabla, RLS y onboarding. Va primero por la regla 3: sin Norte no se puede crear nada más.
+2. **Nunca Jamás** — captura rápida de "algún día voy a…". Es lo primero que alguien quiere hacer al entrar, y es el antagonista del juego.
+3. **Rutas** — bajar el Norte a 1 año y 90 días.
+4. **Misiones y Votos** — el día a día, siempre colgando de una Ruta.
+
+El mínimo con sentido son 1 y 2 juntos: alguien entra, vacía sus "algún día" y define su Norte. Rutas y Misiones sin eso serían otro to-do list.
+
 ### Decisiones pendientes
 
-- [ ] Modelo de datos completo (Norte, Rutas, Misiones, Nunca Jamás) y sus migraciones
 - [ ] Alcance del MVP
 - [ ] Onboarding: cómo se define el Norte por primera vez
 - [ ] Web-only o también móvil
 - [ ] Modelo de negocio
 - [ ] Tipografía de marca y color de acento
+
+### Deuda técnica conocida
+
+- `.github/workflows/ci.yml` existe en disco pero sin commitear: el token de GitHub no tiene scope `workflow`. Se habilita con `gh auth refresh -h github.com -s workflow`.
+- `sharp <0.35` marcado *high* por auditoría. Llega como transitiva de Next; no se fuerza porque un salto de minor en 0.x puede romper la optimización de imágenes, y en Vercel el runtime usa su propio `sharp`.
+- El repo es público. Con la política de cero secretos no hay exposición, pero conviene tenerlo presente.
 
 ---
 
@@ -168,6 +184,8 @@ pnpm workspaces + Turborepo. Auth y base de datos en Supabase.
 4. **Cero secretos en el repo.** Toda clave vive en las variables de Vercel y Railway. Si algo necesita una variable nueva, se documenta en `docs/ENTORNO.md` y el código falla con un mensaje que la nombra.
 5. **El build no puede depender de secretos.** CI compila sin ninguna variable definida; si eso rompe, hay una key quemada.
 6. **La `service_role` key jamás sale del backend.** Nada sensible detrás de un prefijo `NEXT_PUBLIC_`.
+7. **Toda tabla nueva nace con RLS y políticas por `auth.uid()`.** La anon key viaja al navegador: sin RLS, cualquiera lee todo.
+8. **Un cambio de variable en Vercel exige redeploy.** Las `NEXT_PUBLIC_*` se congelan en build; guardarlas no basta.
 
 ---
 

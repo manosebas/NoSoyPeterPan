@@ -13,6 +13,8 @@ No usamos CLI local. Cada archivo de `migrations/` se pega en el **SQL Editor**
 del dashboard, primero en `dev_NoSoyPeterPan` y despues en `prod_NoSoyPeterPan`.
 Los scripts son idempotentes: se pueden correr mas de una vez.
 
+Aplicadas hasta hoy en los dos proyectos: `0001_perfiles.sql`.
+
 ## Configuracion de Auth (una vez por proyecto)
 
 En **Authentication > URL Configuration**:
@@ -26,3 +28,16 @@ En **Authentication > URL Configuration**:
 En **Authentication > Providers > Email**: en `dev_NoSoyPeterPan` conviene
 desactivar *Confirm email* para poder probar el alta sin salir del navegador.
 En `prod_NoSoyPeterPan` se deja activado.
+
+## Como se usan las claves
+
+| Clave | Donde vive | Por que |
+| --- | --- | --- |
+| Project URL | Vercel y Railway | publica |
+| `anon` / publishable | Vercel y Railway | publica, la protege RLS |
+| `service_role` / secret | **solo Railway** | salta RLS, jamas al navegador |
+
+## Al crear tablas nuevas
+
+Toda tabla del dominio lleva RLS activo y politicas por `auth.uid()`, como
+`perfiles` en `0001`. Sin RLS, la anon key deja leer todo a cualquiera.
