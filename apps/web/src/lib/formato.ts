@@ -1,4 +1,4 @@
-import { leePlazo, type LecturaPlazo } from '@nspp/shared';
+import { leePlazo, type DiasPlazo, type LecturaPlazo } from '@nspp/shared';
 
 const FECHA_LARGA = new Intl.DateTimeFormat('es', { month: 'short', year: 'numeric' });
 const FECHA_CORTA = new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short' });
@@ -7,7 +7,6 @@ const FECHA_CORTA = new Intl.DateTimeFormat('es', { day: 'numeric', month: 'shor
 export const NOMBRE_PLAZO: Record<LecturaPlazo, string> = {
   sin_fecha: 'sin fecha',
   vencido: 'vencido',
-  semana: 'esta semana',
   corto: 'corto plazo',
   mediano: 'mediano plazo',
   largo: 'largo plazo',
@@ -17,17 +16,15 @@ export const NOMBRE_PLAZO: Record<LecturaPlazo, string> = {
  * Texto de la fecha de un objetivo. Lo lejano se dice por mes y ano; lo
  * cercano por dia, que es lo unico que importa cuando falta poco.
  */
-export function textoFecha(venceEl: string | null, ahora = new Date()): string {
+export function textoFecha(venceEl: string | null, dias?: DiasPlazo, ahora = new Date()): string {
   if (!venceEl) return 'sin fecha';
 
   const fecha = new Date(`${venceEl}T00:00:00`);
-  const lectura = leePlazo(venceEl, ahora);
+  const lectura = leePlazo(venceEl, dias, ahora);
   const hoy = ahora.toISOString().slice(0, 10);
 
   if (venceEl === hoy) return 'hoy';
-  if (lectura === 'vencido' || lectura === 'semana' || lectura === 'corto') {
-    return FECHA_CORTA.format(fecha);
-  }
+  if (lectura === 'vencido' || lectura === 'corto') return FECHA_CORTA.format(fecha);
   return FECHA_LARGA.format(fecha);
 }
 

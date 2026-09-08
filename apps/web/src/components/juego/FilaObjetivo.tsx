@@ -1,4 +1,4 @@
-import { progreso, type Categoria, type NodoObjetivo } from '@nspp/shared';
+import { progreso, type Categoria, type DiasPlazo, type NodoObjetivo } from '@nspp/shared';
 import Link from 'next/link';
 import { Barra, Punto } from '@/components/juego/Barra';
 import { Casilla } from '@/components/juego/Casilla';
@@ -13,11 +13,13 @@ export function FilaObjetivo({
   nodo,
   categoria,
   contexto,
+  dias,
 }: {
   nodo: NodoObjetivo;
   categoria: Categoria | undefined;
   /** De donde cuelga. Se muestra en Hoy, donde se mezclan arboles distintos. */
   contexto?: string;
+  dias?: DiasPlazo;
 }) {
   const color = categoria?.color ?? '#71717a';
   const hoja = nodo.hijos.length === 0;
@@ -45,7 +47,7 @@ export function FilaObjetivo({
         </span>
 
         <span className="mt-1 flex items-center gap-2 text-xs text-humo">
-          <span className={sinFecha ? 'text-humo/70 italic' : ''}>{textoFecha(nodo.venceEl)}</span>
+          <span className={sinFecha ? 'text-humo/70 italic' : ''}>{textoFecha(nodo.venceEl, dias)}</span>
           {contexto && (
             <>
               <span aria-hidden>·</span>

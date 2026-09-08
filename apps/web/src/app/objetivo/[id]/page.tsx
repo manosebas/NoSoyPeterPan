@@ -83,7 +83,9 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
         </div>
 
         <p className="mt-2 flex items-center gap-2 text-sm text-humo">
-          <span className={nodo.venceEl === null ? 'italic' : ''}>{textoFecha(nodo.venceEl)}</span>
+          <span className={nodo.venceEl === null ? 'italic' : ''}>
+            {textoFecha(nodo.venceEl, juego.plazos)}
+          </span>
           <span aria-hidden>·</span>
           <span>{categoria?.nombre}</span>
           {nodo.suelto && (
@@ -106,7 +108,12 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
         {nodo.hijos.length > 0 && (
           <ul className="mt-8">
             {nodo.hijos.map((hijo) => (
-              <FilaObjetivo key={hijo.id} nodo={hijo} categoria={categorias.get(hijo.categoriaId)} />
+              <FilaObjetivo
+                key={hijo.id}
+                nodo={hijo}
+                categoria={categorias.get(hijo.categoriaId)}
+                dias={juego.plazos}
+              />
             ))}
           </ul>
         )}
@@ -120,6 +127,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
               categoriaHeredada={nodo.categoriaId}
               categorias={juego.categorias}
               profundidad={nodo.profundidad + 1}
+              dias={juego.plazos}
               etiqueta={hoja ? 'partir esto en pasos' : 'otro paso'}
             />
           ) : (
@@ -137,6 +145,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
             padreVenceEl={padre?.venceEl ?? null}
             tieneHijos={!hoja}
             categorias={juego.categorias}
+            dias={juego.plazos}
             volverA={volverA}
           />
         </div>

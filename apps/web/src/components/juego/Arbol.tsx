@@ -1,4 +1,4 @@
-import { progreso, type Categoria, type NodoObjetivo } from '@nspp/shared';
+import { progreso, type Categoria, type DiasPlazo, type NodoObjetivo } from '@nspp/shared';
 import Link from 'next/link';
 import { Barra } from '@/components/juego/Barra';
 import { textoFecha } from '@/lib/formato';
@@ -10,10 +10,12 @@ import { textoFecha } from '@/lib/formato';
 export function Arbol({
   nodos,
   categorias,
+  dias,
   nivel = 0,
 }: {
   nodos: NodoObjetivo[];
   categorias: Map<string, Categoria>;
+  dias?: DiasPlazo;
   nivel?: number;
 }) {
   return (
@@ -53,11 +55,18 @@ export function Arbol({
                   nodo.venceEl === null ? 'italic text-humo/70' : 'text-humo'
                 }`}
               >
-                {textoFecha(nodo.venceEl)}
+                {textoFecha(nodo.venceEl, dias)}
               </span>
             </Link>
 
-            {!hoja && <Arbol nodos={nodo.hijos} categorias={categorias} nivel={nivel + 1} />}
+            {!hoja && (
+              <Arbol
+                nodos={nodo.hijos}
+                categorias={categorias}
+                dias={dias}
+                nivel={nivel + 1}
+              />
+            )}
           </li>
         );
       })}

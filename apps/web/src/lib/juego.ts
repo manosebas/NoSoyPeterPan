@@ -1,4 +1,4 @@
-import type { Categoria, Objetivo, Voto } from '@nspp/shared';
+import { DIAS_PLAZO_DEFECTO, type Categoria, type DiasPlazo, type Objetivo, type Voto } from '@nspp/shared';
 import { createClienteServidor } from '@/lib/supabase/server';
 
 /** Filas crudas: snake_case, como viven en Postgres. */
@@ -33,6 +33,8 @@ export type Juego = {
   votos: Voto[];
   /** votos_por_nivel por categoria. Sin entrada vale el valor por defecto. */
   metas: Record<string, number>;
+  /** Cuanto dura cada plazo para esta persona. */
+  plazos: DiasPlazo;
 };
 
 /**
@@ -49,7 +51,7 @@ export async function cargaJuego(): Promise<Juego | null> {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const [objetivos, categorias, votos, metas] = await Promise.all([
+  const [objetivos, categorias, votos, metas, preferencias] = await Promise.all([
     supabase.from('objetivos').select('*').order('orden').returns<FilaObjetivo[]>(),
     supabase.from('categorias').select('*').order('orden').returns<Categoria[]>(),
     supabase.from('votos').select('*').returns<FilaVoto[]>(),
@@ -57,6 +59,10 @@ export async function cargaJuego(): Promise<Juego | null> {
       .from('metas_categoria')
       .select('categoria_id, votos_por_nivel')
       .returns<{ categoria_id: string; votos_por_nivel: number }[]>(),
+    supabase
+      .from('preferencias')
+      .select('dias_largo, dias_mediano, dias_corto')
+      .maybeSingle<{ dias_largo: number; dias_mediano: number; dias_corto: number }>(),
   ]);
 
   return {
@@ -65,6 +71,13 @@ export async function cargaJuego(): Promise<Juego | null> {
     categorias: categorias.data ?? [],
     votos: (votos.data ?? []).map(aVoto),
     metas: Object.fromEntries((metas.data ?? []).map((m) => [m.categoria_id, m.votos_por_nivel])),
+    plazos: preferencias.data
+      ? {
+          largo: preferencias.data.dias_largo,
+          mediano: preferencias.data.dias_mediano,
+          corto: preferencias.data.dias_corto,
+        }
+      : DIAS_PLAZO_DEFECTO,
   };
 }
 

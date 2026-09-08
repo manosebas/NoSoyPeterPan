@@ -1,18 +1,23 @@
 'use client';
 
-import { fechaDePlazo, plazoPorDefecto, PLAZOS, type Categoria, type Plazo } from '@nspp/shared';
+import {
+  fechaDePlazo,
+  plazoPorDefecto,
+  PLAZOS,
+  type Categoria,
+  type DiasPlazo,
+  type Plazo,
+} from '@nspp/shared';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { creaObjetivo, mensajeError } from '@/lib/acciones';
 
-type Eleccion = Plazo | 'sin_fecha';
-
 /**
- * Alta de un objetivo. Sirve para las tres cosas que se crean: una raiz nueva,
- * el desglose de un objetivo y algo suelto del dia.
+ * Alta de un objetivo. Sirve para las tres cosas que se crean: una raiz nueva
+ * en el mapa, el desglose de un objetivo y algo suelto del dia.
  *
- * El plazo llega elegido segun la altura del arbol, porque mientras mas abajo
- * mas cerca esta la fecha. Se puede cambiar siempre.
+ * Cuando la seccion ya dice el plazo (el mapa lo dice), no se vuelve a
+ * preguntar: llega en `plazoFijo` y solo se escribe el titulo y la rama.
  */
 export function NuevoObjetivo({
   usuarioId,
@@ -21,6 +26,8 @@ export function NuevoObjetivo({
   categoriaHeredada,
   categorias,
   profundidad,
+  dias,
+  plazoFijo,
   suelto = false,
   etiqueta,
   abiertoAlInicio = false,
@@ -31,6 +38,8 @@ export function NuevoObjetivo({
   categoriaHeredada?: string;
   categorias: Categoria[];
   profundidad: number;
+  dias: DiasPlazo;
+  plazoFijo?: Plazo;
   suelto?: boolean;
   etiqueta: string;
   abiertoAlInicio?: boolean;
@@ -38,16 +47,15 @@ export function NuevoObjetivo({
   const router = useRouter();
   const [abierto, setAbierto] = useState(abiertoAlInicio);
   const [titulo, setTitulo] = useState('');
-  const [plazo, setPlazo] = useState<Eleccion>(suelto ? 'semana' : plazoPorDefecto(profundidad));
+  const [plazo, setPlazo] = useState<Plazo>(plazoFijo ?? plazoPorDefecto(profundidad));
   const [categoriaId, setCategoriaId] = useState(categoriaHeredada ?? categorias[0]?.id ?? 'salud');
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function fechaElegida(): string | null {
-    if (plazo === 'sin_fecha') return null;
+  function fechaElegida(): string {
     if (suelto) return new Date().toISOString().slice(0, 10);
 
-    const propuesta = fechaDePlazo(plazo);
+    const propuesta = fechaDePlazo(plazoFijo ?? plazo, dias);
     // Un paso no puede vencer despues del objetivo del que cuelga: la base lo
     // rechaza, asi que aqui se recorta antes de que sea un error.
     return padreVenceEl && propuesta > padreVenceEl ? padreVenceEl : propuesta;
@@ -125,13 +133,13 @@ export function NuevoObjetivo({
         </div>
       )}
 
-      {!suelto && (
+      {!suelto && !plazoFijo && (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {[...PLAZOS, { clave: 'sin_fecha' as const, etiqueta: 'Sin fecha' }].map((p) => (
+          {PLAZOS.map((p) => (
             <button
               key={p.clave}
               type="button"
-              onClick={() => setPlazo(p.clave as Eleccion)}
+              onClick={() => setPlazo(p.clave)}
               className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                 plazo === p.clave
                   ? 'border-tinta text-tinta'

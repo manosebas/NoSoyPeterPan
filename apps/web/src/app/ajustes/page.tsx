@@ -3,6 +3,7 @@ import { Cabecera } from '@/components/Cabecera';
 import { FormularioAjustes } from '@/components/FormularioAjustes';
 import { FormularioPerfil } from '@/components/FormularioPerfil';
 import { MetasCategoria } from '@/components/juego/MetasCategoria';
+import { PlazosPorDefecto } from '@/components/juego/PlazosPorDefecto';
 import { cargaJuego } from '@/lib/juego';
 import { iniciales, nombreVisible, obtenerSesionConPerfil } from '@/lib/perfil';
 
@@ -28,10 +29,20 @@ export default async function AjustesPagina() {
             En qué nivel juegas la vida
           </h2>
           <p className="mt-3 text-sm text-humo">
-            Cuántos objetivos cumplidos llenan la barra de una rama y la suben de nivel. Al gimnasio
-            se va todos los días; de trabajo no se cambia todos los días.
+            Cuánto dura cada plazo para ti y cuántos objetivos cumplidos hacen crecer una rama. Al
+            gimnasio se va todos los días; de trabajo no se cambia todos los días.
           </p>
-          <div className="mt-4">
+          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-humo">
+            Cuánto dura cada plazo
+          </p>
+          <div className="mt-3">
+            <PlazosPorDefecto usuarioId={juego.usuarioId} plazos={juego.plazos} />
+          </div>
+
+          <p className="mt-10 text-xs font-semibold uppercase tracking-[0.16em] text-humo">
+            Cuántos votos llenan cada rama
+          </p>
+          <div className="mt-3">
             <MetasCategoria
               usuarioId={juego.usuarioId}
               categorias={juego.categorias}

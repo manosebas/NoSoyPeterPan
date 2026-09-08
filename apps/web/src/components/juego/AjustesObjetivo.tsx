@@ -1,6 +1,13 @@
 'use client';
 
-import { fechaDePlazo, PLAZOS, type Categoria, type Plazo } from '@nspp/shared';
+import {
+  fechaDePlazo,
+  leePlazo,
+  PLAZOS,
+  type Categoria,
+  type DiasPlazo,
+  type Plazo,
+} from '@nspp/shared';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { actualizaObjetivo, borraObjetivo, mensajeError } from '@/lib/acciones';
@@ -17,6 +24,7 @@ export function AjustesObjetivo({
   padreVenceEl,
   tieneHijos,
   categorias,
+  dias,
   volverA,
 }: {
   id: string;
@@ -25,6 +33,7 @@ export function AjustesObjetivo({
   padreVenceEl: string | null;
   tieneHijos: boolean;
   categorias: Categoria[];
+  dias: DiasPlazo;
   volverA: string;
 }) {
   const router = useRouter();
@@ -45,11 +54,9 @@ export function AjustesObjetivo({
     }
   }
 
-  function cambiaPlazo(plazo: Plazo | 'sin_fecha') {
-    if (plazo === 'sin_fecha') return corre(() => actualizaObjetivo(id, { venceEl: null }));
-
+  function cambiaPlazo(plazo: Plazo) {
     // La base rechaza un paso que vence despues de su objetivo: se recorta antes.
-    const propuesta = fechaDePlazo(plazo);
+    const propuesta = fechaDePlazo(plazo, dias);
     const fecha = padreVenceEl && propuesta > padreVenceEl ? padreVenceEl : propuesta;
     return corre(() => actualizaObjetivo(id, { venceEl: fecha }));
   }
@@ -113,14 +120,14 @@ export function AjustesObjetivo({
 
       <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-humo">Para cuándo</p>
       <div className="mt-2 flex flex-wrap gap-1.5">
-        {[...PLAZOS, { clave: 'sin_fecha' as const, etiqueta: 'Sin fecha' }].map((p) => (
+        {PLAZOS.map((p) => (
           <button
             key={p.clave}
             type="button"
             disabled={ocupado}
-            onClick={() => cambiaPlazo(p.clave as Plazo | 'sin_fecha')}
+            onClick={() => cambiaPlazo(p.clave)}
             className={`rounded-full border px-3 py-1 text-xs transition-colors disabled:opacity-40 ${
-              (p.clave === 'sin_fecha') === (venceEl === null)
+              leePlazo(venceEl, dias) === p.clave
                 ? 'border-tinta text-tinta'
                 : 'border-linea text-humo hover:text-tinta'
             }`}

@@ -178,18 +178,22 @@ pantalla. Lo que tiene desglose muestra `› n`; lo que no, muestra casilla.
 
 ### Mapa — todo
 
-La cascada completa, agrupada por rama. Solo lectura: aquí se entiende, no se
-marca.
+Tres secciones, una por plazo, cada una con su botón de agregar. Solo se listan
+**raíces**: lo que cuelga de un objetivo se ve dentro de su árbol, nunca
+repetido arriba. Lo vencido se lee como corto plazo, que es lo que reclama
+atención; lo que quedó sin fecha, como largo.
 
 ```
-SALUD  ████████░░  Nivel 2 · 42 votos
+LARGO PLAZO                                         2
 
-  Correr un maratón                    dic 2029
-  ├── 10K en junio          ██████░░  3 de 5
-  │   ├── ☑ Zapatillas nuevas
-  │   ├── ☑ Plan de 12 semanas
-  │   └── ☐ Correr 3 veces esta semana
-  └── Media maratón en marzo  ░░░░░░  0 de 4
+  SALUD
+  ▸ Correr un maratón        ██████░░  3 de 5   dic 2031
+    ├── ▸ 10K en junio       ████░░░░  2 de 4    jun 2027
+    │   ├── ☑ Zapatillas nuevas                  12 mar
+    │   └── ☐ Plan de 12 semanas                 20 mar
+    └── ☐ Media maratón en marzo                 mar 2028
+
+  + agrega un objetivo de largo plazo
 ```
 
 ### Perfil — la suma

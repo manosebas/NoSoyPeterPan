@@ -62,6 +62,23 @@ export async function borraObjetivo(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function guardaPlazos(
+  usuarioId: string,
+  dias: { largo: number; mediano: number; corto: number },
+): Promise<void> {
+  const supabase = createClienteNavegador();
+  const { error } = await supabase.from('preferencias').upsert(
+    {
+      usuario_id: usuarioId,
+      dias_largo: dias.largo,
+      dias_mediano: dias.mediano,
+      dias_corto: dias.corto,
+    },
+    { onConflict: 'usuario_id' },
+  );
+  if (error) throw error;
+}
+
 export async function guardaMeta(
   usuarioId: string,
   categoriaId: string,

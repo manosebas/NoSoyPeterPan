@@ -86,6 +86,7 @@ export default async function Hoy() {
                       nodo={nodo}
                       categoria={categorias.get(nodo.categoriaId)}
                       contexto={contexto ?? undefined}
+                      dias={juego.plazos}
                     />
                   ))}
                 </ul>
@@ -103,6 +104,7 @@ export default async function Hoy() {
                       key={nodo.id}
                       nodo={nodo}
                       categoria={categorias.get(nodo.categoriaId)}
+                      dias={juego.plazos}
                     />
                   ))}
                 </ul>
@@ -116,6 +118,7 @@ export default async function Hoy() {
                   padreId={null}
                   categorias={juego.categorias}
                   profundidad={0}
+                  dias={juego.plazos}
                   suelto
                   etiqueta="algo de hoy"
                 />
