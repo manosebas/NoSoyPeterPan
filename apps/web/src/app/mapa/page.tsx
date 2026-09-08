@@ -16,6 +16,11 @@ export default async function Mapa() {
   // El middleware ya protege esta ruta; esto cubre el caso de carrera.
   if (!user) redirect('/entrar?siguiente=/mapa');
 
+  // Vercel expone estas dos en build. Sirven para saber que version estas viendo
+  // cuando prod y preview se parecen demasiado.
+  const ambiente = process.env.VERCEL_ENV ?? 'sin ambiente';
+  const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'sin commit';
+
   return (
     <div className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-10">
       <header className="flex items-center justify-between border-b border-linea pb-6">
@@ -49,6 +54,9 @@ export default async function Mapa() {
           <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
             Diagnóstico
           </h2>
+          <p className="mt-4 font-mono text-xs text-humo">
+            {ambiente} · {commit}
+          </p>
           <div className="mt-4">
             <PruebaApi />
           </div>
