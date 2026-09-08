@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
+import { Cabecera } from '@/components/Cabecera';
 import { PruebaApi } from '@/components/PruebaApi';
-import { createClienteServidor } from '@/lib/supabase/server';
+import { obtenerSesionConPerfil } from '@/lib/perfil';
 
 // Depende de la sesión del usuario: nunca se prerenderiza en build.
 export const dynamic = 'force-dynamic';
@@ -8,13 +9,10 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'El Mapa — No Soy Peter Pan' };
 
 export default async function Mapa() {
-  const supabase = await createClienteServidor();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const sesion = await obtenerSesionConPerfil();
 
   // El middleware ya protege esta ruta; esto cubre el caso de carrera.
-  if (!user) redirect('/entrar?siguiente=/mapa');
+  if (!sesion) redirect('/entrar?siguiente=/mapa');
 
   // Vercel expone estas dos en build. Sirven para saber que version estas viendo
   // cuando prod y preview se parecen demasiado.
@@ -23,20 +21,7 @@ export default async function Mapa() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-10">
-      <header className="flex items-center justify-between border-b border-linea pb-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">El Mapa</h1>
-          <p className="mt-1 text-sm text-humo">{user.email}</p>
-        </div>
-        <form action="/auth/salir" method="post">
-          <button
-            type="submit"
-            className="rounded-full border border-linea px-5 py-2 text-sm font-medium text-humo transition-colors hover:border-tinta hover:text-tinta"
-          >
-            Salir
-          </button>
-        </form>
-      </header>
+      <Cabecera sesion={sesion} titulo="El Mapa" />
 
       <main className="flex-1 space-y-12 py-10">
         <section>
