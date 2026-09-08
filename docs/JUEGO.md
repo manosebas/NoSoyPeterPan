@@ -11,7 +11,7 @@ Un objetivo grande se parte en objetivos más chicos. Esos se vuelven a partir.
 Se sigue partiendo hasta llegar a algo que se pueda hacer.
 
 ```
-Cambiar de carrera                    4 años
+Cambiar de carrera                    3 años
   └ Portafolio que valga                1 año
       └ Tres casos escritos              90 días
           └ Elegir los tres proyectos     esta semana
@@ -30,7 +30,7 @@ subiendo por el árbol.
 
 ## 2. Qué se guarda
 
-Cuatro tablas. Una es catálogo, dos son del usuario y una es historia.
+Seis tablas. Una es catálogo, cuatro son del usuario y una es historia.
 
 ### `objetivos` — el árbol
 
@@ -45,7 +45,7 @@ Se apunta a sí misma por `padre_id`.
 | `detalle` | Opcional. El porqué, si quiere dejarlo escrito. |
 | `vence_el` | Fecha. `null` = vive en Nunca Jamás. |
 | `completado_en` | Cuándo se marcó. Solo lo llevan las hojas. |
-| `orden` | Orden manual dentro de su nivel. |
+| `orden` | Orden manual dentro de su nivel. Todavía sin UI. |
 | `profundidad` | Derivada del padre. Topa el desglose en 6 niveles. |
 
 Las reglas viven en la base, no en la UI, porque la anon key viaja al navegador
@@ -65,9 +65,10 @@ y cualquiera puede llamar a la API a mano:
 ### `categorias` — catálogo
 
 `id` (slug), `nombre`, `color`, `orden`. Las mismas filas para todo el mundo,
-sin dueño: es un catálogo, no datos de usuario. Diez de semilla — salud, dinero,
-carrera, relaciones, mente, aventura, familia, hogar, aprendizaje,
-espiritualidad. Agregar una es una fila de SQL, no un despliegue.
+sin dueño: es un catálogo, no datos de usuario, y por eso solo tiene política de
+lectura. Diez de semilla — salud, dinero, carrera, relaciones, mente, aventura,
+familia, hogar, aprendizaje, espiritualidad. Agregar una es una fila de SQL, no
+un despliegue.
 
 ### `votos` — la historia
 
@@ -87,13 +88,16 @@ padre y sin `completado_en`, porque marcar un to-do es borrar la fila.
 
 Vive fuera de `objetivos` a propósito. Si «sacar la basura» emitiera voto,
 pesaría lo mismo que «terminar el portafolio», y la fuerza de una rama dejaría
-de significar algo. Un to-do no construye nada: existe para que la cabeza lo
-suelte.
+de significar algo.
 
 ### `metas_categoria` — cómo sube tu barra
 
-`votos_por_nivel` por usuario y rama. Es lo único de esto que se edita en
-Ajustes. Sin fila, valen 30.
+`votos_por_nivel` por usuario y rama. Sin fila, valen 30.
+
+### `preferencias` — cuánto dura cada plazo
+
+`dias_largo`, `dias_mediano`, `dias_corto` por usuario, con un `check` que exige
+largo > mediano > corto. Sin fila, valen 1095, 365 y 90.
 
 ### Por qué el progreso de un objetivo no se guarda
 
@@ -111,15 +115,41 @@ que uno con dos, que es la verdad.
 
 ---
 
-## 3. La fuerza de una rama
+## 3. Los plazos
+
+Cuatro, más la ausencia de fecha. `vence_el` es el dato real; el plazo solo
+decide qué día se propone al crear y en qué sección del Mapa cae después.
+
+| Plazo | Dura | ¿Se configura? |
+|---|---|---|
+| Largo | 3 años | sí |
+| Mediano | 1 año | sí |
+| Corto | 90 días | sí |
+| Esta semana | 7 días | no |
+| Sin fecha | — | es Nunca Jamás |
+
+Los tres primeros los ajusta cada persona en Ajustes, porque largo plazo no
+significa lo mismo para todos. Una semana son siete días para todo el mundo.
+
+Al crear, el plazo llega elegido según la altura: raíz → largo, primer desglose
+→ mediano, después corto, más abajo esta semana. Si la fecha propuesta se pasa
+de la del padre, se recorta a la del padre antes de mandarla — la base la
+rechazaría, y un error en la cara por algo que el producto puede resolver solo
+es mal producto.
+
+Cambiar las duraciones no mueve ninguna fecha ya escrita.
+
+---
+
+## 4. La fuerza de una rama
 
 Aquí el progreso **no** es un porcentaje de completado, y es a propósito: si la
 fuerza de *salud* fuera *cumplidas / totales*, el día que te propones algo nuevo
 tu rama se debilitaría. El producto castigaría la ambición.
 
 ```
-nivel    = ⌊ votos / votos_por_nivel ⌋ + 1
-barra    = (votos módulo votos_por_nivel) / votos_por_nivel
+nivel = ⌊ votos / votos_por_nivel ⌋ + 1
+barra = (votos módulo votos_por_nivel) / votos_por_nivel
 ```
 
 La barra empieza en cero, sube con cada objetivo cumplido y al llenarse pasa de
@@ -134,7 +164,7 @@ Eso es la regla 7: se dice sin humillar y sin maquillar.
 
 ---
 
-## 4. Los to-do del día
+## 5. Los to-do del día
 
 «Sacar la basura» no cuelga de ningún objetivo grande y nunca va a colgar. La
 regla 1 dice que ninguna *misión* es huérfana, y se sostiene: en `objetivos`
@@ -147,79 +177,81 @@ dejan rastro en ninguna barra.
 
 ---
 
-## 5. Cómo se ve
+## 6. Cómo se ve
 
-Cuatro pantallas sobre el mismo árbol, a distinto zoom. Nada se guarda dos
-veces. Tres viven en la barra —Hoy, Mapa y Perfil—; a la cuarta se entra
-tocando un objetivo.
+Todas las pantallas con sesión pasan por `<Pagina>`: una sola medida (1152 px) y
+el mismo padding, para que la barra superior no baile entre rutas. En desktop
+cada una reparte ese ancho en columnas en vez de estirar una sola.
 
 ### Hoy — el nivel de las hojas
 
-Entrada de la app, en dos secciones. Arriba, *De tus objetivos*: lo que vence
-hoy o antes de cualquier árbol, cada línea con el color de su rama y, en letra
-chica, la meta de la que cuelga — nunca marcas algo sin ver para qué. Abajo,
-*To-do*: lo que hay que hacer y no construye nada. Se escribe en una línea, se
-marca, se borra.
+Entrada de la app, en dos columnas. A la izquierda *De tus objetivos*: lo que
+vence hoy o antes de cualquier árbol, cada línea con el color de su rama y, en
+letra chica, la meta de la que cuelga — nunca marcas algo sin ver para qué. A la
+derecha *To-do*: se escribe en una línea, se marca, desaparece.
 
-### Enfoque — un nodo
+### La pantalla de un objetivo — un nodo
 
-Un objetivo a la vez. La pantalla nunca crece aunque el árbol tenga seis niveles.
+Migas hasta la raíz, «volver al mapa», el título con su casilla si es hoja, y el
+desglose. A un lado, la ficha: barra, progreso, para cuándo, plazo con su
+duración y rama. El engranaje de arriba a la derecha abre lo que se puede
+cambiar —rama, fecha— y el borrado, que pide confirmación en su propio modal.
 
-```
-El Norte › Cambiar de carrera › Portafolio que valga
+Solo las hojas tienen casilla. Esa diferencia visual es toda la explicación que
+necesita la regla: se marca lo que ya no se puede partir.
 
-Portafolio que valga                          1 año · marzo 2027
-████████████░░░░░░░░░░░░  50%
-2 de 4 pasos
+### Mapa — todo, en tres modos
 
-  ☑  Elegir los tres proyectos
-  ☐  Escribir los casos                              › 2
-  ☑  Comprar el dominio
-  ☐  Publicar el sitio                        sin fecha
+El botón «Agregar objetivo» abre un modal con título, rama y plazo; cada plazo
+muestra su duración y la fecha exacta en que quedaría. Los tres modos son el
+mismo árbol a distinta altura, y el elegido se recuerda en el navegador:
 
-  + desglosar este objetivo
-```
+- **Cascada** — por plazo, con el desglose completo.
+- **Ramas** — por parte de tu vida, cada una con su nivel y su fuerza.
+- **Tablero** — cinco columnas, una por plazo. La única vista donde se compara
+  cuánta carga tiene cada uno.
 
-Las migas son la respuesta permanente a *"¿esto para qué?"*. Una sola barra por
-pantalla. Lo que tiene desglose muestra `› n`; lo que no, muestra casilla.
-
-### Mapa — todo
-
-Tres secciones, una por plazo, cada una con su botón de agregar. Solo se listan
-**raíces**: lo que cuelga de un objetivo se ve dentro de su árbol, nunca
-repetido arriba. Lo vencido se lee como corto plazo, que es lo que reclama
-atención; lo que quedó sin fecha, como largo.
+Cada raíz es una tarjeta con la franja de su rama a la izquierda, y el desglose
+dibuja las líneas que unen padre e hijo en ese color: sin ellas, seis niveles de
+indentación son seis márgenes que medir a ojo.
 
 ```
-LARGO PLAZO                                         2
+LARGO PLAZO  3 años                                    2
 
-  SALUD
-  ▸ Correr un maratón        ██████░░  3 de 5   dic 2031
-    ├── ▸ 10K en junio       ████░░░░  2 de 4    jun 2027
-    │   ├── ☑ Zapatillas nuevas                  12 mar
-    │   └── ☐ Plan de 12 semanas                 20 mar
-    └── ☐ Media maratón en marzo                 mar 2028
-
-  + agrega un objetivo de largo plazo
+┃ SALUD
+┃ Correr un maratón                            dic 2028
+┃ ████████░░░░░░  3 de 5 · 2 pasos
+┃ ├─ ▸ 10K en junio              2/4      jun 2027
+┃ │  ├─ ☑ Zapatillas nuevas               12 mar
+┃ │  └─ ☐ Plan de 12 semanas              20 mar
+┃ └─ ☐ Media maratón                      mar 2028
 ```
 
 ### Perfil — la suma
 
-Las ramas con su nivel, su acumulado, su estado real y lo último que
-construiste. Es la vitrina, no la configuración: lo que se ajusta vive en
-Ajustes, en tres secciones — cómo sube cada barra, tus datos y salir.
+La vitrina, no la configuración. Avatar, nombre y el total de votos; cada rama
+como tarjeta con su nivel, su barra, cuánto falta para el siguiente y su estado
+real. Abajo, lo último que construiste y las ramas sin tocar.
+
+### Ajustes — la única configuración
+
+Dos columnas y una sola pantalla, sin scroll de página: la lista de secciones a
+la izquierda y solo la abierta a la derecha. Tres secciones — *En qué nivel
+juegas la vida* (duración de los plazos y votos por nivel), *Perfil* (foto,
+nombre, correo, contraseña) y *Salir*.
 
 ### Lo que no va
 
 - Nada de rachas ni insignias (regla 5). El premio es ver la trayectoria.
-- Nada de porcentajes por todos lados. Una barra por pantalla.
+- Nada de porcentajes por todos lados. Una barra por bloque.
 - El color solo señala rama y progreso. El resto es monocromo (sección 5 de
   `CLAUDE.md`).
 
 ---
 
-## 6. Lo que falta decidir
+## 7. Lo que falta decidir
 
-- Qué se ve al entrar cuando todavía no hay ningún objetivo.
 - Cómo se ve La Sombra: el costo acumulado de lo que lleva meses sin fecha.
-- Si «adoptar» un objetivo suelto se ofrece solo o hay que buscarlo.
+- Si «Sin fecha» debe mostrar cuánto lleva esperando cada objetivo.
+- Cómo se reordena y se renombra un objetivo: `orden` existe en la tabla pero
+  la interfaz todavía no lo mueve.

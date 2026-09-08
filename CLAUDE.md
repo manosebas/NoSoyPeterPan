@@ -121,19 +121,21 @@ Es la vara para medir tono y decisiones. Si un copy o una feature suena tibio, c
 
 Plataforma web donde la gente entra a organizar sus objetivos y cumplirlos. Ese es el core; todo lo demás es secundario hasta nuevo aviso.
 
-**Estado actual**: base desplegada y verificada de punta a punta (2026-09-08). Landing, autenticación con Supabase (alta con nombre, ingreso, sesión en cookies), ruta protegida `/mapa`, perfil con foto en Storage, ajustes de cuenta y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
+**Estado actual** (2026-09-08): el juego está jugable de punta a punta. Se crean objetivos, se desglosan hasta seis niveles, se marcan las hojas y cada marca emite un voto que hace crecer su rama.
 
-El juego está jugable: se crean objetivos, se desglosan hasta seis niveles, se marcan las hojas y cada marca emite un voto que hace crecer su rama. Cuatro pantallas sobre el mismo árbol — Hoy, Mapa, Ramas y la de un objetivo — más Perfil y Ajustes. Modelo en `supabase/migrations/0003_objetivos.sql` y `0004_categorias_votos.sql`; el detalle vive en `docs/JUEGO.md`.
+Cuatro pantallas con sesión: **Hoy** (lo que vence del árbol, más los to-do), **Mapa** (tres modos de vista: cascada, ramas y tablero), **Perfil** (la vitrina de fortalezas) y la de **un objetivo**; más **Ajustes** en dos columnas. Autenticación con Supabase, foto de perfil en Storage y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
+
+Migraciones `0001` a `0007`, todas aplicadas en `dev_NoSoyPeterPan`. En `prod_NoSoyPeterPan` solo están `0001`–`0004`: falta correr `0005` y `0007`. El detalle del modelo vive en `docs/JUEGO.md`.
 
 ### Próximos pasos
 
 1. **La Sombra** — el costo acumulado de lo que lleva meses sin fecha. La sección «Sin fecha» del Mapa ya los junta, pero todavía no pesan.
-2. **Reordenar y renombrar** — `orden` existe en la tabla pero la UI todavía no lo mueve.
-3. **Nunca Jamás con antigüedad** — cuánto lleva esperando cada objetivo sin fecha.
+2. **Nunca Jamás con antigüedad** — cuánto lleva esperando cada objetivo sin fecha.
+3. **Reordenar y renombrar** — `orden` existe en la tabla pero la UI todavía no lo mueve, y un objetivo no se puede renombrar sin borrarlo.
+4. **Poner `prod` al día** — correr `0005` y `0007` cuando se libere a `main`.
 
 ### Decisiones pendientes
 
-- [ ] Qué se ve al entrar cuando todavía no hay ningún Norte
 - [ ] Cómo se muestra La Sombra
 - [ ] Web-only o también móvil
 - [ ] Modelo de negocio
@@ -144,6 +146,9 @@ El juego está jugable: se crean objetivos, se desglosan hasta seis niveles, se 
 - `.github/workflows/ci.yml` existe en disco pero sin commitear: el token de GitHub no tiene scope `workflow`. Se habilita con `gh auth refresh -h github.com -s workflow`.
 - `sharp <0.35` marcado *high* por auditoría. Llega como transitiva de Next; no se fuerza porque un salto de minor en 0.x puede romper la optimización de imágenes, y en Vercel el runtime usa su propio `sharp`.
 - El repo es público. Con la política de cero secretos no hay exposición, pero conviene tenerlo presente.
+- Un despliegue de Vercel falló el 2026-09-08 y el log nunca se revisó; los builds posteriores desde la raíz compilan limpio. Si vuelve a pasar, guardar el log antes de tocar nada.
+- `.mcp.json` (servidores MCP de Supabase dev y prod) está en `.gitignore` porque lleva un access token de management. El flag `--read-only` lo respeta el servidor MCP, no el token: si sale de la máquina, hay que rotarlo.
+- `pnpm build` desde `apps/web` corre solo `next build` y no reconstruye `@nspp/shared`: los tipos quedan viejos y salen errores fantasma. Siempre desde la raíz.
 
 ---
 
