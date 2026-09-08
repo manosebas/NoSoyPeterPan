@@ -9,6 +9,28 @@
 
 Todo cambio va a `dev`. `main` solo se actualiza cuando se pide explicitamente.
 
+## Dominios
+
+| Servicio | dev | prod |
+| --- | --- | --- |
+| Frontend | `dev-nosoypeterpan.vercel.app` | `nosoypeterpan.vercel.app` |
+| API | `nosoypeterpan-dev.up.railway.app` | `nosoypeterpan-production.up.railway.app` |
+| Supabase | `dev_NoSoyPeterPan` | `prod_NoSoyPeterPan` |
+
+Verificado de punta a punta el 2026-09-08: `/mapa` > "Probar conexion con el
+API" devuelve 200 con el id del usuario en los dos ambientes.
+
+## Detalle: Vercel salta builds por ruta
+
+Con Root Directory en `apps/web`, Vercel ignora los pushes que no tocan esa
+carpeta. Eso dejaba fuera `packages/shared`, del que el frontend si depende, y
+tambien los commits vacios. `apps/web/vercel.json` fuerza el build en cada push
+con `ignoreCommand: "exit 1"`.
+
+Otro detalle: si `dev` y `main` apuntan al mismo commit, Vercel reusa el
+deployment y una de las dos ramas no construye. Para forzar los dos, cada rama
+necesita su propio commit.
+
 ## Vercel (frontend)
 
 Al importar el repo:

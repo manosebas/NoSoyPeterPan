@@ -119,7 +119,9 @@ Es la vara para medir tono y decisiones. Si un copy o una feature suena tibio, c
 
 Plataforma web donde la gente entra a organizar sus objetivos y cumplirlos. Ese es el core; todo lo demás es secundario hasta nuevo aviso.
 
-**Estado actual**: base del monorepo lista. Landing, autenticación con Supabase (alta, ingreso, sesión en cookies) y ruta protegida `/mapa`. El dominio del juego está tipado en `packages/shared` pero todavía no implementado.
+**Estado actual**: base desplegada y verificada de punta a punta (2026-09-08). Landing, autenticación con Supabase (alta, ingreso, sesión en cookies), ruta protegida `/mapa` y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
+
+Lo que falta es el producto: el dominio del juego está tipado en `packages/shared` pero no implementado. No existe todavía ninguna tabla de Norte, Rutas, Misiones ni Nunca Jamás.
 
 ### Decisiones pendientes
 
