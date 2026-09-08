@@ -57,17 +57,30 @@ export interface NodoObjetivo extends Objetivo {
 }
 
 /**
- * Plazos que se ofrecen al crear. La fecha es el dato real; el plazo solo
- * decide que dia se propone por defecto y como se lee despues.
+ * Los plazos del juego. `semana` dura siempre siete dias; los otros tres los
+ * ajusta cada persona en Ajustes, porque largo plazo no significa lo mismo
+ * para todos.
  */
 export const PLAZOS = [
-  { clave: 'largo', etiqueta: 'Largo plazo', dias: 1460 },
-  { clave: 'mediano', etiqueta: 'Mediano plazo', dias: 365 },
-  { clave: 'corto', etiqueta: 'Corto plazo', dias: 90 },
-  { clave: 'semana', etiqueta: 'Esta semana', dias: 7 },
+  { clave: 'largo', etiqueta: 'Largo plazo' },
+  { clave: 'mediano', etiqueta: 'Mediano plazo' },
+  { clave: 'corto', etiqueta: 'Corto plazo' },
+  { clave: 'semana', etiqueta: 'Esta semana' },
 ] as const;
 
 export type Plazo = (typeof PLAZOS)[number]['clave'];
+
+/** Los tres que se configuran. `semana` no: una semana son siete dias. */
+export type PlazoConfigurable = 'largo' | 'mediano' | 'corto';
+export type DiasPlazo = Record<PlazoConfigurable, number>;
+
+export const DIAS_SEMANA = 7;
+export const DIAS_PLAZO_DEFECTO: DiasPlazo = { largo: 1095, mediano: 365, corto: 90 };
+
+/** Cuantos dias dura un plazo para esta persona. */
+export function diasDe(plazo: Plazo, dias: DiasPlazo = DIAS_PLAZO_DEFECTO): number {
+  return plazo === 'semana' ? DIAS_SEMANA : dias[plazo];
+}
 
 /** Mientras mas abajo en el arbol, mas cerca la fecha que se propone. */
 export function plazoPorDefecto(profundidad: number): Plazo {
@@ -78,24 +91,48 @@ export function plazoPorDefecto(profundidad: number): Plazo {
 }
 
 /** Fecha propuesta, en formato `YYYY-MM-DD` para la columna `date`. */
-export function fechaDePlazo(plazo: Plazo, hoy = new Date()): string {
-  const dias = PLAZOS.find((p) => p.clave === plazo)?.dias ?? 90;
-  const fecha = new Date(hoy.getTime() + dias * 86_400_000);
+export function fechaDePlazo(
+  plazo: Plazo,
+  dias: DiasPlazo = DIAS_PLAZO_DEFECTO,
+  hoy = new Date(),
+): string {
+  const fecha = new Date(hoy.getTime() + diasDe(plazo, dias) * 86_400_000);
   return fecha.toISOString().slice(0, 10);
 }
 
 export type LecturaPlazo = 'sin_fecha' | 'vencido' | Plazo;
 
 /** Como se lee una fecha ya guardada: el plazo se deduce, no se clasifica. */
-export function leePlazo(venceEl: string | null, hoy = new Date()): LecturaPlazo {
+export function leePlazo(
+  venceEl: string | null,
+  dias: DiasPlazo = DIAS_PLAZO_DEFECTO,
+  hoy = new Date(),
+): LecturaPlazo {
   if (!venceEl) return 'sin_fecha';
 
-  const dias = Math.ceil((new Date(`${venceEl}T00:00:00Z`).getTime() - hoy.getTime()) / 86_400_000);
-  if (dias < 0) return 'vencido';
-  if (dias <= 7) return 'semana';
-  if (dias <= 90) return 'corto';
-  if (dias <= 365) return 'mediano';
+  const faltan = Math.ceil(
+    (new Date(`${venceEl}T00:00:00Z`).getTime() - hoy.getTime()) / 86_400_000,
+  );
+  if (faltan < 0) return 'vencido';
+  if (faltan <= DIAS_SEMANA) return 'semana';
+  if (faltan <= dias.corto) return 'corto';
+  if (faltan <= dias.mediano) return 'mediano';
   return 'largo';
+}
+
+/** Cuanto dura un plazo, dicho como lo diria una persona: "3 anos", "90 dias". */
+export function textoDuracion(plazo: Plazo, dias: DiasPlazo = DIAS_PLAZO_DEFECTO): string {
+  const total = diasDe(plazo, dias);
+
+  if (total >= 365 && total % 365 === 0) {
+    const anos = total / 365;
+    return anos === 1 ? '1 año' : `${anos} años`;
+  }
+  if (total >= 60) {
+    const meses = Math.round(total / 30);
+    return total % 30 === 0 && meses > 1 ? `${meses} meses` : `${total} días`;
+  }
+  return total === 1 ? '1 día' : `${total} días`;
 }
 
 /** Arma el arbol a partir de las filas planas. Devuelve las raices. */

@@ -1,4 +1,11 @@
-import { camino, construyeArbol, progreso, type NodoObjetivo } from '@nspp/shared';
+import {
+  camino,
+  construyeArbol,
+  leePlazo,
+  progreso,
+  textoDuracion,
+  type NodoObjetivo,
+} from '@nspp/shared';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
@@ -7,7 +14,7 @@ import { Barra } from '@/components/juego/Barra';
 import { Casilla } from '@/components/juego/Casilla';
 import { FilaObjetivo } from '@/components/juego/FilaObjetivo';
 import { NuevoObjetivo } from '@/components/juego/NuevoObjetivo';
-import { textoFecha } from '@/lib/formato';
+import { NOMBRE_PLAZO, textoFecha } from '@/lib/formato';
 import { cargaJuego, porId } from '@/lib/juego';
 import { obtenerSesionConPerfil } from '@/lib/perfil';
 
@@ -38,6 +45,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
   const avance = progreso(nodo);
   const hoja = nodo.hijos.length === 0;
 
+  const lectura = leePlazo(nodo.venceEl, juego.plazos);
   const migas = camino(juego.objetivos, id).slice(0, -1);
   const padre = juego.objetivos.find((o) => o.id === nodo.padreId) ?? null;
   const volverA = padre ? `/objetivo/${padre.id}` : '/mapa';
@@ -48,10 +56,15 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
 
       <main className="flex-1 py-10">
         {/* Las migas son la respuesta permanente a "por que estoy haciendo esto". */}
-        <nav className="flex flex-wrap items-center gap-1.5 text-xs text-humo">
-          <Link href="/mapa" className="transition-colors hover:text-tinta">
-            {categoria?.nombre ?? 'Mapa'}
-          </Link>
+        <Link
+          href="/mapa"
+          className="inline-flex items-center gap-1.5 text-xs text-humo transition-colors hover:text-tinta"
+        >
+          <span aria-hidden>←</span> Volver al mapa
+        </Link>
+
+        <nav className="mt-4 flex flex-wrap items-center gap-1.5 text-xs text-humo">
+          <span>{categoria?.nombre}</span>
           {migas.map((m) => (
             <span key={m.id} className="flex items-center gap-1.5">
               <span aria-hidden>›</span>
@@ -74,18 +87,39 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
             </div>
           )}
           <h1
-            className={`text-2xl font-bold tracking-tight ${
+            className={`flex-1 text-2xl font-bold tracking-tight ${
               nodo.completadoEn ? 'text-humo line-through' : ''
             }`}
           >
             {nodo.titulo}
           </h1>
+
+          <div className="shrink-0 pt-0.5">
+            <AjustesObjetivo
+              id={nodo.id}
+              categoriaId={nodo.categoriaId}
+              venceEl={nodo.venceEl}
+              padreVenceEl={padre?.venceEl ?? null}
+              tieneHijos={!hoja}
+              categorias={juego.categorias}
+              dias={juego.plazos}
+              volverA={volverA}
+            />
+          </div>
         </div>
 
-        <p className="mt-2 flex items-center gap-2 text-sm text-humo">
+        <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-humo">
           <span className={nodo.venceEl === null ? 'italic' : ''}>
             {textoFecha(nodo.venceEl, juego.plazos)}
           </span>
+          {lectura !== 'sin_fecha' && lectura !== 'vencido' && (
+            <>
+              <span aria-hidden>·</span>
+              <span>
+                {NOMBRE_PLAZO[lectura]} · {textoDuracion(lectura, juego.plazos)}
+              </span>
+            </>
+          )}
           <span aria-hidden>·</span>
           <span>{categoria?.nombre}</span>
           {nodo.suelto && (
@@ -137,18 +171,6 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
           )}
         </div>
 
-        <div className="mt-10 border-t border-linea pt-6">
-          <AjustesObjetivo
-            id={nodo.id}
-            categoriaId={nodo.categoriaId}
-            venceEl={nodo.venceEl}
-            padreVenceEl={padre?.venceEl ?? null}
-            tieneHijos={!hoja}
-            categorias={juego.categorias}
-            dias={juego.plazos}
-            volverA={volverA}
-          />
-        </div>
       </main>
     </div>
   );

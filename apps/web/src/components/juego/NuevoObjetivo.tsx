@@ -1,23 +1,15 @@
 'use client';
 
-import {
-  fechaDePlazo,
-  plazoPorDefecto,
-  PLAZOS,
-  type Categoria,
-  type DiasPlazo,
-  type Plazo,
-} from '@nspp/shared';
+import { fechaDePlazo, plazoPorDefecto, type Categoria, type DiasPlazo } from '@nspp/shared';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { CamposObjetivo, recorta, type Eleccion } from '@/components/juego/CamposObjetivo';
+import { Modal } from '@/components/juego/Modal';
 import { creaObjetivo, mensajeError } from '@/lib/acciones';
 
 /**
- * Alta de un objetivo. Sirve para las tres cosas que se crean: una raiz nueva
- * en el mapa, el desglose de un objetivo y algo suelto del dia.
- *
- * Cuando la seccion ya dice el plazo (el mapa lo dice), no se vuelve a
- * preguntar: llega en `plazoFijo` y solo se escribe el titulo y la rama.
+ * Alta de un objetivo. En el mapa se abre como modal desde el boton esquinero;
+ * dentro de un objetivo, como formulario en linea para desglosarlo.
  */
 export function NuevoObjetivo({
   usuarioId,
@@ -27,43 +19,44 @@ export function NuevoObjetivo({
   categorias,
   profundidad,
   dias,
-  plazoFijo,
   suelto = false,
   etiqueta,
-  abiertoAlInicio = false,
+  titulo = 'Nuevo objetivo',
+  comoModal = false,
+  destacado = false,
 }: {
   usuarioId: string;
   padreId: string | null;
   padreVenceEl?: string | null;
+  /** Con rama heredada no se pregunta la categoria: la pone el padre. */
   categoriaHeredada?: string;
   categorias: Categoria[];
   profundidad: number;
   dias: DiasPlazo;
-  plazoFijo?: Plazo;
   suelto?: boolean;
+  /** Texto del boton que abre el formulario. */
   etiqueta: string;
-  abiertoAlInicio?: boolean;
+  titulo?: string;
+  comoModal?: boolean;
+  destacado?: boolean;
 }) {
   const router = useRouter();
-  const [abierto, setAbierto] = useState(abiertoAlInicio);
-  const [titulo, setTitulo] = useState('');
-  const [plazo, setPlazo] = useState<Plazo>(plazoFijo ?? plazoPorDefecto(profundidad));
+  const [abierto, setAbierto] = useState(false);
+  const [texto, setTexto] = useState('');
+  // Lo del dia no necesita fecha; lo del mapa llega con el plazo de su altura.
+  const [plazo, setPlazo] = useState<Eleccion>(suelto ? 'sin_fecha' : plazoPorDefecto(profundidad));
   const [categoriaId, setCategoriaId] = useState(categoriaHeredada ?? categorias[0]?.id ?? 'salud');
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function fechaElegida(): string {
-    if (suelto) return new Date().toISOString().slice(0, 10);
-
-    const propuesta = fechaDePlazo(plazoFijo ?? plazo, dias);
-    // Un paso no puede vencer despues del objetivo del que cuelga: la base lo
-    // rechaza, asi que aqui se recorta antes de que sea un error.
-    return padreVenceEl && propuesta > padreVenceEl ? padreVenceEl : propuesta;
+  function cierra() {
+    setAbierto(false);
+    setError(null);
   }
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
-    if (titulo.trim() === '') return;
+    if (texto.trim() === '') return;
 
     setGuardando(true);
     setError(null);
@@ -73,13 +66,13 @@ export function NuevoObjetivo({
         usuarioId,
         padreId,
         categoriaId: categoriaHeredada ?? categoriaId,
-        titulo,
-        venceEl: fechaElegida(),
+        titulo: texto,
+        venceEl: plazo === 'sin_fecha' ? null : recorta(fechaDePlazo(plazo, dias), padreVenceEl),
         suelto,
       });
 
-      setTitulo('');
-      if (!abiertoAlInicio) setAbierto(false);
+      setTexto('');
+      cierra();
       router.refresh();
     } catch (e) {
       setError(mensajeError(e, 'No se pudo crear.'));
@@ -88,93 +81,64 @@ export function NuevoObjetivo({
     }
   }
 
-  if (!abierto) {
-    return (
-      <button
-        type="button"
-        onClick={() => setAbierto(true)}
-        className="w-full rounded-lg border border-dashed border-linea px-4 py-3 text-left text-sm text-humo transition-colors hover:border-tinta hover:text-tinta"
-      >
-        + {etiqueta}
-      </button>
-    );
-  }
-
-  return (
-    <form onSubmit={enviar} className="rounded-lg border border-linea bg-white p-4">
-      <input
-        autoFocus
-        type="text"
-        value={titulo}
-        maxLength={200}
-        placeholder={etiqueta}
-        onChange={(e) => setTitulo(e.target.value)}
-        className="w-full border-0 bg-transparent p-0 text-base outline-none placeholder:text-humo"
+  const campos = (
+    <form onSubmit={enviar}>
+      <CamposObjetivo
+        titulo={texto}
+        onTitulo={setTexto}
+        categoriaId={categoriaId}
+        onCategoria={categoriaHeredada ? undefined : setCategoriaId}
+        categorias={categorias}
+        plazo={plazo}
+        onPlazo={setPlazo}
+        dias={dias}
+        topeFecha={padreVenceEl}
+        autoFoco
       />
 
-      {!categoriaHeredada && (
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {categorias.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setCategoriaId(c.id)}
-              className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors"
-              style={
-                categoriaId === c.id
-                  ? { borderColor: c.color, color: c.color }
-                  : { borderColor: 'var(--color-linea)', color: 'var(--color-humo)' }
-              }
-            >
-              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: c.color }} />
-              {c.nombre}
-            </button>
-          ))}
-        </div>
-      )}
+      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-      {!suelto && !plazoFijo && (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {PLAZOS.map((p) => (
-            <button
-              key={p.clave}
-              type="button"
-              onClick={() => setPlazo(p.clave)}
-              className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                plazo === p.clave
-                  ? 'border-tinta text-tinta'
-                  : 'border-linea text-humo hover:text-tinta'
-              }`}
-            >
-              {p.etiqueta}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-
-      <div className="mt-4 flex items-center gap-2">
+      <div className="mt-6 flex items-center justify-end gap-2">
+        <button
+          type="button"
+          onClick={cierra}
+          className="rounded-full px-5 py-2.5 text-sm font-medium text-humo transition-colors hover:text-tinta"
+        >
+          Cancelar
+        </button>
         <button
           type="submit"
-          disabled={guardando || titulo.trim() === ''}
-          className="rounded-full bg-tinta px-5 py-2 text-sm font-semibold text-papel transition-opacity hover:opacity-80 disabled:opacity-30"
+          disabled={guardando || texto.trim() === ''}
+          className="rounded-full bg-tinta px-5 py-2.5 text-sm font-semibold text-papel transition-opacity hover:opacity-80 disabled:opacity-30"
         >
           {guardando ? 'Un momento…' : 'Agregar'}
         </button>
-        {!abiertoAlInicio && (
-          <button
-            type="button"
-            onClick={() => {
-              setAbierto(false);
-              setError(null);
-            }}
-            className="px-2 text-sm text-humo transition-colors hover:text-tinta"
-          >
-            Cancelar
-          </button>
-        )}
       </div>
     </form>
+  );
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setAbierto(true)}
+        className={
+          destacado
+            ? 'rounded-full bg-tinta px-5 py-2.5 text-sm font-semibold text-papel transition-opacity hover:opacity-80'
+            : 'w-full rounded-lg border border-dashed border-linea px-4 py-3 text-left text-sm text-humo transition-colors hover:border-tinta hover:text-tinta'
+        }
+      >
+        {destacado ? etiqueta : `+ ${etiqueta}`}
+      </button>
+
+      {abierto &&
+        (comoModal ? (
+          <Modal titulo={titulo} onCerrar={cierra}>
+            {campos}
+          </Modal>
+        ) : (
+          <div className="mt-3 rounded-lg border border-linea bg-white p-4">{campos}</div>
+        ))}
+    </>
   );
 }

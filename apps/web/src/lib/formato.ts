@@ -7,6 +7,7 @@ const FECHA_CORTA = new Intl.DateTimeFormat('es', { day: 'numeric', month: 'shor
 export const NOMBRE_PLAZO: Record<LecturaPlazo, string> = {
   sin_fecha: 'sin fecha',
   vencido: 'vencido',
+  semana: 'esta semana',
   corto: 'corto plazo',
   mediano: 'mediano plazo',
   largo: 'largo plazo',

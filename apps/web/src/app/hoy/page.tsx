@@ -13,10 +13,15 @@ export const metadata = { title: 'Hoy — No Soy Peter Pan' };
 
 const FECHA = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' });
 
-/** Hojas que vencen hoy o antes, y las que se marcaron hoy. */
+/**
+ * Que aparece hoy. Del mapa, las hojas que vencen hoy o antes; de lo suelto,
+ * todo lo pendiente, tenga fecha o no: lo anotaste para hacerlo, no se pierde
+ * por no haberle puesto dia. Y lo que se marco hoy, para verlo tachado.
+ */
 function tocaHoy(nodo: NodoObjetivo, hoy: string): boolean {
   if (nodo.hijos.length > 0) return false;
   if (nodo.completadoEn) return nodo.completadoEn.slice(0, 10) === hoy;
+  if (nodo.suelto) return true;
   return nodo.venceEl !== null && nodo.venceEl <= hoy;
 }
 
@@ -110,7 +115,8 @@ export default async function Hoy() {
                 </ul>
               )}
               <p className="mt-2 text-xs text-humo">
-                Lo que hay que hacer y no construye nada a cinco años. También existe.
+                Lo que hay que hacer y no construye nada a tres años. También existe, y no necesita
+                fecha.
               </p>
               <div className="mt-3">
                 <NuevoObjetivo
@@ -120,7 +126,7 @@ export default async function Hoy() {
                   profundidad={0}
                   dias={juego.plazos}
                   suelto
-                  etiqueta="algo de hoy"
+                  etiqueta="algo que hacer hoy"
                 />
               </div>
             </section>
