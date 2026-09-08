@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { envSupabase } from '@/env';
+import { envSupabaseOpcional } from '@/env';
 
 /** Rutas que exigen sesion. Todo lo demas es publico. */
 const RUTAS_PROTEGIDAS = ['/mapa'];
@@ -11,10 +11,23 @@ const RUTAS_PROTEGIDAS = ['/mapa'];
  * nulo aunque el navegador crea estar dentro.
  */
 export async function actualizarSesion(request: NextRequest): Promise<NextResponse> {
+  const ruta = request.nextUrl.pathname;
+  const esProtegida = RUTAS_PROTEGIDAS.some((r) => ruta === r || ruta.startsWith(`${r}/`));
+
+  // Sin configuracion de Supabase no hay sesion posible, pero tampoco tiene
+  // sentido tumbar el sitio entero: la landing no depende de Supabase.
+  const config = envSupabaseOpcional();
+  if (!config) {
+    if (!esProtegida) return NextResponse.next({ request });
+    const destino = request.nextUrl.clone();
+    destino.pathname = '/entrar';
+    destino.search = '?error=sin_configurar';
+    return NextResponse.redirect(destino);
+  }
+
   let response = NextResponse.next({ request });
 
-  const { url, anonKey } = envSupabase();
-  const supabase = createServerClient(url, anonKey, {
+  const supabase = createServerClient(config.url, config.anonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -34,9 +47,6 @@ export async function actualizarSesion(request: NextRequest): Promise<NextRespon
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const ruta = request.nextUrl.pathname;
-  const esProtegida = RUTAS_PROTEGIDAS.some((r) => ruta === r || ruta.startsWith(`${r}/`));
 
   if (!user && esProtegida) {
     const destino = request.nextUrl.clone();

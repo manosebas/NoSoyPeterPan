@@ -26,6 +26,18 @@ export function envSupabase(): { url: string; anonKey: string } {
   };
 }
 
+/**
+ * Igual que `envSupabase` pero devuelve null en vez de lanzar.
+ * Lo usa el middleware: corre en todas las rutas, y una variable ausente no
+ * puede tumbar la landing, que no necesita Supabase para nada.
+ */
+export function envSupabaseOpcional(): { url: string; anonKey: string } | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url?.trim() || !anonKey?.trim()) return null;
+  return { url: url.trim(), anonKey: anonKey.trim() };
+}
+
 /** URL del API en Railway. Opcional hasta que el backend este desplegado. */
 export function urlApi(): string | null {
   const valor = process.env.NEXT_PUBLIC_API_URL;

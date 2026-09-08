@@ -4,12 +4,20 @@ import { FormularioAuth } from '@/components/FormularioAuth';
 
 export const metadata = { title: 'Entrar — No Soy Peter Pan' };
 
+const AVISOS: Record<string, string> = {
+  sin_configurar:
+    'Este ambiente todavía no tiene configuradas las llaves de Supabase. Falta definirlas en Vercel.',
+  enlace_invalido: 'Ese enlace ya venció o se usó. Pide uno nuevo.',
+  sin_codigo: 'El enlace llegó incompleto. Vuelve a intentarlo.',
+};
+
 export default async function Entrar({
   searchParams,
 }: {
-  searchParams: Promise<{ siguiente?: string }>;
+  searchParams: Promise<{ siguiente?: string; error?: string }>;
 }) {
-  const { siguiente } = await searchParams;
+  const { siguiente, error } = await searchParams;
+  const aviso = error ? AVISOS[error] : undefined;
   // Solo rutas internas: evita que un `siguiente` externo nos use de redirector.
   const destino = siguiente?.startsWith('/') ? siguiente : '/mapa';
 
@@ -24,6 +32,12 @@ export default async function Entrar({
       <p className="mt-3 text-humo">
         Entra y convierte tus «algún día voy a…» en algo con fecha.
       </p>
+
+      {aviso && (
+        <p className="mt-6 rounded-lg border border-linea bg-white px-4 py-3 text-sm text-humo">
+          {aviso}
+        </p>
+      )}
 
       <div className="mt-10">
         <FormularioAuth siguiente={destino} />
