@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 const DESTINOS = [
   { href: '/hoy', texto: 'Hoy' },
   { href: '/mapa', texto: 'Mapa' },
-  { href: '/ramas', texto: 'Ramas' },
+  { href: '/perfil', texto: 'Perfil' },
 ] as const;
 
 export function NavPrincipal() {

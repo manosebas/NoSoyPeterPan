@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { envSupabaseOpcional } from '@/env';
 
 /** Rutas que exigen sesion. Todo lo demas es publico. */
-const RUTAS_PROTEGIDAS = ['/hoy', '/mapa', '/ramas', '/objetivo', '/perfil', '/ajustes'];
+const RUTAS_PROTEGIDAS = ['/hoy', '/mapa', '/objetivo', '/perfil', '/ajustes'];
 
 /**
  * Refresca el token de Supabase en cada request y corta el paso a las rutas

@@ -4,10 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-const OPCIONES = [
-  { href: '/perfil', texto: 'Ver perfil' },
-  { href: '/ajustes', texto: 'Ajustes' },
-] as const;
+const OPCIONES = [{ href: '/ajustes', texto: 'Ajustes' }] as const;
 
 /**
  * Menu del avatar: perfil, ajustes y salir. Es la unica navegacion de la app

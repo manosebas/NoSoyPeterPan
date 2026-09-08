@@ -144,7 +144,9 @@ el martes real. Pero viven en la misma tabla, no en una aparte, por tres cosas:
 
 ## 5. Cómo se ve
 
-Cuatro pantallas sobre el mismo árbol, a distinto zoom. Nada se guarda dos veces.
+Cuatro pantallas sobre el mismo árbol, a distinto zoom. Nada se guarda dos
+veces. Tres viven en la barra —Hoy, Mapa y Perfil—; a la cuarta se entra
+tocando un objetivo.
 
 ### Hoy — el nivel de las hojas
 
@@ -190,9 +192,11 @@ SALUD  ████████░░  Nivel 2 · 42 votos
   └── Media maratón en marzo  ░░░░░░  0 de 4
 ```
 
-### Ramas — la suma
+### Perfil — la suma
 
-Las categorías con su nivel, su acumulado y su estado real.
+Las ramas con su nivel, su acumulado, su estado real y lo último que
+construiste. Es la vitrina, no la configuración: lo que se ajusta vive en
+Ajustes, en tres secciones — cómo sube cada barra, tus datos y salir.
 
 ### Lo que no va
 
