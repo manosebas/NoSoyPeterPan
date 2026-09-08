@@ -73,6 +73,8 @@ Algún día  →  5 años  →  1 año  →  90 días  →  esta semana  →  ho
 
 Todo el producto existe para hacer que esa cadena sea fácil de crear, visible y difícil de romper.
 
+**Cómo se implementa esa cadena**: los conceptos de la tabla no son entidades distintas. Son un mismo objetivo a distinta altura de un árbol. Un objetivo se desglosa en objetivos más chicos, y esos se vuelven a desglosar hasta llegar a algo que se pueda hacer hoy. El Norte es la raíz; una Misión es una hoja. Ver `docs/JUEGO.md`.
+
 ---
 
 ## 3. Reglas de diseño (no negociables)
@@ -119,25 +121,24 @@ Es la vara para medir tono y decisiones. Si un copy o una feature suena tibio, c
 
 Plataforma web donde la gente entra a organizar sus objetivos y cumplirlos. Ese es el core; todo lo demás es secundario hasta nuevo aviso.
 
-**Estado actual**: base desplegada y verificada de punta a punta (2026-09-08). Landing, autenticación con Supabase (alta, ingreso, sesión en cookies), ruta protegida `/mapa` y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
+**Estado actual**: base desplegada y verificada de punta a punta (2026-09-08). Landing, autenticación con Supabase (alta con nombre, ingreso, sesión en cookies), ruta protegida `/mapa`, perfil con foto en Storage, ajustes de cuenta y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
 
-Lo que falta es el producto: el dominio del juego está tipado en `packages/shared` pero no implementado. No existe todavía ninguna tabla de Norte, Rutas, Misiones ni Nunca Jamás.
+El modelo del juego ya está decidido y tipado: un solo árbol de objetivos (`supabase/migrations/0003_objetivos.sql`, `packages/shared/src/domain.ts`, `docs/JUEGO.md`). Falta la interfaz que lo hace jugable.
 
 ### Próximos pasos
 
-Orden propuesto, cada pieza aterriza un tramo de la cadena `Algún día → hoy`. No confirmado con el usuario todavía.
+1. **La vista de un objetivo** — migas, barra de progreso y lista de hijos. Es toda la interfaz del juego: la misma pantalla sirve para el Norte y para la acción de hoy.
+2. **Crear y desglosar** — escribir un objetivo, elegir plazo (fecha sugerida según el nivel) y colgarle hijos.
+3. **Marcar** — casilla en las hojas; el progreso de los padres se recalcula solo.
+4. **Nunca Jamás** — la lista de objetivos sin fecha, visible y con su antigüedad a la vista.
 
-1. **El Norte** — tabla, RLS y onboarding. Va primero por la regla 3: sin Norte no se puede crear nada más.
-2. **Nunca Jamás** — captura rápida de "algún día voy a…". Es lo primero que alguien quiere hacer al entrar, y es el antagonista del juego.
-3. **Rutas** — bajar el Norte a 1 año y 90 días.
-4. **Misiones y Votos** — el día a día, siempre colgando de una Ruta.
-
-El mínimo con sentido son 1 y 2 juntos: alguien entra, vacía sus "algún día" y define su Norte. Rutas y Misiones sin eso serían otro to-do list.
+Los tres primeros son el mínimo jugable.
 
 ### Decisiones pendientes
 
-- [ ] Alcance del MVP
-- [ ] Onboarding: cómo se define el Norte por primera vez
+- [ ] Qué se ve al entrar cuando todavía no hay ningún Norte
+- [ ] Si los Territorios etiquetan objetivos o salen del modelo
+- [ ] Cómo se muestra La Sombra
 - [ ] Web-only o también móvil
 - [ ] Modelo de negocio
 - [ ] Tipografía de marca y color de acento
@@ -160,7 +161,9 @@ packages/
   shared/    Tipos del dominio y contratos HTTP  (@nspp/shared)
 supabase/
   migrations/  SQL idempotente, se aplica desde el dashboard
+  consultas/   SQL de diagnóstico, no se aplica
 docs/
+  JUEGO.md      qué se guarda, qué se calcula y qué se ve
   ENTORNO.md    qué variable va en qué servicio
   DESPLIEGUE.md cómo se despliega y cómo se verifica
 ```
