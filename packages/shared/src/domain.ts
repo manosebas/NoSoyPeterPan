@@ -10,17 +10,16 @@
  * Norte es la raiz; una Mision es una hoja. Misma entidad a distinta altura.
  */
 
-/** Areas de vida donde ocurre el crecimiento. Sin uso todavia: ver JUEGO.md. */
-export const TERRITORIOS = [
-  'carrera',
-  'dinero',
-  'cuerpo',
-  'relaciones',
-  'mente',
-  'aventura',
-] as const;
-
-export type Territorio = (typeof TERRITORIOS)[number];
+/**
+ * Las ramas de la vida. Viven en la tabla de catalogo `categorias`, no en el
+ * codigo: agregar una es una fila, no un despliegue.
+ */
+export interface Categoria {
+  id: string;
+  nombre: string;
+  color: string;
+  orden: number;
+}
 
 /** Identificador de usuario: coincide con auth.users.id de Supabase. */
 export type UsuarioId = string;
@@ -39,6 +38,10 @@ export interface Objetivo {
   id: string;
   usuarioId: UsuarioId;
   padreId: string | null;
+  /** Se hereda del padre al crear. Cambiarla mueve el objetivo de rama. */
+  categoriaId: string;
+  /** Objetivo del dia sin arbol. Solo puede ser true en una raiz. */
+  suelto: boolean;
   titulo: string;
   detalle: string | null;
   venceEl: string | null;
@@ -158,6 +161,74 @@ export function camino(objetivos: Objetivo[], id: string): Objetivo[] {
   }
 
   return ruta;
+}
+
+/**
+ * Un voto: un objetivo cumplido. Es la unidad de progreso del juego.
+ * No se borra al desmarcar ni al borrar el objetivo: lo que ya creciste, creció.
+ */
+export interface Voto {
+  id: string;
+  usuarioId: UsuarioId;
+  objetivoId: string | null;
+  categoriaId: string;
+  titulo: string;
+  emitidoEn: string;
+}
+
+/** Cuantos votos llenan la barra de una rama. Se edita en Ajustes. */
+export const VOTOS_POR_NIVEL_DEFECTO = 30;
+
+export interface Fuerza {
+  /** Votos de por vida en la rama. Nunca baja. */
+  total: number;
+  /** Empieza en 1 y sube cada vez que la barra se llena. */
+  nivel: number;
+  /** Votos dentro del nivel actual y cuantos faltan para el siguiente. */
+  enNivel: number;
+  meta: number;
+  /** Entre 0 y 1: lo que se pinta en la barra. */
+  fraccion: number;
+  /** Votos en los ultimos 30 dias. Dice si la rama esta viva, no si creciste. */
+  recientes: number;
+  /** Dias desde el ultimo voto. null si nunca hubo uno. */
+  diasQuieta: number | null;
+}
+
+/**
+ * Fuerza de una rama a partir de sus votos.
+ *
+ * La barra empieza en cero, sube con cada objetivo cumplido y al llenarse pasa
+ * de nivel y vuelve a empezar. No es un porcentaje de completado a proposito:
+ * asi proponerse cosas nuevas nunca te debilita.
+ */
+export function fuerzaDeRama(
+  votos: Pick<Voto, 'emitidoEn'>[],
+  meta = VOTOS_POR_NIVEL_DEFECTO,
+  ahora = new Date(),
+): Fuerza {
+  const porNivel = Math.max(1, meta);
+  const total = votos.length;
+
+  let recientes = 0;
+  let ultimo = 0;
+  for (const v of votos) {
+    const cuando = new Date(v.emitidoEn).getTime();
+    if (ahora.getTime() - cuando <= 30 * 86_400_000) recientes += 1;
+    if (cuando > ultimo) ultimo = cuando;
+  }
+
+  const enNivel = total % porNivel;
+
+  return {
+    total,
+    nivel: Math.floor(total / porNivel) + 1,
+    enNivel,
+    meta: porNivel,
+    fraccion: enNivel / porNivel,
+    recientes,
+    diasQuieta: ultimo === 0 ? null : Math.floor((ahora.getTime() - ultimo) / 86_400_000),
+  };
 }
 
 /** Perfil publico del usuario, espejo de auth.users. */

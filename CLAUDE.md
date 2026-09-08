@@ -57,7 +57,7 @@ Estos nombres son parte de la identidad. Usarlos en UI, copy, nombres de modelos
 | **Nunca Jamás** | El lugar donde viven todas las cosas que dices "algún día voy a…". Bandeja de intenciones sin fecha. | Backlog / someday list |
 | **Algún Día** | Un deseo aún no aterrizado. Vive en Nunca Jamás hasta que se le pone calendario. | Idea sin plan |
 | **El Norte / Destino** | La visión a 5 años. Quién quieres ser. | Long-term vision |
-| **Territorios** | Áreas de vida donde ocurre el crecimiento (carrera, dinero, cuerpo, relaciones, mente, aventura). | Life areas |
+| **Categorías** | Las ramas de la vida donde ocurre el crecimiento: salud, dinero, carrera, relaciones, mente, aventura, familia, hogar, aprendizaje, espiritualidad. Cada objetivo pertenece a una, y cumplirlo fortalece esa rama. | Life areas |
 | **Rutas** | Objetivos de 1 año y de 90 días que conectan el hoy con el Norte. | Goals / OKRs |
 | **Misiones** | Acciones de la semana y del día. Siempre trazables a una Ruta. | Tasks |
 | **Votos** | Cada misión completada es un voto por la persona que quieres ser. Es la unidad de progreso, no el "check". | XP / points |
@@ -73,7 +73,7 @@ Algún día  →  5 años  →  1 año  →  90 días  →  esta semana  →  ho
 
 Todo el producto existe para hacer que esa cadena sea fácil de crear, visible y difícil de romper.
 
-**Cómo se implementa esa cadena**: los conceptos de la tabla no son entidades distintas. Son un mismo objetivo a distinta altura de un árbol. Un objetivo se desglosa en objetivos más chicos, y esos se vuelven a desglosar hasta llegar a algo que se pueda hacer hoy. El Norte es la raíz; una Misión es una hoja. Ver `docs/JUEGO.md`.
+**Cómo se implementa esa cadena**: los conceptos de la tabla no son entidades distintas. Son un mismo objetivo a distinta altura de un árbol. Un objetivo se desglosa en objetivos más chicos, y esos se vuelven a desglosar hasta llegar a algo que se pueda hacer hoy. El Norte es la raíz; una Misión es una hoja. Cada objetivo pertenece a una Categoría, que hereda de su padre salvo que se cambie a mano. Ver `docs/JUEGO.md`.
 
 ---
 
@@ -123,21 +123,22 @@ Plataforma web donde la gente entra a organizar sus objetivos y cumplirlos. Ese 
 
 **Estado actual**: base desplegada y verificada de punta a punta (2026-09-08). Landing, autenticación con Supabase (alta con nombre, ingreso, sesión en cookies), ruta protegida `/mapa`, perfil con foto en Storage, ajustes de cuenta y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
 
-El modelo del juego ya está decidido y tipado: un solo árbol de objetivos (`supabase/migrations/0003_objetivos.sql`, `packages/shared/src/domain.ts`, `docs/JUEGO.md`). Falta la interfaz que lo hace jugable.
+El modelo del juego ya está decidido y tipado: un árbol de objetivos con categorías y votos (`supabase/migrations/0003_objetivos.sql`, `0004_categorias_votos.sql`, `packages/shared/src/domain.ts`, `docs/JUEGO.md`). Falta la interfaz que lo hace jugable.
 
 ### Próximos pasos
 
 1. **La vista de un objetivo** — migas, barra de progreso y lista de hijos. Es toda la interfaz del juego: la misma pantalla sirve para el Norte y para la acción de hoy.
 2. **Crear y desglosar** — escribir un objetivo, elegir plazo (fecha sugerida según el nivel) y colgarle hijos.
 3. **Marcar** — casilla en las hojas; el progreso de los padres se recalcula solo.
-4. **Nunca Jamás** — la lista de objetivos sin fecha, visible y con su antigüedad a la vista.
+4. **Hoy** — lo que vence hoy de cualquier árbol, más los objetivos sueltos del día.
+5. **Ramas** — la fuerza de cada categoría y su meta editable en Ajustes.
+6. **Nunca Jamás** — la lista de objetivos sin fecha, visible y con su antigüedad.
 
 Los tres primeros son el mínimo jugable.
 
 ### Decisiones pendientes
 
 - [ ] Qué se ve al entrar cuando todavía no hay ningún Norte
-- [ ] Si los Territorios etiquetan objetivos o salen del modelo
 - [ ] Cómo se muestra La Sombra
 - [ ] Web-only o también móvil
 - [ ] Modelo de negocio

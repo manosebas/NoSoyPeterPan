@@ -30,34 +30,68 @@ subiendo por el árbol.
 
 ## 2. Qué se guarda
 
-Una tabla: `objetivos`. Se apunta a sí misma por `padre_id`.
+Cuatro tablas. Una es catálogo, dos son del usuario y una es historia.
+
+### `objetivos` — el árbol
+
+Se apunta a sí misma por `padre_id`.
 
 | Campo | Para qué |
 |---|---|
 | `usuario_id` | Dueño. Toda política de RLS cuelga de aquí. |
-| `padre_id` | De quién cuelga. `null` = es una raíz, un Norte. |
+| `padre_id` | De quién cuelga. `null` = es una raíz. |
+| `categoria_id` | A qué rama de la vida aporta. Se hereda del padre. |
 | `titulo` | Lo que la persona escribe. |
 | `detalle` | Opcional. El porqué, si quiere dejarlo escrito. |
 | `vence_el` | Fecha. `null` = vive en Nunca Jamás. |
 | `completado_en` | Cuándo se marcó. Solo lo llevan las hojas. |
+| `suelto` | Objetivo del día sin árbol. Solo puede ser `true` en una raíz. |
 | `orden` | Orden manual dentro de su nivel. |
 | `profundidad` | Derivada del padre. Topa el desglose en 6 niveles. |
 
-Tres reglas viven en la base, no en la UI, porque la anon key viaja al
-navegador y cualquiera puede llamar a la API a mano:
+Las reglas viven en la base, no en la UI, porque la anon key viaja al navegador
+y cualquiera puede llamar a la API a mano:
 
-1. Un hijo hereda `profundidad = padre + 1` y nadie puede colgar de otro árbol.
-2. **Solo se marca lo que no tiene desglose.** Marcar un objetivo con hijos
+1. **Solo se marca lo que no tiene desglose.** Marcar un objetivo con hijos
    lanza error. Desglosar uno ya marcado lo devuelve a pendiente.
-3. Borrar un objetivo se lleva su desglose completo (`on delete cascade`).
+2. **La categoría se hereda al crear.** Si la cambias, el desglose que venía
+   heredando te sigue; un hijo con categoría propia se queda donde está.
+3. **Un paso no puede vencer después de la meta que lo contiene.** Desglosas
+   algo de 90 días, sus hijos caen dentro de esos 90 días. Sin esta regla la
+   cascada se vuelve mentira.
+4. Un hijo hereda `profundidad = padre + 1`, tope de seis niveles, y no puede
+   colgar del árbol de otra persona ni de su propio desglose.
+5. Borrar un objetivo se lleva su desglose completo.
 
-### Por qué el progreso no se guarda
+### `categorias` — catálogo
+
+`id` (slug), `nombre`, `color`, `orden`. Las mismas filas para todo el mundo,
+sin dueño: es un catálogo, no datos de usuario. Diez de semilla — salud, dinero,
+carrera, relaciones, mente, aventura, familia, hogar, aprendizaje,
+espiritualidad. Agregar una es una fila de SQL, no un despliegue.
+
+### `votos` — la historia
+
+Cada objetivo cumplido emite un voto, por trigger. Guarda `categoria_id` y una
+copia del título.
+
+Vive aparte de `objetivos` por una razón: **el acumulado de una rama no puede
+bajar**. Si se contara sobre `objetivos.completado_en`, tu historia se borraría
+al limpiar un árbol viejo o al desmarcar una casilla. Un objetivo vota una sola
+vez (índice único), así que marcar y desmarcar no infla nada, y si borras el
+objetivo el voto sobrevive con `objetivo_id` en null.
+
+### `metas_categoria` — cómo sube tu barra
+
+`votos_por_nivel` por usuario y rama. Es lo único de esto que se edita en
+Ajustes. Sin fila, valen 30.
+
+### Por qué el progreso de un objetivo no se guarda
 
 El avance de un objetivo es cuántas de sus hojas están cumplidas. Guardarlo
-sería un número que hay que mantener sincronizado en cada marca, desmarca,
-alta y borrado: la clase de dato que se corrompe y miente. Se calcula en el
-navegador con el árbol completo, que para una persona son decenas de filas, no
-millones.
+sería un número que hay que mantener sincronizado en cada marca, desmarca, alta
+y borrado: la clase de dato que se corrompe y miente. Se calcula en el navegador
+con el árbol completo, que para una persona son decenas de filas.
 
 ```
 progreso(nodo) = hojas cumplidas bajo el nodo / hojas totales bajo el nodo
@@ -68,32 +102,59 @@ que uno con dos, que es la verdad.
 
 ---
 
-## 3. Los plazos
+## 3. La fuerza de una rama
 
-`vence_el` es una fecha, no una categoría. Largo, mediano y corto plazo se
-deducen de la distancia a hoy; nadie tiene que clasificar nada.
+Aquí el progreso **no** es un porcentaje de completado, y es a propósito: si la
+fuerza de *salud* fuera *cumplidas / totales*, el día que te propones algo nuevo
+tu rama se debilitaría. El producto castigaría la ambición.
 
-Al crear un objetivo se ofrece una fecha por defecto según su nivel, porque
-mientras más abajo, más cerca:
+```
+nivel    = ⌊ votos / votos_por_nivel ⌋ + 1
+barra    = (votos módulo votos_por_nivel) / votos_por_nivel
+```
 
-| Nivel | Por defecto | Se lee como |
-|---|---|---|
-| Raíz (el Norte) | 4 años | Largo plazo |
-| Primer desglose | 1 año | Mediano plazo |
-| Segundo desglose | 90 días | Corto plazo |
-| Más abajo | 7 días | Esta semana |
+La barra empieza en cero, sube con cada objetivo cumplido y al llenarse pasa de
+nivel y vuelve a empezar. Nunca baja. Quien quiere gimnasio diario pone 30 y
+llena su barra en un mes; quien apunta a una vez por semana pone 12.
 
-Siempre se puede cambiar, y siempre se puede dejar sin fecha. Sin fecha no es
-un error: es Nunca Jamás, y el producto lo muestra como lo que es.
+Al lado va el dato que la barra no puede dar, porque la barra solo sube:
 
-> Un objetivo sin fecha lleva 34 días esperando a que decidas cuándo.
+> **Dinero** · Nivel 2 · 18 votos — quieta hace 3 semanas.
+
+Eso es la regla 7: se dice sin humillar y sin maquillar.
 
 ---
 
-## 4. Cómo se ve
+## 4. Los objetivos del día
 
-**Un objetivo a la vez.** La pantalla nunca crece aunque el árbol tenga seis
-niveles.
+«Ir al doctor» no cuelga de ningún objetivo grande. Es una raíz con `suelto` en
+`true`, fecha de hoy y su categoría.
+
+La regla 1 dice que el producto *señala* las misiones huérfanas, no que las
+prohíba: la vida tiene mantenimiento, y negarlo hace la herramienta inútil para
+el martes real. Pero viven en la misma tabla, no en una aparte, por tres cosas:
+
+- Un solo motor de progreso y un solo componente de checklist.
+- Ya encajan en el modelo: raíz, sin desglose, con fecha.
+- **Se pueden adoptar.** Si algo se repite cada mes, el producto puede
+  preguntar *"esto que haces siempre, ¿de qué objetivo tuyo es parte?"* y
+  colgarlo de un árbol con un `update`. Con dos tablas eso sería una migración.
+
+---
+
+## 5. Cómo se ve
+
+Cuatro pantallas sobre el mismo árbol, a distinto zoom. Nada se guarda dos veces.
+
+### Hoy — el nivel de las hojas
+
+Entrada de la app. Lo que vence hoy o antes de cualquier árbol, más los sueltos
+del día. Cada línea con el color de su rama y, en letra chica, la meta de la que
+cuelga: nunca marcas algo sin ver para qué.
+
+### Enfoque — un nodo
+
+Un objetivo a la vez. La pantalla nunca crece aunque el árbol tenga seis niveles.
 
 ```
 El Norte › Cambiar de carrera › Portafolio que valga
@@ -110,29 +171,40 @@ Portafolio que valga                          1 año · marzo 2027
   + desglosar este objetivo
 ```
 
-- **Migas arriba**: el camino completo hasta el Norte. Un toque sube un nivel.
-  Es la respuesta permanente a *"¿esto para qué?"*.
-- **Barra de progreso**: una sola, la del objetivo abierto. Se llena con las
-  hojas cumplidas debajo, a cualquier profundidad.
-- **La lista**: los hijos directos. Con desglose muestran `› n` y su propio
-  avance; sin desglose muestran casilla. Un toque en el título entra, un toque
-  en la casilla marca.
-- **Sin fecha se ve distinto**: en gris, con la etiqueta a la vista. No es un
-  regaño, es un dato incómodo.
+Las migas son la respuesta permanente a *"¿esto para qué?"*. Una sola barra por
+pantalla. Lo que tiene desglose muestra `› n`; lo que no, muestra casilla.
+
+### Mapa — todo
+
+La cascada completa, agrupada por rama. Solo lectura: aquí se entiende, no se
+marca.
+
+```
+SALUD  ████████░░  Nivel 2 · 42 votos
+
+  Correr un maratón                    dic 2029
+  ├── 10K en junio          ██████░░  3 de 5
+  │   ├── ☑ Zapatillas nuevas
+  │   ├── ☑ Plan de 12 semanas
+  │   └── ☐ Correr 3 veces esta semana
+  └── Media maratón en marzo  ░░░░░░  0 de 4
+```
+
+### Ramas — la suma
+
+Las categorías con su nivel, su acumulado y su estado real.
 
 ### Lo que no va
 
-- Nada de árbol completo desplegable: a tres niveles y veinte objetivos deja de
-  leerse en un teléfono.
+- Nada de rachas ni insignias (regla 5). El premio es ver la trayectoria.
 - Nada de porcentajes por todos lados. Una barra por pantalla.
-- Nada de rachas ni insignias (regla 5 de `CLAUDE.md`). El premio es ver la
-  cadena de un martes cualquiera hasta los cinco años.
+- El color solo señala rama y progreso. El resto es monocromo (sección 5 de
+  `CLAUDE.md`).
 
 ---
 
-## 5. Lo que falta decidir
+## 6. Lo que falta decidir
 
-- Qué se ve al entrar cuando todavía no hay ningún Norte.
-- Si los Territorios (carrera, dinero, cuerpo…) etiquetan objetivos o
-  desaparecen del modelo.
+- Qué se ve al entrar cuando todavía no hay ningún objetivo.
 - Cómo se ve La Sombra: el costo acumulado de lo que lleva meses sin fecha.
+- Si «adoptar» un objetivo suelto se ofrece solo o hay que buscarlo.
