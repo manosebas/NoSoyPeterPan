@@ -3,6 +3,7 @@ import { Cabecera } from '@/components/Cabecera';
 import { FormularioAjustes } from '@/components/FormularioAjustes';
 import { FormularioPerfil } from '@/components/FormularioPerfil';
 import { MetasCategoria } from '@/components/juego/MetasCategoria';
+import { PanelAjustes, type SeccionAjustes } from '@/components/juego/PanelAjustes';
 import { PlazosPorDefecto } from '@/components/juego/PlazosPorDefecto';
 import { cargaJuego } from '@/lib/juego';
 import { iniciales, nombreVisible, obtenerSesionConPerfil } from '@/lib/perfil';
@@ -17,23 +18,19 @@ export default async function AjustesPagina() {
 
   const nombre = nombreVisible(sesion.perfil, sesion.email);
 
-  return (
-    <div className="mx-auto flex min-h-dvh max-w-2xl flex-col px-6 py-8">
-      <Cabecera sesion={sesion} />
-
-      <main className="flex-1 py-10">
-        <h1 className="text-2xl font-bold tracking-tight">Ajustes</h1>
-
-        <section className="mt-10">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
-            En qué nivel juegas la vida
-          </h2>
-          <p className="mt-3 text-sm text-humo">
-            Cuánto dura cada plazo para ti y cuántos objetivos cumplidos hacen crecer una rama. Al
-            gimnasio se va todos los días; de trabajo no se cambia todos los días.
-          </p>
-          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-humo">
+  const secciones: SeccionAjustes[] = [
+    {
+      id: 'nivel',
+      nombre: 'En qué nivel juegas la vida',
+      resumen: 'Cuánto dura cada plazo y cuánto cuesta subir una rama.',
+      contenido: (
+        <>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-humo">
             Cuánto dura cada plazo
+          </p>
+          <p className="mt-2 text-sm text-humo">
+            Largo plazo no significa lo mismo para todos. Cambiarlo no mueve ninguna fecha ya
+            escrita.
           </p>
           <div className="mt-3">
             <PlazosPorDefecto usuarioId={juego.usuarioId} plazos={juego.plazos} />
@@ -42,6 +39,9 @@ export default async function AjustesPagina() {
           <p className="mt-10 text-xs font-semibold uppercase tracking-[0.16em] text-humo">
             Cuántos votos llenan cada rama
           </p>
+          <p className="mt-2 text-sm text-humo">
+            Al gimnasio se va todos los días; de trabajo no se cambia todos los días.
+          </p>
           <div className="mt-3">
             <MetasCategoria
               usuarioId={juego.usuarioId}
@@ -49,29 +49,38 @@ export default async function AjustesPagina() {
               metas={juego.metas}
             />
           </div>
-        </section>
+        </>
+      ),
+    },
+    {
+      id: 'perfil',
+      nombre: 'Perfil',
+      resumen: 'Tu foto, tu nombre y cómo entras.',
+      contenido: (
+        <>
+          <FormularioPerfil
+            usuarioId={sesion.usuarioId}
+            nombreInicial={sesion.perfil?.nombre ?? ''}
+            avatarInicial={sesion.perfil?.avatarUrl ?? null}
+            iniciales={iniciales(nombre)}
+          />
 
-        <section className="mt-14 border-t border-linea pt-10">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">Perfil</h2>
-          <p className="mt-3 text-sm text-humo">Tu cara, tu nombre y cómo entras.</p>
-
-          <div className="mt-6">
-            <FormularioPerfil
-              usuarioId={sesion.usuarioId}
-              nombreInicial={sesion.perfil?.nombre ?? ''}
-              avatarInicial={sesion.perfil?.avatarUrl ?? null}
-              iniciales={iniciales(nombre)}
-            />
-          </div>
-
-          <div className="mt-12">
+          <div className="mt-12 border-t border-linea pt-10">
             <FormularioAjustes emailActual={sesion.email ?? ''} />
           </div>
-        </section>
-
-        <section className="mt-14 border-t border-linea pt-10">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">Salir</h2>
-          <form action="/auth/salir" method="post" className="mt-4">
+        </>
+      ),
+    },
+    {
+      id: 'salir',
+      nombre: 'Salir',
+      resumen: 'Cerrar la sesión en este navegador.',
+      contenido: (
+        <>
+          <p className="text-sm text-humo">
+            Tu Norte, tus ramas y tus votos siguen aquí cuando vuelvas.
+          </p>
+          <form action="/auth/salir" method="post" className="mt-6">
             <button
               type="submit"
               className="rounded-full border border-linea px-6 py-3 text-sm font-semibold text-humo transition-colors hover:border-tinta hover:text-tinta"
@@ -79,7 +88,23 @@ export default async function AjustesPagina() {
               Cerrar sesión
             </button>
           </form>
-        </section>
+        </>
+      ),
+    },
+  ];
+
+  return (
+    // Altura fija y sin scroll de pagina: lo unico que se desplaza es la
+    // seccion abierta, y solo si su contenido no cabe.
+    <div className="mx-auto flex h-dvh max-w-3xl flex-col overflow-hidden px-6 py-8">
+      <Cabecera sesion={sesion} />
+
+      <main className="flex min-h-0 flex-1 flex-col pt-8">
+        <h1 className="shrink-0 text-2xl font-bold tracking-tight">Ajustes</h1>
+
+        <div className="mt-6 min-h-0 flex-1">
+          <PanelAjustes secciones={secciones} />
+        </div>
       </main>
     </div>
   );
