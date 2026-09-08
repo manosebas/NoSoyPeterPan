@@ -123,7 +123,7 @@ export function FormularioPerfil({
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <div className="flex items-center gap-5">
         <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-linea bg-white text-xl font-semibold text-humo">
           {avatarUrl ? (
@@ -156,7 +156,7 @@ export function FormularioPerfil({
         </div>
       </div>
 
-      <form onSubmit={guardarNombre} className="space-y-5">
+      <form onSubmit={guardarNombre} className="max-w-md space-y-4">
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">Nombre</span>
           <input

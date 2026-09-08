@@ -4,6 +4,7 @@ import { FormularioAjustes } from '@/components/FormularioAjustes';
 import { FormularioPerfil } from '@/components/FormularioPerfil';
 import { MetasCategoria } from '@/components/juego/MetasCategoria';
 import { PanelAjustes, type SeccionAjustes } from '@/components/juego/PanelAjustes';
+import { Pagina } from '@/components/Pagina';
 import { PlazosPorDefecto } from '@/components/juego/PlazosPorDefecto';
 import { cargaJuego } from '@/lib/juego';
 import { iniciales, nombreVisible, obtenerSesionConPerfil } from '@/lib/perfil';
@@ -65,7 +66,7 @@ export default async function AjustesPagina() {
             iniciales={iniciales(nombre)}
           />
 
-          <div className="mt-12 border-t border-linea pt-10">
+          <div className="mt-8 border-t border-linea pt-8">
             <FormularioAjustes emailActual={sesion.email ?? ''} />
           </div>
         </>
@@ -96,7 +97,7 @@ export default async function AjustesPagina() {
   return (
     // Altura fija y sin scroll de pagina: lo unico que se desplaza es la
     // seccion abierta, y solo si su contenido no cabe.
-    <div className="mx-auto flex h-dvh max-w-3xl flex-col overflow-hidden px-6 py-8">
+    <Pagina fija>
       <Cabecera sesion={sesion} />
 
       <main className="flex min-h-0 flex-1 flex-col pt-8">
@@ -106,6 +107,6 @@ export default async function AjustesPagina() {
           <PanelAjustes secciones={secciones} />
         </div>
       </main>
-    </div>
+    </Pagina>
   );
 }

@@ -2,6 +2,7 @@ import { fuerzaDeRama, VOTOS_POR_NIVEL_DEFECTO } from '@nspp/shared';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
+import { Pagina } from '@/components/Pagina';
 import { Barra } from '@/components/juego/Barra';
 import { textoActividad } from '@/lib/formato';
 import { cargaJuego } from '@/lib/juego';
@@ -43,7 +44,7 @@ export default async function Perfil() {
     .slice(0, 6);
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-2xl flex-col px-6 py-8">
+    <Pagina>
       <Cabecera sesion={sesion} />
 
       <main className="flex-1 py-10">
@@ -80,7 +81,7 @@ export default async function Perfil() {
               Esto no mide lo que te falta. Mide lo que ya construiste, y no baja.
             </p>
 
-            <ul className="mt-6 space-y-7">
+            <ul className="mt-6 grid gap-x-12 gap-y-7 sm:grid-cols-2">
               {vivas.map(({ categoria, fuerza, meta, abiertos }) => (
                 <li key={categoria.id}>
                   <div className="flex items-baseline justify-between gap-4">
@@ -117,6 +118,7 @@ export default async function Perfil() {
           </>
         )}
 
+        <div className="grid gap-x-12 lg:grid-cols-2">
         {ultimos.length > 0 && (
           <section className="mt-12 border-t border-linea pt-8">
             <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
@@ -157,7 +159,8 @@ export default async function Perfil() {
             </p>
           </section>
         )}
+        </div>
       </main>
-    </div>
+    </Pagina>
   );
 }

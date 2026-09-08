@@ -24,7 +24,7 @@ export function PanelAjustes({ secciones }: { secciones: SeccionAjustes[] }) {
   return (
     <div className="flex h-full min-h-0 gap-8">
       {/* Lista: siempre visible en escritorio, se esconde en movil al abrir. */}
-      <nav className={`w-full shrink-0 md:block md:w-64 ${abierta ? 'hidden' : ''}`}>
+      <nav className={`w-full shrink-0 md:block md:w-72 ${abierta ? 'hidden' : ''}`}>
         <ul className="space-y-1">
           {secciones.map((s) => {
             const seleccionada = s.id === abierta?.id;

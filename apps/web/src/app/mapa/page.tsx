@@ -8,6 +8,7 @@ import {
 } from '@nspp/shared';
 import { redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
+import { Pagina } from '@/components/Pagina';
 import { Arbol } from '@/components/juego/Arbol';
 import { NuevoObjetivo } from '@/components/juego/NuevoObjetivo';
 import { cargaJuego, porId } from '@/lib/juego';
@@ -37,7 +38,7 @@ export default async function Mapa() {
   const raices = construyeArbol(juego.objetivos);
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-8">
+    <Pagina>
       <Cabecera sesion={sesion} />
 
       <main className="flex-1 py-10">
@@ -62,11 +63,13 @@ export default async function Mapa() {
           />
         </div>
 
+        {/* Dos columnas de secciones: el mapa entero cabe sin bajar tanto. */}
+        <div className="mt-10 grid gap-x-12 gap-y-10 lg:grid-cols-2">
         {SECCIONES.map((seccion) => {
           const propias = raices.filter((r) => encajaEn(r, seccion.clave, juego.plazos));
 
           return (
-            <section key={seccion.clave} className="mt-12">
+            <section key={seccion.clave}>
               <div className="flex items-baseline justify-between gap-4 border-b border-linea pb-2">
                 <h2 className="text-xs font-semibold uppercase tracking-[0.2em]">
                   {seccion.etiqueta}
@@ -105,8 +108,9 @@ export default async function Mapa() {
             </section>
           );
         })}
+        </div>
       </main>
-    </div>
+    </Pagina>
   );
 }
 

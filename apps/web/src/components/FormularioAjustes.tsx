@@ -64,7 +64,7 @@ export function FormularioAjustes({ emailActual }: { emailActual: string }) {
   }
 
   return (
-    <div className="space-y-12">
+    <div className="max-w-md space-y-8">
       <form onSubmit={cambiarCorreo} className="space-y-4">
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">Correo</span>
@@ -86,7 +86,7 @@ export function FormularioAjustes({ emailActual }: { emailActual: string }) {
         </button>
       </form>
 
-      <form onSubmit={cambiarPassword} className="space-y-4 border-t border-linea pt-10">
+      <form onSubmit={cambiarPassword} className="space-y-4 border-t border-linea pt-8">
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
             Nueva contraseña

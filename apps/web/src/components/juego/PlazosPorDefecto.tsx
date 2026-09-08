@@ -55,8 +55,8 @@ export function PlazosPorDefecto({
           const enUnidad = Math.max(1, Math.round(valores[fila.clave] / fila.porUnidad));
 
           return (
-            <li key={fila.clave} className="flex items-center gap-3 py-3">
-              <span className="flex-1 text-sm">{fila.nombre}</span>
+            <li key={fila.clave} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3">
+              <span className="min-w-24 flex-1 text-sm">{fila.nombre}</span>
 
               <input
                 type="number"

@@ -56,14 +56,14 @@ export function MetasCategoria({
           const valor = valores[c.id] ?? VOTOS_POR_NIVEL_DEFECTO;
 
           return (
-            <li key={c.id} className="flex flex-wrap items-center gap-3 py-3">
+            <li key={c.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3">
               <span
                 className="h-2 w-2 shrink-0 rounded-full"
                 style={{ backgroundColor: c.color }}
               />
-              <span className="min-w-28 flex-1 text-sm">{c.nombre}</span>
+              <span className="min-w-24 flex-1 truncate text-sm">{c.nombre}</span>
 
-              <span className="flex items-center gap-1">
+              <span className="flex shrink-0 items-center gap-1">
                 {ATAJOS.map((a) => (
                   <button
                     key={a}
