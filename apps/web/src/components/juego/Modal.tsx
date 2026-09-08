@@ -17,22 +17,32 @@ export function Modal({
 }) {
   const caja = useRef<HTMLDivElement>(null);
 
+  // El cierre vive en una ref para que el efecto de abajo corra una sola vez.
+  // Con `onCerrar` en las dependencias se re-ejecutaba en cada tecla y devolvia
+  // el foco al contenedor: se podia escribir una sola letra por vez.
+  const cerrar = useRef(onCerrar);
+  cerrar.current = onCerrar;
+
   useEffect(() => {
     function alEscape(e: KeyboardEvent) {
-      if (e.key === 'Escape') onCerrar();
+      if (e.key === 'Escape') cerrar.current();
     }
 
     document.addEventListener('keydown', alEscape);
     // El fondo no se desplaza mientras el modal esta abierto.
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    caja.current?.focus();
+
+    // Solo si adentro no hay ya algo enfocado: el campo con autoFocus manda.
+    if (!caja.current?.contains(document.activeElement)) {
+      caja.current?.focus({ preventScroll: true });
+    }
 
     return () => {
       document.removeEventListener('keydown', alEscape);
       document.body.style.overflow = overflow;
     };
-  }, [onCerrar]);
+  }, []);
 
   return (
     <div
