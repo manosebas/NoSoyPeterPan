@@ -1,0 +1,25 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# entornos locales: este proyecto NO corre en local.
+# Todas las variables viven en Vercel y Railway.
+.env
+.env.*
+!.env.example
+
+# tooling
+.turbo/
+.vercel/
+coverage/
+
+# so
+.DS_Store
+Thumbs.db

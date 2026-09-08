@@ -1,0 +1,28 @@
+{
+  "name": "nosoypeterpan",
+  "version": "0.1.0",
+  "private": true,
+  "description": "No Soy Peter Pan - un juego para salir de Nunca Jamas",
+  "packageManager": "pnpm@10.18.0",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean && rimraf node_modules"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "esbuild",
+      "sharp"
+    ]
+  }
+}
