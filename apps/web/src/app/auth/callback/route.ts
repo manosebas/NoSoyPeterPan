@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get('code');
   const siguiente = searchParams.get('siguiente');
-  const destino = siguiente?.startsWith('/') ? siguiente : '/mapa';
+  const destino = siguiente?.startsWith('/') ? siguiente : '/hoy';
 
   if (!code) {
     return NextResponse.redirect(`${origin}/entrar?error=sin_codigo`);

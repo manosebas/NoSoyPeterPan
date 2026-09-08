@@ -19,7 +19,7 @@ export default async function Entrar({
   const { siguiente, error } = await searchParams;
   const aviso = error ? AVISOS[error] : undefined;
   // Solo rutas internas: evita que un `siguiente` externo nos use de redirector.
-  const destino = siguiente?.startsWith('/') ? siguiente : '/mapa';
+  const destino = siguiente?.startsWith('/') ? siguiente : '/hoy';
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-6 py-16">

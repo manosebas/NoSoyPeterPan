@@ -15,10 +15,11 @@ export default async function PerfilPagina() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-10">
-      <Cabecera sesion={sesion} titulo="Tu perfil" />
+      <Cabecera sesion={sesion} />
 
       <main className="flex-1 py-10">
-        <p className="mb-10 text-humo">Quién eres aquí. Tu cara y tu nombre, nada más.</p>
+        <h1 className="text-2xl font-bold tracking-tight">Tu perfil</h1>
+        <p className="mb-10 mt-1 text-sm text-humo">Quién eres aquí. Tu cara y tu nombre, nada más.</p>
 
         <FormularioPerfil
           usuarioId={sesion.usuarioId}

@@ -123,18 +123,14 @@ Plataforma web donde la gente entra a organizar sus objetivos y cumplirlos. Ese 
 
 **Estado actual**: base desplegada y verificada de punta a punta (2026-09-08). Landing, autenticación con Supabase (alta con nombre, ingreso, sesión en cookies), ruta protegida `/mapa`, perfil con foto en Storage, ajustes de cuenta y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
 
-El modelo del juego ya está decidido y tipado: un árbol de objetivos con categorías y votos (`supabase/migrations/0003_objetivos.sql`, `0004_categorias_votos.sql`, `packages/shared/src/domain.ts`, `docs/JUEGO.md`). Falta la interfaz que lo hace jugable.
+El juego está jugable: se crean objetivos, se desglosan hasta seis niveles, se marcan las hojas y cada marca emite un voto que hace crecer su rama. Cuatro pantallas sobre el mismo árbol — Hoy, Mapa, Ramas y la de un objetivo — más Perfil y Ajustes. Modelo en `supabase/migrations/0003_objetivos.sql` y `0004_categorias_votos.sql`; el detalle vive en `docs/JUEGO.md`.
 
 ### Próximos pasos
 
-1. **La vista de un objetivo** — migas, barra de progreso y lista de hijos. Es toda la interfaz del juego: la misma pantalla sirve para el Norte y para la acción de hoy.
-2. **Crear y desglosar** — escribir un objetivo, elegir plazo (fecha sugerida según el nivel) y colgarle hijos.
-3. **Marcar** — casilla en las hojas; el progreso de los padres se recalcula solo.
-4. **Hoy** — lo que vence hoy de cualquier árbol, más los objetivos sueltos del día.
-5. **Ramas** — la fuerza de cada categoría y su meta editable en Ajustes.
-6. **Nunca Jamás** — la lista de objetivos sin fecha, visible y con su antigüedad.
-
-Los tres primeros son el mínimo jugable.
+1. **Nunca Jamás** — la lista de objetivos sin fecha, visible y con su antigüedad. Hoy se ven uno por uno, pero no pesan juntos.
+2. **Adoptar un suelto** — ofrecer colgar de un árbol lo que se repite cada semana.
+3. **La Sombra** — el costo acumulado de lo que lleva meses sin fecha.
+4. **Reordenar y renombrar** — `orden` existe en la tabla pero la UI todavía no lo mueve.
 
 ### Decisiones pendientes
 

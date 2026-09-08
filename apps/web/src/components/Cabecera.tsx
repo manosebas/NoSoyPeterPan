@@ -1,26 +1,20 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { NavPrincipal } from '@/components/juego/NavPrincipal';
 import { MenuAvatar } from '@/components/MenuAvatar';
 import { iniciales, nombreVisible, type SesionConPerfil } from '@/lib/perfil';
 
-/** Cabecera de la app con sesion. Titulo a la izquierda, avatar a la derecha. */
-export function Cabecera({ sesion, titulo }: { sesion: SesionConPerfil; titulo: string }) {
+/** Cabecera de la app con sesion: logo, los tres destinos y el avatar. */
+export function Cabecera({ sesion }: { sesion: SesionConPerfil }) {
   const nombre = nombreVisible(sesion.perfil, sesion.email);
 
   return (
-    <header className="flex items-center justify-between border-b border-linea pb-6">
-      <div className="flex items-center gap-3">
-        <Link href="/mapa" aria-label="El Mapa">
-          <Image
-            src="/logo.png"
-            alt=""
-            width={32}
-            height={32}
-            className="h-8 w-8 object-contain"
-          />
-        </Link>
-        <h1 className="text-2xl font-bold tracking-tight">{titulo}</h1>
-      </div>
+    <header className="flex items-center justify-between gap-4 border-b border-linea pb-5">
+      <Link href="/hoy" aria-label="Inicio" className="shrink-0">
+        <Image src="/logo.png" alt="" width={32} height={32} className="h-8 w-8 object-contain" />
+      </Link>
+
+      <NavPrincipal />
 
       <MenuAvatar
         nombre={nombre}
