@@ -5,10 +5,12 @@
 -- Largo, mediano y corto no significan lo mismo para todos: hay vidas que se
 -- planean a diez anos y proyectos que a dos anos ya son largo plazo. La fecha
 -- sigue siendo el dato real; esto solo decide que dia se propone al crear.
+--
+-- De fabrica: 3 anos, 1 ano y 90 dias.
 
 create table if not exists public.preferencias (
   usuario_id uuid primary key references auth.users (id) on delete cascade,
-  dias_largo integer not null default 1825,
+  dias_largo integer not null default 1095,
   dias_mediano integer not null default 365,
   dias_corto integer not null default 90,
   constraint preferencias_plazos_ordenados
