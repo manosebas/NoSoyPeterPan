@@ -33,8 +33,8 @@ export default async function Mapa() {
   const categorias = porId(juego.categorias);
 
   // Solo raices: lo que cuelga de un objetivo se ve dentro de su arbol, no
-  // repetido en la seccion de su plazo. Los sueltos del dia viven en Hoy.
-  const raices = construyeArbol(juego.objetivos).filter((n) => !n.suelto);
+  // repetido en la seccion de su plazo.
+  const raices = construyeArbol(juego.objetivos);
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-8">

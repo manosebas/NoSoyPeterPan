@@ -45,7 +45,6 @@ Se apunta a sí misma por `padre_id`.
 | `detalle` | Opcional. El porqué, si quiere dejarlo escrito. |
 | `vence_el` | Fecha. `null` = vive en Nunca Jamás. |
 | `completado_en` | Cuándo se marcó. Solo lo llevan las hojas. |
-| `suelto` | Objetivo del día sin árbol. Solo puede ser `true` en una raíz. |
 | `orden` | Orden manual dentro de su nivel. |
 | `profundidad` | Derivada del padre. Topa el desglose en 6 niveles. |
 
@@ -80,6 +79,16 @@ bajar**. Si se contara sobre `objetivos.completado_en`, tu historia se borraría
 al limpiar un árbol viejo o al desmarcar una casilla. Un objetivo vota una sola
 vez (índice único), así que marcar y desmarcar no infla nada, y si borras el
 objetivo el voto sobrevive con `objetivo_id` en null.
+
+### `pendientes` — los to-do del día
+
+`id`, `usuario_id`, `titulo`, `creado_en`. Nada más: sin rama, sin fecha, sin
+padre y sin `completado_en`, porque marcar un to-do es borrar la fila.
+
+Vive fuera de `objetivos` a propósito. Si «sacar la basura» emitiera voto,
+pesaría lo mismo que «terminar el portafolio», y la fuerza de una rama dejaría
+de significar algo. Un to-do no construye nada: existe para que la cabeza lo
+suelte.
 
 ### `metas_categoria` — cómo sube tu barra
 
@@ -125,20 +134,16 @@ Eso es la regla 7: se dice sin humillar y sin maquillar.
 
 ---
 
-## 4. Los objetivos del día
+## 4. Los to-do del día
 
-«Ir al doctor» no cuelga de ningún objetivo grande. Es una raíz con `suelto` en
-`true`, fecha de hoy y su categoría.
+«Sacar la basura» no cuelga de ningún objetivo grande y nunca va a colgar. La
+regla 1 dice que ninguna *misión* es huérfana, y se sostiene: en `objetivos`
+todo tiene rama, árbol y voto, sin una sola excepción.
 
-La regla 1 dice que el producto *señala* las misiones huérfanas, no que las
-prohíba: la vida tiene mantenimiento, y negarlo hace la herramienta inútil para
-el martes real. Pero viven en la misma tabla, no en una aparte, por tres cosas:
-
-- Un solo motor de progreso y un solo componente de checklist.
-- Ya encajan en el modelo: raíz, sin desglose, con fecha.
-- **Se pueden adoptar.** Si algo se repite cada mes, el producto puede
-  preguntar *"esto que haces siempre, ¿de qué objetivo tuyo es parte?"* y
-  colgarlo de un árbol con un `update`. Con dos tablas eso sería una migración.
+Los to-do son otra cosa y por eso son otra tabla. La vida tiene mantenimiento, y
+negarlo hace la herramienta inútil para el martes real; pero contarlo como
+progreso sería mentir. Así que se pueden anotar, se marcan, desaparecen, y no
+dejan rastro en ninguna barra.
 
 ---
 
@@ -150,9 +155,11 @@ tocando un objetivo.
 
 ### Hoy — el nivel de las hojas
 
-Entrada de la app. Lo que vence hoy o antes de cualquier árbol, más los sueltos
-del día. Cada línea con el color de su rama y, en letra chica, la meta de la que
-cuelga: nunca marcas algo sin ver para qué.
+Entrada de la app, en dos secciones. Arriba, *De tus objetivos*: lo que vence
+hoy o antes de cualquier árbol, cada línea con el color de su rama y, en letra
+chica, la meta de la que cuelga — nunca marcas algo sin ver para qué. Abajo,
+*To-do*: lo que hay que hacer y no construye nada. Se escribe en una línea, se
+marca, se borra.
 
 ### Enfoque — un nodo
 

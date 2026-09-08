@@ -14,7 +14,6 @@ export type NuevoObjetivo = {
   categoriaId: string;
   titulo: string;
   venceEl: string | null;
-  suelto?: boolean;
 };
 
 export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<void> {
@@ -25,7 +24,6 @@ export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<void> {
     categoria_id: nuevo.categoriaId,
     titulo: nuevo.titulo.trim(),
     vence_el: nuevo.venceEl,
-    suelto: nuevo.suelto ?? false,
   });
   if (error) throw error;
 }
@@ -59,6 +57,22 @@ export async function actualizaObjetivo(
 export async function borraObjetivo(id: string): Promise<void> {
   const supabase = createClienteNavegador();
   const { error } = await supabase.from('objetivos').delete().eq('id', id);
+  if (error) throw error;
+}
+
+/** Un to-do del dia. Sin rama y sin fecha: no construye nada, solo estorba. */
+export async function creaPendiente(usuarioId: string, titulo: string): Promise<void> {
+  const supabase = createClienteNavegador();
+  const { error } = await supabase
+    .from('pendientes')
+    .insert({ usuario_id: usuarioId, titulo: titulo.trim() });
+  if (error) throw error;
+}
+
+/** Marcar un to-do es borrarlo: no deja historia porque no la merece. */
+export async function borraPendiente(id: string): Promise<void> {
+  const supabase = createClienteNavegador();
+  const { error } = await supabase.from('pendientes').delete().eq('id', id);
   if (error) throw error;
 }
 

@@ -19,7 +19,6 @@ export function NuevoObjetivo({
   categorias,
   profundidad,
   dias,
-  suelto = false,
   etiqueta,
   titulo = 'Nuevo objetivo',
   comoModal = false,
@@ -33,7 +32,6 @@ export function NuevoObjetivo({
   categorias: Categoria[];
   profundidad: number;
   dias: DiasPlazo;
-  suelto?: boolean;
   /** Texto del boton que abre el formulario. */
   etiqueta: string;
   titulo?: string;
@@ -43,8 +41,8 @@ export function NuevoObjetivo({
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [texto, setTexto] = useState('');
-  // Lo del dia no necesita fecha; lo del mapa llega con el plazo de su altura.
-  const [plazo, setPlazo] = useState<Eleccion>(suelto ? 'sin_fecha' : plazoPorDefecto(profundidad));
+  // El plazo llega elegido segun la altura: mientras mas abajo, mas cerca.
+  const [plazo, setPlazo] = useState<Eleccion>(plazoPorDefecto(profundidad));
   const [categoriaId, setCategoriaId] = useState(categoriaHeredada ?? categorias[0]?.id ?? 'salud');
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +66,6 @@ export function NuevoObjetivo({
         categoriaId: categoriaHeredada ?? categoriaId,
         titulo: texto,
         venceEl: plazo === 'sin_fecha' ? null : recorta(fechaDePlazo(plazo, dias), padreVenceEl),
-        suelto,
       });
 
       setTexto('');

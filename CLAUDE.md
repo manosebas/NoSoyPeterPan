@@ -127,10 +127,9 @@ El juego está jugable: se crean objetivos, se desglosan hasta seis niveles, se 
 
 ### Próximos pasos
 
-1. **Nunca Jamás** — la lista de objetivos sin fecha, visible y con su antigüedad. Hoy se ven uno por uno, pero no pesan juntos.
-2. **Adoptar un suelto** — ofrecer colgar de un árbol lo que se repite cada semana.
-3. **La Sombra** — el costo acumulado de lo que lleva meses sin fecha.
-4. **Reordenar y renombrar** — `orden` existe en la tabla pero la UI todavía no lo mueve.
+1. **La Sombra** — el costo acumulado de lo que lleva meses sin fecha. La sección «Sin fecha» del Mapa ya los junta, pero todavía no pesan.
+2. **Reordenar y renombrar** — `orden` existe en la tabla pero la UI todavía no lo mueve.
+3. **Nunca Jamás con antigüedad** — cuánto lleva esperando cada objetivo sin fecha.
 
 ### Decisiones pendientes
 

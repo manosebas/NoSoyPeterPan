@@ -40,8 +40,6 @@ export interface Objetivo {
   padreId: string | null;
   /** Se hereda del padre al crear. Cambiarla mueve el objetivo de rama. */
   categoriaId: string;
-  /** Objetivo del dia sin arbol. Solo puede ser true en una raiz. */
-  suelto: boolean;
   titulo: string;
   detalle: string | null;
   venceEl: string | null;
@@ -266,6 +264,20 @@ export function fuerzaDeRama(
     recientes,
     diasQuieta: ultimo === 0 ? null : Math.floor((ahora.getTime() - ultimo) / 86_400_000),
   };
+}
+
+/**
+ * Un to-do del dia: "sacar la basura". No tiene rama, ni fecha, ni padre, y
+ * cumplirlo no emite voto ni construye nada. Marcarlo lo borra.
+ *
+ * Vive fuera de `objetivos` a proposito: si contara como voto, sacar la basura
+ * pesaria lo mismo que terminar el portafolio.
+ */
+export interface Pendiente {
+  id: string;
+  usuarioId: UsuarioId;
+  titulo: string;
+  creadoEn: string;
 }
 
 /** Perfil publico del usuario, espejo de auth.users. */

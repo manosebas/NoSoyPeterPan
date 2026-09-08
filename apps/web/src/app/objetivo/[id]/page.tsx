@@ -122,12 +122,6 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
           )}
           <span aria-hidden>·</span>
           <span>{categoria?.nombre}</span>
-          {nodo.suelto && (
-            <>
-              <span aria-hidden>·</span>
-              <span>del día</span>
-            </>
-          )}
         </p>
 
         {!hoja && (

@@ -1,4 +1,11 @@
-import { DIAS_PLAZO_DEFECTO, type Categoria, type DiasPlazo, type Objetivo, type Voto } from '@nspp/shared';
+import {
+  DIAS_PLAZO_DEFECTO,
+  type Categoria,
+  type DiasPlazo,
+  type Objetivo,
+  type Pendiente,
+  type Voto,
+} from '@nspp/shared';
 import { createClienteServidor } from '@/lib/supabase/server';
 
 /** Filas crudas: snake_case, como viven en Postgres. */
@@ -7,7 +14,6 @@ type FilaObjetivo = {
   usuario_id: string;
   padre_id: string | null;
   categoria_id: string;
-  suelto: boolean;
   titulo: string;
   detalle: string | null;
   vence_el: string | null;
@@ -31,6 +37,8 @@ export type Juego = {
   objetivos: Objetivo[];
   categorias: Categoria[];
   votos: Voto[];
+  /** Los to-do del dia. Sin rama, sin fecha, sin voto. */
+  pendientes: Pendiente[];
   /** votos_por_nivel por categoria. Sin entrada vale el valor por defecto. */
   metas: Record<string, number>;
   /** Cuanto dura cada plazo para esta persona. */
@@ -51,7 +59,7 @@ export async function cargaJuego(): Promise<Juego | null> {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const [objetivos, categorias, votos, metas, preferencias] = await Promise.all([
+  const [objetivos, categorias, votos, metas, preferencias, pendientes] = await Promise.all([
     supabase.from('objetivos').select('*').order('orden').returns<FilaObjetivo[]>(),
     supabase.from('categorias').select('*').order('orden').returns<Categoria[]>(),
     supabase.from('votos').select('*').returns<FilaVoto[]>(),
@@ -63,6 +71,11 @@ export async function cargaJuego(): Promise<Juego | null> {
       .from('preferencias')
       .select('dias_largo, dias_mediano, dias_corto')
       .maybeSingle<{ dias_largo: number; dias_mediano: number; dias_corto: number }>(),
+    supabase
+      .from('pendientes')
+      .select('id, usuario_id, titulo, creado_en')
+      .order('creado_en')
+      .returns<{ id: string; usuario_id: string; titulo: string; creado_en: string }[]>(),
   ]);
 
   return {
@@ -70,6 +83,12 @@ export async function cargaJuego(): Promise<Juego | null> {
     objetivos: (objetivos.data ?? []).map(aObjetivo),
     categorias: categorias.data ?? [],
     votos: (votos.data ?? []).map(aVoto),
+    pendientes: (pendientes.data ?? []).map((p) => ({
+      id: p.id,
+      usuarioId: p.usuario_id,
+      titulo: p.titulo,
+      creadoEn: p.creado_en,
+    })),
     metas: Object.fromEntries((metas.data ?? []).map((m) => [m.categoria_id, m.votos_por_nivel])),
     plazos: preferencias.data
       ? {
@@ -87,7 +106,6 @@ function aObjetivo(f: FilaObjetivo): Objetivo {
     usuarioId: f.usuario_id,
     padreId: f.padre_id,
     categoriaId: f.categoria_id,
-    suelto: f.suelto,
     titulo: f.titulo,
     detalle: f.detalle,
     venceEl: f.vence_el,
