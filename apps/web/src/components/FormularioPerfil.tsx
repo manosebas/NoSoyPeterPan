@@ -2,9 +2,36 @@
 
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
+import { mensajeError } from '@/lib/errores';
 import { createClienteNavegador } from '@/lib/supabase/client';
 
-const MAX_BYTES = 2 * 1024 * 1024;
+/** Mismo tope que el bucket foto_perfiles: fallar aca da mejor mensaje. */
+const MAX_BYTES = 200 * 1024 * 1024;
+const BUCKET = 'foto_perfiles';
+
+/**
+ * Guarda campos del perfil propio.
+ *
+ * Primero `update`, y solo si no existe la fila se intenta `insert`. Un `upsert`
+ * emite INSERT ... ON CONFLICT y por eso exige tambien politica de insert; el
+ * update aprovecha la que ya existe desde 0001.
+ */
+async function guardarPerfil(usuarioId: string, campos: Record<string, string | null>) {
+  const supabase = createClienteNavegador();
+
+  const { data, error } = await supabase
+    .from('perfiles')
+    .update(campos)
+    .eq('id', usuarioId)
+    .select('id');
+  if (error) throw error;
+  if (data && data.length > 0) return;
+
+  const { error: errorAlta } = await supabase
+    .from('perfiles')
+    .insert({ id: usuarioId, ...campos });
+  if (errorAlta) throw errorAlta;
+}
 
 /** Edicion del perfil: nombre y avatar. Nada mas, y esa es la idea. */
 export function FormularioPerfil({
@@ -34,16 +61,12 @@ export function FormularioPerfil({
     setAviso(null);
 
     try {
-      const supabase = createClienteNavegador();
-      const { error } = await supabase
-        .from('perfiles')
-        .upsert({ id: usuarioId, nombre: nombre.trim() || null });
-      if (error) throw error;
+      await guardarPerfil(usuarioId, { nombre: nombre.trim() || null });
 
       setAviso('Listo, así te llamamos ahora.');
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'No se pudo guardar.');
+      setError(mensajeError(e, 'No se pudo guardar.'));
     } finally {
       setCargando(false);
     }
@@ -61,7 +84,7 @@ export function FormularioPerfil({
       return;
     }
     if (archivo.size > MAX_BYTES) {
-      setError('La imagen pesa más de 2 MB. Busca una más liviana.');
+      setError('La imagen pesa más de 200 MB y el bucket la rechaza.');
       return;
     }
 
@@ -73,25 +96,22 @@ export function FormularioPerfil({
       const ruta = `${usuarioId}/avatar`;
 
       const { error: errorSubida } = await supabase.storage
-        .from('avatares')
+        .from(BUCKET)
         .upload(ruta, archivo, { upsert: true, contentType: archivo.type });
       if (errorSubida) throw errorSubida;
 
-      const { data } = supabase.storage.from('avatares').getPublicUrl(ruta);
+      const { data } = supabase.storage.from(BUCKET).getPublicUrl(ruta);
       // La ruta no cambia, asi que sin el sufijo el navegador seguiria
       // mostrando la imagen vieja desde cache.
       const url = `${data.publicUrl}?v=${Date.now()}`;
 
-      const { error: errorPerfil } = await supabase
-        .from('perfiles')
-        .upsert({ id: usuarioId, avatar_url: url });
-      if (errorPerfil) throw errorPerfil;
+      await guardarPerfil(usuarioId, { avatar_url: url });
 
       setAvatarUrl(url);
-      setAviso('Avatar actualizado.');
+      setAviso('Foto actualizada.');
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'No se pudo subir la imagen.');
+      setError(mensajeError(e, 'No se pudo subir la imagen.'));
     } finally {
       setSubiendo(false);
       if (archivoRef.current) archivoRef.current.value = '';
@@ -119,7 +139,7 @@ export function FormularioPerfil({
           >
             {subiendo ? 'Subiendo…' : avatarUrl ? 'Cambiar foto' : 'Subir foto'}
           </button>
-          <p className="mt-2 text-xs text-humo">JPG o PNG, máximo 2 MB.</p>
+          <p className="mt-2 text-xs text-humo">Cualquier imagen. Mientras más liviana, mejor.</p>
           <input
             ref={archivoRef}
             type="file"

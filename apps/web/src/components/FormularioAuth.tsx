@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { mensajeError } from '@/lib/errores';
 import { createClienteNavegador } from '@/lib/supabase/client';
 
 type Modo = 'entrar' | 'crear';
@@ -52,7 +53,7 @@ export function FormularioAuth({ siguiente }: { siguiente: string }) {
       }
       setAviso('Revisa tu correo y confirma la cuenta para entrar.');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Algo salió mal. Inténtalo de nuevo.');
+      setError(mensajeError(e, 'Algo salió mal. Inténtalo de nuevo.'));
     } finally {
       setCargando(false);
     }

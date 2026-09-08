@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { mensajeError } from '@/lib/errores';
 import { createClienteNavegador } from '@/lib/supabase/client';
 
 /** Ajustes de la cuenta: correo y contraseña. Cada bloque guarda por separado. */
@@ -36,7 +37,7 @@ export function FormularioAjustes({ emailActual }: { emailActual: string }) {
       setAviso('Te mandamos un correo de confirmación. Hasta que lo abras, sigue el anterior.');
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'No se pudo cambiar el correo.');
+      setError(mensajeError(e, 'No se pudo cambiar el correo.'));
     } finally {
       setPendiente(null);
     }
@@ -56,7 +57,7 @@ export function FormularioAjustes({ emailActual }: { emailActual: string }) {
       setPassword('');
       setAviso('Contraseña actualizada.');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'No se pudo cambiar la contraseña.');
+      setError(mensajeError(e, 'No se pudo cambiar la contraseña.'));
     } finally {
       setPendiente(null);
     }
