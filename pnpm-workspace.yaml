@@ -6,3 +6,8 @@ onlyBuiltDependencies:
   - "@tailwindcss/oxide"
   - esbuild
   - sharp
+
+# postcss llega como dependencia transitiva de next, que aun fija una version
+# con avisos de seguridad. Forzamos la linea parcheada del mismo major.
+overrides:
+  postcss: "^8.5.23"
