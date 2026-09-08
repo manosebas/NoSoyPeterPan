@@ -24,13 +24,26 @@ primero `@nspp/shared`.
 
 ## Railway (backend)
 
+**Un solo servicio: el API.** Al importar el repo, Railway detecta el monorepo
+pnpm y propone un servicio por workspace (`@nspp/api` y `@nspp/web`). El de web
+se elimina: el frontend vive en Vercel. Dejarlo en los dos lados duplica costo y
+rompe el flujo de previews.
+
+Configuracion del servicio que queda:
+
+- **Root Directory**: la raiz del repo (`/`), no `apps/api`. El build necesita
+  el workspace completo para compilar antes `@nspp/shared`.
+- El dominio publico (Settings > Networking) y todas las variables se
+  configuran **en este servicio**.
+
 Un proyecto con dos ambientes, cada uno conectado a su rama:
 
 - ambiente dev -> rama `dev`
 - ambiente prod -> rama `main`
 
-`railway.json` en la raiz define build, arranque y healthcheck en `/health`.
-El servicio apunta a la raiz del repo, no a `apps/api`.
+`railway.json` en la raiz define build, arranque y healthcheck en `/health`, y
+limita los redespliegues a cambios que tocan el backend (`watchPatterns`): un
+cambio solo de frontend ya no reconstruye el API.
 
 ## Orden de la primera puesta en marcha
 
