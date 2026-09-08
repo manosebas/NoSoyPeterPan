@@ -9,6 +9,7 @@ type Modo = 'entrar' | 'crear';
 export function FormularioAuth({ siguiente }: { siguiente: string }) {
   const router = useRouter();
   const [modo, setModo] = useState<Modo>('entrar');
+  const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -36,6 +37,8 @@ export function FormularioAuth({ siguiente }: { siguiente: string }) {
         email,
         password,
         options: {
+          // Lo lee el trigger maneja_usuario_nuevo() y lo copia a perfiles.nombre.
+          data: { nombre: nombre.trim() },
           // El origen se resuelve en runtime: sirve igual en prod y en cada preview.
           emailRedirectTo: `${window.location.origin}/auth/callback?siguiente=${encodeURIComponent(siguiente)}`,
         },
@@ -75,6 +78,21 @@ export function FormularioAuth({ siguiente }: { siguiente: string }) {
           </button>
         ))}
       </div>
+
+      {modo === 'crear' && (
+        <label className="block">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">Nombre</span>
+          <input
+            type="text"
+            required
+            maxLength={80}
+            autoComplete="name"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            className="mt-2 w-full rounded-lg border border-linea bg-white px-4 py-3 outline-none focus:border-tinta"
+          />
+        </label>
+      )}
 
       <label className="block">
         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">Correo</span>
