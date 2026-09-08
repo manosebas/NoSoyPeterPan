@@ -3,11 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { mensajeError } from '@/lib/errores';
+import { reducirImagen } from '@/lib/imagen';
 import { createClienteNavegador } from '@/lib/supabase/client';
 
-/** Mismo tope que el bucket foto_perfiles: fallar aca da mejor mensaje. */
-const MAX_BYTES = 200 * 1024 * 1024;
-const BUCKET = 'foto_perfiles';
+/** Mismo tope que el bucket perfiles: fallar aca da mejor mensaje. */
+const MAX_BYTES = 50 * 1024 * 1024;
+const BUCKET = 'perfiles';
 
 /**
  * Guarda campos del perfil propio.
@@ -84,12 +85,15 @@ export function FormularioPerfil({
       return;
     }
     if (archivo.size > MAX_BYTES) {
-      setError('La imagen pesa más de 200 MB y el bucket la rechaza.');
+      setError('La imagen pesa más de 50 MB y el bucket la rechaza.');
       return;
     }
 
     setSubiendo(true);
     try {
+      // Se reescala en el navegador: sube el recorte de 512 px, no el original.
+      const reducida = await reducirImagen(archivo);
+
       const supabase = createClienteNavegador();
       // Ruta fija dentro de la carpeta del usuario: la politica de storage
       // exige que el primer segmento sea su uid, y el upsert evita basura.
@@ -97,7 +101,7 @@ export function FormularioPerfil({
 
       const { error: errorSubida } = await supabase.storage
         .from(BUCKET)
-        .upload(ruta, archivo, { upsert: true, contentType: archivo.type });
+        .upload(ruta, reducida.blob, { upsert: true, contentType: reducida.tipo });
       if (errorSubida) throw errorSubida;
 
       const { data } = supabase.storage.from(BUCKET).getPublicUrl(ruta);
@@ -139,7 +143,9 @@ export function FormularioPerfil({
           >
             {subiendo ? 'Subiendo…' : avatarUrl ? 'Cambiar foto' : 'Subir foto'}
           </button>
-          <p className="mt-2 text-xs text-humo">Cualquier imagen. Mientras más liviana, mejor.</p>
+          <p className="mt-2 text-xs text-humo">
+            Cualquier imagen. Se recorta cuadrada y se achica antes de subirla.
+          </p>
           <input
             ref={archivoRef}
             type="file"
