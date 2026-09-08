@@ -23,3 +23,6 @@ coverage/
 # so
 .DS_Store
 Thumbs.db
+
+# mcp: lleva el access token de Supabase, jamas al repo.
+.mcp.json
