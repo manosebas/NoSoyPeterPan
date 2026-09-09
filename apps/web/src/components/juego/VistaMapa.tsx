@@ -2,41 +2,30 @@
 
 import { useEffect, useState } from 'react';
 
-export type ModoMapa = 'cascada' | 'ramas' | 'tablero';
+export type ModoMapa = 'cascada' | 'ramas';
 
 const MODOS: { clave: ModoMapa; etiqueta: string; explica: string }[] = [
   { clave: 'cascada', etiqueta: 'Cascada', explica: 'Por plazo, con el desglose completo.' },
-  { clave: 'ramas', etiqueta: 'Ramas', explica: 'Por parte de tu vida, con su fuerza.' },
-  { clave: 'tablero', etiqueta: 'Tablero', explica: 'Columnas por plazo, para ver la carga.' },
+  { clave: 'ramas', etiqueta: 'Categorías', explica: 'Por parte de tu vida, con su fuerza.' },
 ];
 
 const LLAVE = 'nspp:vista-mapa';
 
 /**
- * Los tres modos del mapa. El mismo arbol mirado desde distinta altura: por
- * cuando (cascada), por que parte de tu vida (ramas) y cuanto pesa cada plazo
- * (tablero).
+ * Los dos modos del mapa. El mismo arbol mirado desde distinta altura: por
+ * cuando (cascada) y por que parte de tu vida (categorias).
  *
  * El modo elegido se recuerda en este navegador; si no se puede leer, se
  * empieza por cascada y no pasa nada.
  */
-export function VistaMapa({
-  cascada,
-  ramas,
-  tablero,
-}: {
-  cascada: React.ReactNode;
-  ramas: React.ReactNode;
-  tablero: React.ReactNode;
-}) {
+export function VistaMapa({ cascada, ramas }: { cascada: React.ReactNode; ramas: React.ReactNode }) {
   const [modo, setModo] = useState<ModoMapa>('cascada');
 
   useEffect(() => {
     try {
       const guardado = localStorage.getItem(LLAVE);
-      if (guardado === 'cascada' || guardado === 'ramas' || guardado === 'tablero') {
-        setModo(guardado);
-      }
+      // Lo guardado puede ser un modo que ya no existe: se ignora.
+      if (guardado === 'cascada' || guardado === 'ramas') setModo(guardado);
     } catch {
       // Navegador sin almacenamiento: se queda en cascada.
     }
@@ -78,7 +67,6 @@ export function VistaMapa({
       <div className="mt-8">
         {modo === 'cascada' && cascada}
         {modo === 'ramas' && ramas}
-        {modo === 'tablero' && tablero}
       </div>
     </>
   );

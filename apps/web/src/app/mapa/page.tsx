@@ -169,40 +169,6 @@ export default async function Mapa() {
                 ))}
               </div>
             }
-            tablero={
-              // Columnas: la unica vista donde se compara cuanto pesa cada plazo.
-              <div className="-mx-6 overflow-x-auto px-6 pb-2">
-                <div className="grid min-w-[64rem] grid-cols-5 gap-4">
-                  {porPlazo.map((seccion) => (
-                    <section key={seccion.clave}>
-                      <div className="flex items-baseline justify-between gap-2 border-b border-linea pb-2">
-                        <h2 className="text-xs font-semibold uppercase tracking-[0.16em]">
-                          {seccion.etiqueta}
-                        </h2>
-                        <span className="text-xs text-humo">{seccion.raices.length}</span>
-                      </div>
-
-                      <div className="mt-3 space-y-3">
-                        {seccion.raices.length === 0 ? (
-                          <Vacia />
-                        ) : (
-                          seccion.raices.map((raiz) => (
-                            <TarjetaRaiz
-                              key={raiz.id}
-                              raiz={raiz}
-                              categoria={categorias.get(raiz.categoriaId)}
-                              categorias={categorias}
-                              dias={juego.plazos}
-                              compacta
-                            />
-                          ))
-                        )}
-                      </div>
-                    </section>
-                  ))}
-                </div>
-              </div>
-            }
           />
         )}
       </main>

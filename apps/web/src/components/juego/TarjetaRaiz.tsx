@@ -7,23 +7,18 @@ import { textoFecha } from '@/lib/formato';
 /**
  * Un objetivo raiz en el mapa. La franja de color a la izquierda dice a que
  * parte de tu vida pertenece antes de leer una sola palabra.
- *
- * `compacta` deja fuera el desglose: la usa el tablero, donde lo que importa es
- * cuanta carga tiene cada plazo, no el detalle de cada rama.
  */
 export function TarjetaRaiz({
   raiz,
   categoria,
   categorias,
   dias,
-  compacta = false,
   mostrarRama = true,
 }: {
   raiz: NodoObjetivo;
   categoria: Categoria | undefined;
   categorias: Map<string, Categoria>;
   dias: DiasPlazo;
-  compacta?: boolean;
   mostrarRama?: boolean;
 }) {
   const color = categoria?.color ?? '#71717a';
@@ -77,7 +72,7 @@ export function TarjetaRaiz({
         )}
       </p>
 
-      {!compacta && !hoja && (
+      {!hoja && (
         <div className="mt-3 border-t border-linea pt-3">
           <ArbolMapa nodos={raiz.hijos} categorias={categorias} dias={dias} color={color} />
         </div>
