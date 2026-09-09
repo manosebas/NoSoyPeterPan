@@ -110,8 +110,34 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
           </div>
         </div>
 
-        {/* El desglose manda; la ficha del objetivo acompana a un lado. */}
-        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_260px]">
+        {/* La ficha es informativa y no estorba: una linea chica bajo el titulo.
+            La rama no se repite porque ya va en las migas, y en color. */}
+        <p className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-humo">
+          <span className={nodo.venceEl === null ? 'italic' : ''}>
+            {textoFecha(nodo.venceEl, juego.plazos)}
+          </span>
+          {lectura !== 'sin_fecha' && lectura !== 'vencido' && (
+            <>
+              <span aria-hidden>·</span>
+              <span>{NOMBRE_PLAZO[lectura]}</span>
+              <span aria-hidden>·</span>
+              <span>{textoDuracion(lectura, juego.plazos)}</span>
+            </>
+          )}
+        </p>
+
+        {!hoja && (
+          <div className="mt-5 max-w-sm">
+            <Barra fraccion={avance.fraccion} color={color} />
+            <p className="mt-2 text-sm">
+              {avance.cumplidas} de {avance.hojas} pasos
+              <span className="text-humo"> · {Math.round(avance.fraccion * 100)}%</span>
+            </p>
+          </div>
+        )}
+
+        {/* El desglose manda: se lleva todo el ancho. */}
+        <div className="mt-8">
           <section>
             {nodo.hijos.length > 0 ? (
               <>
@@ -124,7 +150,9 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
                       key={hijo.id}
                       nodo={hijo}
                       categoria={categorias.get(hijo.categoriaId)}
+                      categorias={categorias}
                       dias={juego.plazos}
+                      conVistaPrevia
                     />
                   ))}
                 </ul>
@@ -154,42 +182,6 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
               )}
             </div>
           </section>
-
-          <aside className="border-t border-linea pt-6 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
-            {!hoja && (
-              <>
-                <Barra fraccion={avance.fraccion} color={color} />
-                <p className="mt-2 text-sm">
-                  {avance.cumplidas} de {avance.hojas} pasos
-                  <span className="text-humo"> · {Math.round(avance.fraccion * 100)}%</span>
-                </p>
-              </>
-            )}
-
-            <dl className={`space-y-3 text-sm ${hoja ? '' : 'mt-6 border-t border-linea pt-6'}`}>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.16em] text-humo">Para cuándo</dt>
-                <dd className={nodo.venceEl === null ? 'italic text-humo' : ''}>
-                  {textoFecha(nodo.venceEl, juego.plazos)}
-                </dd>
-              </div>
-
-              {lectura !== 'sin_fecha' && lectura !== 'vencido' && (
-                <div>
-                  <dt className="text-xs uppercase tracking-[0.16em] text-humo">Plazo</dt>
-                  <dd>
-                    {NOMBRE_PLAZO[lectura]}
-                    <span className="text-humo"> · {textoDuracion(lectura, juego.plazos)}</span>
-                  </dd>
-                </div>
-              )}
-
-              <div>
-                <dt className="text-xs uppercase tracking-[0.16em] text-humo">Rama</dt>
-                <dd style={{ color }}>{categoria?.nombre}</dd>
-              </div>
-            </dl>
-          </aside>
         </div>
       </main>
     </Pagina>
