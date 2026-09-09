@@ -100,6 +100,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
             <AjustesObjetivo
               id={nodo.id}
               categoriaId={nodo.categoriaId}
+              detalle={nodo.detalle}
               venceEl={nodo.venceEl}
               padreVenceEl={padre?.venceEl ?? null}
               tieneHijos={!hoja}

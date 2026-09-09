@@ -14,7 +14,11 @@ export type Eleccion = Plazo | 'sin_fecha';
 const FECHA = new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric' });
 
 /** Lo que cabe en `objetivos.detalle`: lo impone la base, no la UI. */
-const TOPE_DETALLE = 2000;
+export const TOPE_DETALLE = 2000;
+
+/** La misma pregunta al crear y al editar: si difieren, una de las dos miente. */
+export const PIDE_DETALLE =
+  '¿De qué se trata y por dónde? «Ganar más dinero» no dice nada: ¿subiendo tarifas, cambiando de trabajo, vendiendo algo tuyo? Entre más claro lo escribas, mejor te va a poder recomendar.';
 
 /**
  * Los campos de un objetivo: que es, de que se trata, a que rama aporta y para
@@ -70,7 +74,7 @@ export function CamposObjetivo({
         value={detalle}
         rows={3}
         maxLength={TOPE_DETALLE}
-        placeholder="¿De qué se trata y por dónde? «Ganar más dinero» no dice nada: ¿subiendo tarifas, cambiando de trabajo, vendiendo algo tuyo? Entre más claro lo escribas, mejor te va a poder recomendar."
+        placeholder={PIDE_DETALLE}
         onChange={(e) => onDetalle(e.target.value)}
         className="mt-4 w-full resize-none rounded-lg border border-linea bg-transparent p-3 text-sm leading-relaxed outline-none placeholder:text-humo focus:border-tinta"
       />
