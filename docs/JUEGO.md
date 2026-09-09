@@ -42,7 +42,7 @@ Se apunta a sí misma por `padre_id`.
 | `padre_id` | De quién cuelga. `null` = es una raíz. |
 | `categoria_id` | A qué rama de la vida aporta. Se hereda del padre. |
 | `titulo` | Lo que la persona escribe. |
-| `detalle` | Opcional. El porqué, si quiere dejarlo escrito. |
+| `detalle` | Opcional, hasta 2000 caracteres. De qué se trata y por dónde: el contexto que hace falta para recomendar algo. Se pide al crear y se lee en la pantalla del objetivo. |
 | `vence_el` | Fecha. `null` = vive en Nunca Jamás. |
 | `completado_en` | Cuándo se marcó. Solo lo llevan las hojas. |
 | `orden` | Orden manual dentro de su nivel. Todavía sin UI. |

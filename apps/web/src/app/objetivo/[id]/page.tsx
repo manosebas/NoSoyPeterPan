@@ -126,6 +126,12 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
           )}
         </p>
 
+        {nodo.detalle && (
+          <p className="mt-4 max-w-prose whitespace-pre-line text-sm leading-relaxed text-humo">
+            {nodo.detalle}
+          </p>
+        )}
+
         {!hoja && (
           <div className="mt-5 max-w-sm">
             <Barra fraccion={avance.fraccion} color={color} />

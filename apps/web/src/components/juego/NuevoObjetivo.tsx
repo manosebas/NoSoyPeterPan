@@ -48,6 +48,7 @@ export function NuevoObjetivo({
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [texto, setTexto] = useState('');
+  const [detalle, setDetalle] = useState('');
   // El plazo llega elegido un escalon por debajo del padre: lo que cuelga de
   // algo siempre vence antes que ese algo. Sin padre con fecha no hay de donde
   // deducirlo y se cae en la altura del arbol.
@@ -74,10 +75,12 @@ export function NuevoObjetivo({
         padreId,
         categoriaId: categoriaHeredada ?? categoriaId,
         titulo: texto,
+        detalle,
         venceEl: plazo === 'sin_fecha' ? null : recorta(fechaDePlazo(plazo, dias), padreVenceEl),
       });
 
       setTexto('');
+      setDetalle('');
       cierra();
       router.refresh();
     } catch (e) {
@@ -92,6 +95,8 @@ export function NuevoObjetivo({
       <CamposObjetivo
         titulo={texto}
         onTitulo={setTexto}
+        detalle={detalle}
+        onDetalle={setDetalle}
         categoriaId={categoriaId}
         onCategoria={categoriaHeredada ? undefined : setCategoriaId}
         categorias={categorias}

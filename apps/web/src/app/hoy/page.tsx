@@ -1,10 +1,11 @@
-import { construyeArbol, type NodoObjetivo } from '@nspp/shared';
+import { construyeArbol, fechaDePlazo, type NodoObjetivo, type Objetivo } from '@nspp/shared';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
-import { FilaObjetivo } from '@/components/juego/FilaObjetivo';
 import { Pendientes } from '@/components/juego/Pendientes';
+import { TarjetaHoy } from '@/components/juego/TarjetaHoy';
 import { Pagina } from '@/components/Pagina';
+import { textoDia } from '@/lib/formato';
 import { cargaJuego, hoyISO, porId } from '@/lib/juego';
 import { obtenerSesionConPerfil } from '@/lib/perfil';
 
@@ -14,26 +15,53 @@ export const metadata = { title: 'Hoy — No Soy Peter Pan' };
 
 const FECHA = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' });
 
+/** En que bloque de Hoy cae una hoja, o en ninguno. */
+type Grupo = 'vencido' | 'hoy' | 'semana';
+
+/** Una hoja con el camino que explica por que esta ahi. */
+type Linea = { nodo: NodoObjetivo; camino: Objetivo[]; grupo: Grupo };
+
 /**
- * Que del arbol toca hoy: las hojas que vencen hoy o antes, y las que se
- * marcaron hoy, para verlas tachadas antes de que desaparezcan manana.
+ * Solo entran hojas: un objetivo con desglose se cumple cuando se cumplen sus
+ * pasos, no a mano. Lo sin fecha no entra nunca; eso es Nunca Jamas y vive en
+ * el Mapa. Lo marcado hoy se queda hasta manana, para verlo tachado.
  */
-function tocaHoy(nodo: NodoObjetivo, hoy: string): boolean {
-  if (nodo.hijos.length > 0) return false;
-  if (nodo.completadoEn) return nodo.completadoEn.slice(0, 10) === hoy;
-  return nodo.venceEl !== null && nodo.venceEl <= hoy;
+function clasifica(nodo: NodoObjetivo, hoy: string, finSemana: string): Grupo | null {
+  if (nodo.hijos.length > 0) return null;
+  if (nodo.completadoEn) return nodo.completadoEn.slice(0, 10) === hoy ? 'hoy' : null;
+  if (nodo.venceEl === null) return null;
+
+  if (nodo.venceEl < hoy) return 'vencido';
+  if (nodo.venceEl === hoy) return 'hoy';
+  return nodo.venceEl <= finSemana ? 'semana' : null;
 }
 
-/** Recorre el arbol juntando lo de hoy, con el objetivo grande del que cuelga. */
-function recolecta(nodos: NodoObjetivo[], hoy: string, raiz: string | null = null) {
-  const salida: { nodo: NodoObjetivo; contexto: string | null }[] = [];
+/** Recorre el arbol juntando lo que toca, con sus ancestros a cuestas. */
+function recolecta(
+  nodos: NodoObjetivo[],
+  hoy: string,
+  finSemana: string,
+  ancestros: Objetivo[] = [],
+): Linea[] {
+  const salida: Linea[] = [];
 
   for (const nodo of nodos) {
-    if (tocaHoy(nodo, hoy)) salida.push({ nodo, contexto: raiz });
-    salida.push(...recolecta(nodo.hijos, hoy, raiz ?? nodo.titulo));
+    const grupo = clasifica(nodo, hoy, finSemana);
+    if (grupo) salida.push({ nodo, camino: ancestros, grupo });
+    salida.push(...recolecta(nodo.hijos, hoy, finSemana, [...ancestros, nodo]));
   }
 
   return salida;
+}
+
+/** Lo viejo primero, y lo ya hecho al final: deja de pedir nada. */
+function ordena(lineas: Linea[]): Linea[] {
+  return [...lineas].sort((a, b) => {
+    const hechoA = a.nodo.completadoEn ? 1 : 0;
+    const hechoB = b.nodo.completadoEn ? 1 : 0;
+    if (hechoA !== hechoB) return hechoA - hechoB;
+    return (a.nodo.venceEl ?? '').localeCompare(b.nodo.venceEl ?? '');
+  });
 }
 
 export default async function Hoy() {
@@ -41,9 +69,31 @@ export default async function Hoy() {
   if (!sesion || !juego) redirect('/entrar?siguiente=/hoy');
 
   const hoy = hoyISO();
+  const finSemana = fechaDePlazo('semana', juego.plazos);
   const categorias = porId(juego.categorias);
-  const lineas = recolecta(construyeArbol(juego.objetivos), hoy);
-  const pendientes = lineas.filter((l) => !l.nodo.completadoEn).length;
+
+  const lineas = recolecta(construyeArbol(juego.objetivos), hoy, finSemana);
+  const vencidas = ordena(lineas.filter((l) => l.grupo === 'vencido'));
+  const deHoy = ordena(lineas.filter((l) => l.grupo === 'hoy'));
+  const deSemana = ordena(lineas.filter((l) => l.grupo === 'semana'));
+
+  // Lo que la semana trae no se cuenta como deuda de hoy: todavia no vence.
+  const pendientes = [...vencidas, ...deHoy].filter((l) => !l.nodo.completadoEn).length;
+  const vacio = lineas.length === 0;
+
+  function tarjeta(linea: Linea, urgente = false, conCasilla = true) {
+    return (
+      <TarjetaHoy
+        key={linea.nodo.id}
+        nodo={linea.nodo}
+        categoria={categorias.get(linea.nodo.categoriaId)}
+        camino={linea.camino}
+        fecha={linea.nodo.completadoEn ? 'hecho hoy · un voto' : textoDia(linea.nodo.venceEl, hoy)}
+        urgente={urgente && !linea.nodo.completadoEn}
+        conCasilla={conCasilla}
+      />
+    );
+  }
 
   return (
     <Pagina>
@@ -60,7 +110,7 @@ export default async function Hoy() {
               De tus objetivos
             </h2>
 
-            {lineas.length === 0 ? (
+            {vacio ? (
               <div className="mt-4 rounded-xl border border-linea bg-white p-6">
                 {juego.objetivos.length === 0 ? (
                   <>
@@ -79,8 +129,8 @@ export default async function Hoy() {
                 ) : (
                   <>
                     <p className="text-sm text-humo">
-                      Nada de tus objetivos vence hoy. Si quieres avanzar igual, entra a uno y
-                      pártelo en un paso que quepa en esta tarde.
+                      Nada de tus objetivos vence esta semana. Si quieres avanzar igual, entra a uno
+                      y pártelo en un paso que quepa en esta tarde.
                     </p>
                     <Link
                       href="/mapa"
@@ -99,17 +149,37 @@ export default async function Hoy() {
                     : `${pendientes} ${pendientes === 1 ? 'paso' : 'pasos'} para acercarte. Cada uno vale un voto.`}
                 </p>
 
-                <ul className="mt-3">
-                  {lineas.map(({ nodo, contexto }) => (
-                    <FilaObjetivo
-                      key={nodo.id}
-                      nodo={nodo}
-                      categoria={categorias.get(nodo.categoriaId)}
-                      contexto={contexto ?? undefined}
-                      dias={juego.plazos}
-                    />
-                  ))}
-                </ul>
+                {/* Lo vencido va primero y se dice en color. Esconderlo entre lo
+                    de hoy seria maquillar el atraso: regla 7 de CLAUDE.md. */}
+                {vencidas.length > 0 && (
+                  <div className="mt-6">
+                    <Bloque etiqueta="Vencido" cuenta={vencidas.length} acento />
+                    <div className="mt-3 space-y-3">{vencidas.map((l) => tarjeta(l, true))}</div>
+                  </div>
+                )}
+
+                {deHoy.length > 0 && (
+                  <div className="mt-8">
+                    <Bloque etiqueta="Hoy" cuenta={deHoy.length} />
+                    <div className="mt-3 space-y-3">{deHoy.map((l) => tarjeta(l))}</div>
+                  </div>
+                )}
+
+                {/* Plegado y sin casillas: se mira, no se marca. Si se pudiera
+                    marcar desde aqui, Hoy dejaria de ser hoy. */}
+                {deSemana.length > 0 && (
+                  <details className="mt-8 border-t border-linea pt-4">
+                    <summary className="cursor-pointer list-none text-xs font-semibold uppercase tracking-[0.2em] text-humo transition-colors hover:text-tinta">
+                      Esta semana · {deSemana.length}
+                    </summary>
+                    <p className="mt-2 text-xs text-humo">
+                      Todavía no vence. Está aquí para que no te agarre de sorpresa.
+                    </p>
+                    <div className="mt-3 space-y-3">
+                      {deSemana.map((l) => tarjeta(l, false, false))}
+                    </div>
+                  </details>
+                )}
               </>
             )}
           </section>
@@ -128,5 +198,25 @@ export default async function Hoy() {
         </div>
       </main>
     </Pagina>
+  );
+}
+
+function Bloque({
+  etiqueta,
+  cuenta,
+  acento = false,
+}: {
+  etiqueta: string;
+  cuenta: number;
+  acento?: boolean;
+}) {
+  return (
+    <h3
+      className={`text-xs font-semibold uppercase tracking-[0.2em] ${
+        acento ? 'text-red-600' : 'text-humo'
+      }`}
+    >
+      {etiqueta} · {cuenta}
+    </h3>
   );
 }

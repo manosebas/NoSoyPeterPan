@@ -13,6 +13,8 @@ export type NuevoObjetivo = {
   padreId: string | null;
   categoriaId: string;
   titulo: string;
+  /** Opcional. Vacio entra como `null`: una cadena vacia no es un detalle. */
+  detalle: string;
   venceEl: string | null;
 };
 
@@ -23,6 +25,7 @@ export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<void> {
     padre_id: nuevo.padreId,
     categoria_id: nuevo.categoriaId,
     titulo: nuevo.titulo.trim(),
+    detalle: nuevo.detalle.trim() || null,
     vence_el: nuevo.venceEl,
   });
   if (error) throw error;

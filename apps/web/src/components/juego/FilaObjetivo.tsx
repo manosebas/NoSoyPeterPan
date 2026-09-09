@@ -23,7 +23,6 @@ export function FilaObjetivo({
   nodo,
   categoria,
   categorias,
-  contexto,
   dias,
   conVistaPrevia = false,
 }: {
@@ -31,8 +30,6 @@ export function FilaObjetivo({
   categoria: Categoria | undefined;
   /** Para pintar cada nieto con su propia rama si se cambio de la del padre. */
   categorias?: Map<string, Categoria>;
-  /** De donde cuelga. Se muestra en Hoy, donde se mezclan arboles distintos. */
-  contexto?: string;
   dias?: DiasPlazo;
   conVistaPrevia?: boolean;
 }) {
@@ -113,12 +110,6 @@ export function FilaObjetivo({
             <span className={sinFecha ? 'text-humo/70 italic' : ''}>
               {textoFecha(nodo.venceEl, dias)}
             </span>
-            {contexto && (
-              <>
-                <span aria-hidden>·</span>
-                <span className="truncate">{contexto}</span>
-              </>
-            )}
             {!hoja && (
               <>
                 <span aria-hidden>·</span>

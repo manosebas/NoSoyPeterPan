@@ -13,14 +13,19 @@ export type Eleccion = Plazo | 'sin_fecha';
 
 const FECHA = new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric' });
 
+/** Lo que cabe en `objetivos.detalle`: lo impone la base, no la UI. */
+const TOPE_DETALLE = 2000;
+
 /**
- * Los tres campos de un objetivo: que es, a que rama aporta y para cuando.
- * Los comparten el modal del mapa y el formulario de desglose, para que crear
- * se sienta igual en los dos lados.
+ * Los campos de un objetivo: que es, de que se trata, a que rama aporta y para
+ * cuando. Los comparten el modal del mapa y el formulario de desglose, para
+ * que crear se sienta igual en los dos lados.
  */
 export function CamposObjetivo({
   titulo,
   onTitulo,
+  detalle,
+  onDetalle,
   categoriaId,
   onCategoria,
   categorias,
@@ -32,6 +37,8 @@ export function CamposObjetivo({
 }: {
   titulo: string;
   onTitulo: (valor: string) => void;
+  detalle: string;
+  onDetalle: (valor: string) => void;
   /** Sin `onCategoria` no se pregunta la rama: se hereda del padre. */
   categoriaId?: string;
   onCategoria?: (id: string) => void;
@@ -55,6 +62,17 @@ export function CamposObjetivo({
         placeholder="¿Qué quieres lograr?"
         onChange={(e) => onTitulo(e.target.value)}
         className="w-full border-0 border-b border-linea bg-transparent px-0 pb-2 text-base outline-none placeholder:text-humo focus:border-tinta"
+      />
+
+      {/* Opcional, pero es lo unico que sabra de este objetivo quien no eres tu
+          hoy: tu yo de dentro de un mes, o quien te vaya a recomendar algo. */}
+      <textarea
+        value={detalle}
+        rows={3}
+        maxLength={TOPE_DETALLE}
+        placeholder="¿De qué se trata y por dónde? «Ganar más dinero» no dice nada: ¿subiendo tarifas, cambiando de trabajo, vendiendo algo tuyo? Entre más claro lo escribas, mejor te va a poder recomendar."
+        onChange={(e) => onDetalle(e.target.value)}
+        className="mt-4 w-full resize-none rounded-lg border border-linea bg-transparent p-3 text-sm leading-relaxed outline-none placeholder:text-humo focus:border-tinta"
       />
 
       {onCategoria && (

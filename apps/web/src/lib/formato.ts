@@ -39,3 +39,24 @@ export function textoActividad(diasQuieta: number | null): string {
   if (diasQuieta < 60) return `quieta hace ${Math.floor(diasQuieta / 7)} semanas`;
   return `quieta hace ${Math.floor(diasQuieta / 30)} meses`;
 }
+
+/**
+ * La fecha de un paso en Hoy, dicha por lo que pesa. Un atraso de tres semanas
+ * no puede leerse igual que algo de hoy: regla 7 de CLAUDE.md.
+ */
+export function textoDia(venceEl: string | null, hoy: string): string {
+  if (venceEl === null) return 'sin fecha';
+  if (venceEl === hoy) return 'vence hoy';
+
+  const dias = Math.round(
+    (Date.parse(`${venceEl}T00:00:00Z`) - Date.parse(`${hoy}T00:00:00Z`)) / 86_400_000,
+  );
+
+  if (dias > 0) return dias === 1 ? 'vence mañana' : `vence en ${dias} días`;
+
+  const atraso = -dias;
+  if (atraso === 1) return 'venció ayer';
+  if (atraso < 14) return `venció hace ${atraso} días`;
+  if (atraso < 60) return `venció hace ${Math.floor(atraso / 7)} semanas`;
+  return `venció hace ${Math.floor(atraso / 30)} meses`;
+}
