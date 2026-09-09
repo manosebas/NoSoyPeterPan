@@ -3,6 +3,28 @@
 import { useEffect, useRef } from 'react';
 
 /**
+ * Candado del scroll del fondo. Los modales se apilan (ajustes -> confirmar) y
+ * con cada uno guardando su propia copia de `overflow`, al desmontarse los dos
+ * a la vez el ultimo cleanup ganaba y dejaba el body en `hidden` para siempre.
+ * Se cuentan los abiertos: el primero bloquea, el ultimo devuelve el scroll.
+ */
+let abiertos = 0;
+let overflowPrevio = '';
+
+function bloqueaFondo(): () => void {
+  if (abiertos === 0) {
+    overflowPrevio = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+  }
+  abiertos += 1;
+
+  return () => {
+    abiertos -= 1;
+    if (abiertos === 0) document.body.style.overflow = overflowPrevio;
+  };
+}
+
+/**
  * Ventana modal. Se cierra con Escape, con el fondo o con su boton; el foco
  * entra al abrir para que el teclado no se quede atras.
  */
@@ -30,8 +52,7 @@ export function Modal({
 
     document.addEventListener('keydown', alEscape);
     // El fondo no se desplaza mientras el modal esta abierto.
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const desbloquea = bloqueaFondo();
 
     // Solo si adentro no hay ya algo enfocado: el campo con autoFocus manda.
     if (!caja.current?.contains(document.activeElement)) {
@@ -40,7 +61,7 @@ export function Modal({
 
     return () => {
       document.removeEventListener('keydown', alEscape);
-      document.body.style.overflow = overflow;
+      desbloquea();
     };
   }, []);
 
