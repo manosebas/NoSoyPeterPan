@@ -75,11 +75,17 @@ un despliegue.
 Cada objetivo cumplido emite un voto, por trigger. Guarda `categoria_id` y una
 copia del título.
 
-Vive aparte de `objetivos` por una razón: **el acumulado de una rama no puede
-bajar**. Si se contara sobre `objetivos.completado_en`, tu historia se borraría
-al limpiar un árbol viejo o al desmarcar una casilla. Un objetivo vota una sola
-vez (índice único), así que marcar y desmarcar no infla nada, y si borras el
-objetivo el voto sobrevive con `objetivo_id` en null.
+Vive aparte de `objetivos` por una razón: **lo que construiste no se borra al
+limpiar el árbol**. Si se contara sobre `objetivos.completado_en`, tu historia
+desaparecería al borrar un objetivo viejo. Por eso `objetivo_id` es
+`on delete set null` y el título va copiado: el voto sobrevive al objetivo.
+
+Desmarcar es otra cosa, y sí retira el voto (`0009`). Desmarcar es decir «esto
+no está hecho», y un Perfil que presume algo que no hiciste es lo que prohíbe la
+regla 7. Volver a marcar lo vuelve a emitir. Un objetivo vota una sola vez
+mientras está marcado, por el índice único parcial `votos_objetivo_unico`; ese
+índice es también el que obliga al `on conflict` del trigger a repetir su
+predicado, o Postgres no lo infiere y el `update` entero falla.
 
 ### `pendientes` — los to-do del día
 

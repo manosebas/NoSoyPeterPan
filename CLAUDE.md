@@ -125,14 +125,14 @@ Plataforma web donde la gente entra a organizar sus objetivos y cumplirlos. Ese 
 
 Cuatro pantallas con sesión: **Hoy** (lo vencido, lo de hoy y lo de esta semana del árbol, más los to-do), **Mapa** (dos modos de vista: cascada y categorías), **Perfil** (la vitrina de fortalezas) y la de **un objetivo**; más **Ajustes** en dos columnas. Autenticación con Supabase, foto de perfil en Storage y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
 
-Migraciones `0001` a `0007`, todas aplicadas en `dev_NoSoyPeterPan`. En `prod_NoSoyPeterPan` solo están `0001`–`0004`: falta correr `0005` y `0007`. El detalle del modelo vive en `docs/JUEGO.md`.
+Migraciones `0001` a `0009`, todas aplicadas en `dev_NoSoyPeterPan`. En `prod_NoSoyPeterPan` solo están `0001`–`0004`: faltan `0005`, `0007`, `0008` y `0009`. Las dos últimas no son opcionales: sin `0008` no se puede marcar nada. El detalle del modelo vive en `docs/JUEGO.md`.
 
 ### Próximos pasos
 
 1. **La Sombra** — el costo acumulado de lo que lleva meses sin fecha. La sección «Sin fecha» del Mapa ya los junta, pero todavía no pesan.
 2. **Nunca Jamás con antigüedad** — cuánto lleva esperando cada objetivo sin fecha.
 3. **Reordenar y renombrar** — `orden` existe en la tabla pero la UI todavía no lo mueve, y un objetivo no se puede renombrar sin borrarlo. El detalle sí se edita ya, desde el engranaje.
-4. **Poner `prod` al día** — correr `0005` y `0007` cuando se libere a `main`.
+4. **Poner `prod` al día** — correr `0005`, `0007`, `0008` y `0009` cuando se libere a `main`.
 
 ### Decisiones pendientes
 
