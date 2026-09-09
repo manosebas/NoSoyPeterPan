@@ -7,6 +7,7 @@ const FECHA_CORTA = new Intl.DateTimeFormat('es', { day: 'numeric', month: 'shor
 export const NOMBRE_PLAZO: Record<LecturaPlazo, string> = {
   sin_fecha: 'sin fecha',
   vencido: 'vencido',
+  hoy: 'hoy',
   semana: 'esta semana',
   corto: 'corto plazo',
   mediano: 'mediano plazo',
@@ -25,7 +26,8 @@ export function textoFecha(venceEl: string | null, dias?: DiasPlazo, ahora = new
   const hoy = ahora.toISOString().slice(0, 10);
 
   if (venceEl === hoy) return 'hoy';
-  if (lectura === 'vencido' || lectura === 'corto') return FECHA_CORTA.format(fecha);
+  if (lectura === 'vencido' || lectura === 'semana' || lectura === 'corto')
+    return FECHA_CORTA.format(fecha);
   return FECHA_LARGA.format(fecha);
 }
 

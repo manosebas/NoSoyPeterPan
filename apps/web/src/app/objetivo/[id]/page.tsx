@@ -117,7 +117,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
           <span className={nodo.venceEl === null ? 'italic' : ''}>
             {textoFecha(nodo.venceEl, juego.plazos)}
           </span>
-          {lectura !== 'sin_fecha' && lectura !== 'vencido' && (
+          {lectura !== 'sin_fecha' && lectura !== 'vencido' && lectura !== 'hoy' && (
             <>
               <span aria-hidden>·</span>
               <span>{NOMBRE_PLAZO[lectura]}</span>

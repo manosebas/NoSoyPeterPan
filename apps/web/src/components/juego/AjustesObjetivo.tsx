@@ -174,7 +174,9 @@ export function AjustesObjetivo({
                 }`}
               >
                 {p.etiqueta}
-                <span className="ml-1.5 text-humo">{textoDuracion(p.clave, dias)}</span>
+                {p.clave !== 'hoy' && (
+                  <span className="ml-1.5 text-humo">{textoDuracion(p.clave, dias)}</span>
+                )}
               </button>
             ))}
 

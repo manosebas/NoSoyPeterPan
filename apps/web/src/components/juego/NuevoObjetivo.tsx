@@ -164,6 +164,6 @@ function plazoInicial(
   // Raiz, o padre en Nunca Jamas: no hay escalon del cual bajar.
   if (padre === 'sin_fecha') return plazoPorDefecto(profundidad);
   // Vencido no es un plazo, es una deuda: lo que cuelga de eso se hace ya.
-  if (padre === 'vencido') return 'semana';
+  if (padre === 'vencido') return 'hoy';
   return plazoDebajoDe(padre);
 }

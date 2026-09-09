@@ -64,11 +64,12 @@ export const PLAZOS = [
   { clave: 'mediano', etiqueta: 'Mediano plazo' },
   { clave: 'corto', etiqueta: 'Corto plazo' },
   { clave: 'semana', etiqueta: 'Esta semana' },
+  { clave: 'hoy', etiqueta: 'Hoy' },
 ] as const;
 
 export type Plazo = (typeof PLAZOS)[number]['clave'];
 
-/** Los tres que se configuran. `semana` no: una semana son siete dias. */
+/** Los tres que se configuran. `semana` y `hoy` no: duran lo que duran. */
 export type PlazoConfigurable = 'largo' | 'mediano' | 'corto';
 export type DiasPlazo = Record<PlazoConfigurable, number>;
 
@@ -77,6 +78,7 @@ export const DIAS_PLAZO_DEFECTO: DiasPlazo = { largo: 1095, mediano: 365, corto:
 
 /** Cuantos dias dura un plazo para esta persona. */
 export function diasDe(plazo: Plazo, dias: DiasPlazo = DIAS_PLAZO_DEFECTO): number {
+  if (plazo === 'hoy') return 0;
   return plazo === 'semana' ? DIAS_SEMANA : dias[plazo];
 }
 
@@ -121,6 +123,7 @@ export function leePlazo(
     (new Date(`${venceEl}T00:00:00Z`).getTime() - hoy.getTime()) / 86_400_000,
   );
   if (faltan < 0) return 'vencido';
+  if (faltan === 0) return 'hoy';
   if (faltan <= DIAS_SEMANA) return 'semana';
   if (faltan <= dias.corto) return 'corto';
   if (faltan <= dias.mediano) return 'mediano';
@@ -131,6 +134,7 @@ export function leePlazo(
 export function textoDuracion(plazo: Plazo, dias: DiasPlazo = DIAS_PLAZO_DEFECTO): string {
   const total = diasDe(plazo, dias);
 
+  if (total === 0) return 'hoy mismo';
   if (total >= 365 && total % 365 === 0) {
     const anos = total / 365;
     return anos === 1 ? '1 año' : `${anos} años`;

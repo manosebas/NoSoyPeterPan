@@ -2,6 +2,7 @@ import { construyeArbol, fechaDePlazo, type NodoObjetivo, type Objetivo } from '
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
+import { HacerHoy } from '@/components/juego/HacerHoy';
 import { Pendientes } from '@/components/juego/Pendientes';
 import { TarjetaHoy } from '@/components/juego/TarjetaHoy';
 import { Pagina } from '@/components/Pagina';
@@ -81,7 +82,7 @@ export default async function Hoy() {
   const pendientes = [...vencidas, ...deHoy].filter((l) => !l.nodo.completadoEn).length;
   const vacio = lineas.length === 0;
 
-  function tarjeta(linea: Linea, urgente = false, conCasilla = true) {
+  function tarjeta(linea: Linea, urgente = false, conCasilla = true, traible = false) {
     return (
       <TarjetaHoy
         key={linea.nodo.id}
@@ -91,6 +92,7 @@ export default async function Hoy() {
         fecha={linea.nodo.completadoEn ? 'hecho hoy · un voto' : textoDia(linea.nodo.venceEl, hoy)}
         urgente={urgente && !linea.nodo.completadoEn}
         conCasilla={conCasilla}
+        accion={traible ? <HacerHoy id={linea.nodo.id} hoy={hoy} /> : undefined}
       />
     );
   }
@@ -173,10 +175,11 @@ export default async function Hoy() {
                       Esta semana · {deSemana.length}
                     </summary>
                     <p className="mt-2 text-xs text-humo">
-                      Todavía no vence. Está aquí para que no te agarre de sorpresa.
+                      Todavía no vence. Si lo vas a hacer hoy, tráelo: esperar a que se venza
+                      para hacerlo es dejar que el calendario decida por ti.
                     </p>
                     <div className="mt-3 space-y-3">
-                      {deSemana.map((l) => tarjeta(l, false, false))}
+                      {deSemana.map((l) => tarjeta(l, false, false, true))}
                     </div>
                   </details>
                 )}

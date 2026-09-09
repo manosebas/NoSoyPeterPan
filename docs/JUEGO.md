@@ -117,8 +117,8 @@ que uno con dos, que es la verdad.
 
 ## 3. Los plazos
 
-Cuatro, más la ausencia de fecha. `vence_el` es el dato real; el plazo solo
-decide qué día se propone al crear y en qué sección del Mapa cae después.
+Cinco, más la ausencia de fecha. `vence_el` es el dato real; el plazo solo
+decide qué día se propone al crear y cómo se lee esa fecha después.
 
 | Plazo | Dura | ¿Se configura? |
 |---|---|---|
@@ -126,16 +126,20 @@ decide qué día se propone al crear y en qué sección del Mapa cae después.
 | Mediano | 1 año | sí |
 | Corto | 90 días | sí |
 | Esta semana | 7 días | no |
+| Hoy | 0 días | no |
 | Sin fecha | — | es Nunca Jamás |
 
 Los tres primeros los ajusta cada persona en Ajustes, porque largo plazo no
-significa lo mismo para todos. Una semana son siete días para todo el mundo.
+significa lo mismo para todos. Una semana son siete días para todo el mundo, y
+hoy es hoy.
 
-Al crear, el plazo llega elegido según la altura: raíz → largo, primer desglose
-→ mediano, después corto, más abajo esta semana. Si la fecha propuesta se pasa
-de la del padre, se recorta a la del padre antes de mandarla — la base la
-rechazaría, y un error en la cara por algo que el producto puede resolver solo
-es mal producto.
+Al crear, el plazo llega elegido **un escalón por debajo del padre**: lo que
+cuelga de algo siempre vence antes que ese algo. Sin padre con fecha —una raíz,
+o un padre en Nunca Jamás— se cae en la altura del árbol: raíz → largo, primer
+desglose → mediano, después corto, más abajo esta semana. Si el padre está
+vencido, el hijo nace para hoy. Y si la fecha propuesta se pasa de la del padre,
+se recorta a la del padre antes de mandarla — la base la rechazaría, y un error
+en la cara por algo que el producto puede resolver solo es mal producto.
 
 Cambiar las duraciones no mueve ninguna fecha ya escrita.
 
@@ -185,31 +189,54 @@ cada una reparte ese ancho en columnas en vez de estirar una sola.
 
 ### Hoy — el nivel de las hojas
 
-Entrada de la app, en dos columnas. A la izquierda *De tus objetivos*: lo que
-vence hoy o antes de cualquier árbol, cada línea con el color de su rama y, en
-letra chica, la meta de la que cuelga — nunca marcas algo sin ver para qué. A la
-derecha *To-do*: se escribe en una línea, se marca, desaparece.
+Entrada de la app, en dos columnas. A la derecha *To-do*: se escribe en una
+línea, se marca, desaparece. A la izquierda *De tus objetivos*, en tres bloques,
+y solo hojas: un objetivo con desglose se cumple cuando se cumplen sus pasos.
+
+| Bloque | Qué trae | Cómo se ve |
+|---|---|---|
+| **Vencido** | `vence_el` anterior a hoy | primero y en color, con «venció hace 12 días» |
+| **Hoy** | `vence_el` de hoy, más lo que se marcó hoy | con casilla |
+| **Esta semana** | `vence_el` dentro de los próximos 7 días | plegado, sin casilla, con «Hacer hoy» |
+
+Lo sin fecha no entra nunca: eso es Nunca Jamás y vive en el Mapa.
+
+Cada paso es una tarjeta con la franja de su rama y el camino entero hasta el
+objetivo grande del que cuelga — nunca marcas algo sin ver para qué. Aquí se
+mezclan árboles distintos, y sin ese camino la pantalla vuelve a ser un checklist
+sin dirección, que es el problema que atacamos.
+
+«Esta semana» no tiene casillas a propósito: se mira, no se marca. Si algo de
+ahí se va a hacer hoy, **«Hacer hoy»** le mueve la fecha al día de hoy y salta al
+bloque de arriba. Esperar a que algo se venza para hacerlo es dejar que el
+calendario decida por ti, que es exactamente lo que Peter Pan hace.
 
 ### La pantalla de un objetivo — un nodo
 
-Migas hasta la raíz, «volver al mapa», el título con su casilla si es hoja, y el
-desglose. A un lado, la ficha: barra, progreso, para cuándo, plazo con su
-duración y rama. El engranaje de arriba a la derecha abre lo que se puede
-cambiar —rama, fecha— y el borrado, que pide confirmación en su propio modal.
+Migas hasta la raíz, «volver al mapa», el título con su casilla si es hoja, y
+debajo la ficha en una línea chica: para cuándo, plazo y su duración. La rama no
+se repite ahí porque ya va en las migas, y en color. Después el detalle si lo
+hay, la barra de avance, y el desglose a todo el ancho, que es a lo que se viene.
+
+Una fila del desglose que a su vez tiene desglose lo asoma sin cambiar de
+pantalla: en desktop al pasar el mouse, en teléfono al tocarla una vez. Se ven
+hasta seis pasos y un «Ver todos». En desktop el clic en el título sigue
+entrando; donde no hay hover, el primer toque asoma y el segundo entra.
+
+El engranaje de arriba a la derecha abre lo que se puede cambiar —detalle, rama,
+fecha— y el borrado, que pide confirmación en su propio modal.
 
 Solo las hojas tienen casilla. Esa diferencia visual es toda la explicación que
 necesita la regla: se marca lo que ya no se puede partir.
 
-### Mapa — todo, en tres modos
+### Mapa — todo, en dos modos
 
-El botón «Agregar objetivo» abre un modal con título, rama y plazo; cada plazo
-muestra su duración y la fecha exacta en que quedaría. Los tres modos son el
-mismo árbol a distinta altura, y el elegido se recuerda en el navegador:
+El botón «Agregar objetivo» abre un modal con título, detalle, rama y plazo;
+cada plazo muestra su duración y la fecha exacta en que quedaría. Los dos modos
+son el mismo árbol a distinta altura, y el elegido se recuerda en el navegador:
 
 - **Cascada** — por plazo, con el desglose completo.
-- **Ramas** — por parte de tu vida, cada una con su nivel y su fuerza.
-- **Tablero** — cinco columnas, una por plazo. La única vista donde se compara
-  cuánta carga tiene cada uno.
+- **Categorías** — por parte de tu vida, cada una con su nivel y su fuerza.
 
 Cada raíz es una tarjeta con la franja de su rama a la izquierda, y el desglose
 dibuja las líneas que unen padre e hijo en ese color: sin ellas, seis niveles de

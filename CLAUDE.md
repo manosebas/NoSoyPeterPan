@@ -121,9 +121,9 @@ Es la vara para medir tono y decisiones. Si un copy o una feature suena tibio, c
 
 Plataforma web donde la gente entra a organizar sus objetivos y cumplirlos. Ese es el core; todo lo demás es secundario hasta nuevo aviso.
 
-**Estado actual** (2026-09-08): el juego está jugable de punta a punta. Se crean objetivos, se desglosan hasta seis niveles, se marcan las hojas y cada marca emite un voto que hace crecer su rama.
+**Estado actual** (2026-09-09): el juego está jugable de punta a punta. Se crean objetivos, se desglosan hasta seis niveles, se marcan las hojas y cada marca emite un voto que hace crecer su rama.
 
-Cuatro pantallas con sesión: **Hoy** (lo que vence del árbol, más los to-do), **Mapa** (tres modos de vista: cascada, ramas y tablero), **Perfil** (la vitrina de fortalezas) y la de **un objetivo**; más **Ajustes** en dos columnas. Autenticación con Supabase, foto de perfil en Storage y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
+Cuatro pantallas con sesión: **Hoy** (lo vencido, lo de hoy y lo de esta semana del árbol, más los to-do), **Mapa** (dos modos de vista: cascada y categorías), **Perfil** (la vitrina de fortalezas) y la de **un objetivo**; más **Ajustes** en dos columnas. Autenticación con Supabase, foto de perfil en Storage y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
 
 Migraciones `0001` a `0007`, todas aplicadas en `dev_NoSoyPeterPan`. En `prod_NoSoyPeterPan` solo están `0001`–`0004`: falta correr `0005` y `0007`. El detalle del modelo vive en `docs/JUEGO.md`.
 
@@ -131,7 +131,7 @@ Migraciones `0001` a `0007`, todas aplicadas en `dev_NoSoyPeterPan`. En `prod_No
 
 1. **La Sombra** — el costo acumulado de lo que lleva meses sin fecha. La sección «Sin fecha» del Mapa ya los junta, pero todavía no pesan.
 2. **Nunca Jamás con antigüedad** — cuánto lleva esperando cada objetivo sin fecha.
-3. **Reordenar y renombrar** — `orden` existe en la tabla pero la UI todavía no lo mueve, y un objetivo no se puede renombrar sin borrarlo.
+3. **Reordenar y renombrar** — `orden` existe en la tabla pero la UI todavía no lo mueve, y un objetivo no se puede renombrar sin borrarlo. El detalle sí se edita ya, desde el engranaje.
 4. **Poner `prod` al día** — correr `0005` y `0007` cuando se libere a `main`.
 
 ### Decisiones pendientes

@@ -215,9 +215,10 @@ function Vacia() {
   );
 }
 
-/** En que seccion cae una raiz. Lo vencido reclama atencion: va a esta semana. */
+/** En que seccion cae una raiz. Lo vencido y lo de hoy piden accion ya: los dos
+ *  caen en esta semana, que es la seccion de lo inmediato. */
 function encajaEn(raiz: NodoObjetivo, seccion: LecturaPlazo, dias: DiasPlazo): boolean {
   const lectura = leePlazo(raiz.venceEl, dias);
-  if (lectura === 'vencido') return seccion === 'semana';
+  if (lectura === 'vencido' || lectura === 'hoy') return seccion === 'semana';
   return lectura === seccion;
 }

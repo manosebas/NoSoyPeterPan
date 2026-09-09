@@ -15,6 +15,7 @@ export function TarjetaHoy({
   fecha,
   urgente = false,
   conCasilla = true,
+  accion,
 }: {
   nodo: NodoObjetivo;
   categoria: Categoria | undefined;
@@ -25,6 +26,8 @@ export function TarjetaHoy({
   /** Lo vencido se dice en color, no en gris: regla 7 del CLAUDE.md. */
   urgente?: boolean;
   conCasilla?: boolean;
+  /** Lo que se puede hacer con el paso sin marcarlo: traerlo a hoy, por ahora. */
+  accion?: React.ReactNode;
 }) {
   const color = categoria?.color ?? '#71717a';
   const cumplido = nodo.completadoEn !== null;
@@ -69,6 +72,8 @@ export function TarjetaHoy({
           {fecha}
         </p>
       </div>
+
+      {accion}
     </article>
   );
 }
