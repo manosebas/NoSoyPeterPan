@@ -80,12 +80,21 @@ export function diasDe(plazo: Plazo, dias: DiasPlazo = DIAS_PLAZO_DEFECTO): numb
   return plazo === 'semana' ? DIAS_SEMANA : dias[plazo];
 }
 
-/** Mientras mas abajo en el arbol, mas cerca la fecha que se propone. */
+/**
+ * Mientras mas abajo en el arbol, mas cerca la fecha que se propone. Solo
+ * aplica cuando no hay padre con fecha de donde deducirlo: ver `plazoDebajoDe`.
+ */
 export function plazoPorDefecto(profundidad: number): Plazo {
   if (profundidad <= 0) return 'largo';
   if (profundidad === 1) return 'mediano';
   if (profundidad === 2) return 'corto';
   return 'semana';
+}
+
+/** El plazo que sigue hacia abajo. `semana` ya es el ultimo: no baja mas. */
+export function plazoDebajoDe(plazo: Plazo): Plazo {
+  const i = PLAZOS.findIndex((p) => p.clave === plazo);
+  return PLAZOS[Math.min(i + 1, PLAZOS.length - 1)]!.clave;
 }
 
 /** Fecha propuesta, en formato `YYYY-MM-DD` para la columna `date`. */

@@ -1,6 +1,13 @@
 'use client';
 
-import { fechaDePlazo, plazoPorDefecto, type Categoria, type DiasPlazo } from '@nspp/shared';
+import {
+  fechaDePlazo,
+  leePlazo,
+  plazoDebajoDe,
+  plazoPorDefecto,
+  type Categoria,
+  type DiasPlazo,
+} from '@nspp/shared';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { CamposObjetivo, recorta, type Eleccion } from '@/components/juego/CamposObjetivo';
@@ -41,8 +48,10 @@ export function NuevoObjetivo({
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [texto, setTexto] = useState('');
-  // El plazo llega elegido segun la altura: mientras mas abajo, mas cerca.
-  const [plazo, setPlazo] = useState<Eleccion>(plazoPorDefecto(profundidad));
+  // El plazo llega elegido un escalon por debajo del padre: lo que cuelga de
+  // algo siempre vence antes que ese algo. Sin padre con fecha no hay de donde
+  // deducirlo y se cae en la altura del arbol.
+  const [plazo, setPlazo] = useState<Eleccion>(() => plazoInicial(padreVenceEl, dias, profundidad));
   const [categoriaId, setCategoriaId] = useState(categoriaHeredada ?? categorias[0]?.id ?? 'salud');
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -138,4 +147,18 @@ export function NuevoObjetivo({
         ))}
     </>
   );
+}
+
+/** El plazo que aparece marcado al abrir el formulario. */
+function plazoInicial(
+  padreVenceEl: string | null | undefined,
+  dias: DiasPlazo,
+  profundidad: number,
+): Eleccion {
+  const padre = leePlazo(padreVenceEl ?? null, dias);
+  // Raiz, o padre en Nunca Jamas: no hay escalon del cual bajar.
+  if (padre === 'sin_fecha') return plazoPorDefecto(profundidad);
+  // Vencido no es un plazo, es una deuda: lo que cuelga de eso se hace ya.
+  if (padre === 'vencido') return 'semana';
+  return plazoDebajoDe(padre);
 }
