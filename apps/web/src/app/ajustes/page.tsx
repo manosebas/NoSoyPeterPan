@@ -6,20 +6,33 @@ import { MetasCategoria } from '@/components/app/MetasCategoria';
 import { PanelAjustes, type SeccionAjustes } from '@/components/app/PanelAjustes';
 import { Pagina } from '@/components/Pagina';
 import { PlazosPorDefecto } from '@/components/app/PlazosPorDefecto';
+import { SeccionPlan } from '@/components/app/SeccionPlan';
 import { cargaDatos } from '@/lib/datos';
 import { iniciales, nombreVisible, obtenerSesionConPerfil } from '@/lib/perfil';
+import { cargaPlan } from '@/lib/plan';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = { title: 'Ajustes — No Soy Peter Pan' };
 
 export default async function AjustesPagina() {
-  const [sesion, datos] = await Promise.all([obtenerSesionConPerfil(), cargaDatos()]);
+  const [sesion, datos, plan] = await Promise.all([
+    obtenerSesionConPerfil(),
+    cargaDatos(),
+    cargaPlan(),
+  ]);
   if (!sesion || !datos) redirect('/entrar?siguiente=/ajustes');
 
   const nombre = nombreVisible(sesion.perfil, sesion.email);
 
+  // La primera seccion es la que nace abierta en escritorio.
   const secciones: SeccionAjustes[] = [
+    {
+      id: 'plan',
+      nombre: 'Plan',
+      resumen: plan?.actual ? `Tienes ${plan.actual.nombre}.` : 'Tu plan y los que hay.',
+      contenido: <SeccionPlan estado={plan} />,
+    },
     {
       id: 'nivel',
       nombre: 'Qué tan alto apuntas',

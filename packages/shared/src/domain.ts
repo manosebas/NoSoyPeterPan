@@ -313,3 +313,28 @@ export function diasEnNuncaJamas(
   const desde = new Date(objetivo.creadoEn).getTime();
   return Math.floor((ahora.getTime() - desde) / 86_400_000);
 }
+
+/**
+ * Un plan del catalogo. `presupuestoUsd` en cero significa sin IA: no hay otro
+ * campo que lo diga.
+ */
+export interface Plan {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  precioUsd: number;
+  presupuestoUsd: number;
+  /** Apagado: no se ofrece, pero quien ya lo tiene lo conserva. */
+  activo: boolean;
+}
+
+/** Un periodo de suscripcion. Cada mes es una fila; la lista es el historial. */
+export interface PeriodoSuscripcion {
+  planId: string;
+  precioUsd: number;
+  presupuestoUsd: number;
+  consumidoUsd: number;
+  iniciaEl: string;
+  /** Exclusiva: ese dia ya no cuenta. */
+  terminaEl: string;
+}
