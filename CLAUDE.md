@@ -134,6 +134,11 @@ Migraciones `0001` a `0009`, aplicadas en los dos proyectos. Verificado contra e
 1. **La Sombra** — el costo acumulado de lo que lleva meses sin fecha. La sección «Sin fecha» del Mapa ya los junta, pero todavía no pesan.
 2. **Nunca Jamás con antigüedad** — cuánto lleva esperando cada objetivo sin fecha.
 3. **Reordenar y renombrar** — `orden` existe en la tabla pero la UI todavía no lo mueve, y un objetivo no se puede renombrar sin borrarlo. El detalle sí se edita ya, desde el engranaje.
+4. **IA en la plataforma** — con estructura, no un chat pegado al costado: dónde ayuda de verdad a desglosar y qué parte es de pago. Sin definir todavía.
+5. **Mudar los objetivos propios de `dev` a `prod`** — el árbol real del usuario vive en `dev_NoSoyPeterPan` y hay que llevarlo a producción.
+6. **SMTP con Resend** — Supabase manda los correos con su servidor de cortesía, que tiene tope y no es de fiar para producción.
+7. **Dominio propio en Vercel** — hoy producción responde en el dominio que da Vercel.
+8. **Plantilla del correo de verificación** — la que llega es la de Supabase, en su tono y no en el nuestro.
 
 ### Decisiones pendientes
 
