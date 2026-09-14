@@ -109,20 +109,24 @@ export default function Landing() {
             </h2>
           </Revelar>
 
-          <ol className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-linea bg-linea sm:grid-cols-3 lg:grid-cols-6">
+          <ol className="mt-12 grid grid-cols-2 gap-y-8 sm:grid-cols-3 lg:grid-cols-6 lg:gap-y-0">
             {CADENA.map((paso, i) => {
               const ultimo = i === CADENA.length - 1;
               return (
-                <li key={paso} className={ultimo ? 'bg-tinta text-papel' : 'bg-papel'}>
-                  <Revelar retraso={i * 90} className="flex h-full flex-col justify-between p-5">
+                <li
+                  key={paso}
+                  className="border-t border-linea pr-4 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pr-2 lg:pt-0 lg:first:border-l-0 lg:first:pl-0"
+                >
+                  <Revelar retraso={i * 90}>
+                    <span className="block text-xs tabular-nums text-humo">0{i + 1}</span>
                     <span
-                      className={`text-xs font-medium tabular-nums ${
-                        ultimo ? 'text-papel/60' : 'text-humo'
+                      className={`mt-3 block text-sm tracking-tight ${
+                        ultimo ? 'font-semibold' : 'font-medium'
                       }`}
+                      // La tinta se satura paso a paso: la cadena se ve avanzar
+                      // hacia hoy sin necesidad de una flecha.
+                      style={{ opacity: 0.45 + i * 0.11 }}
                     >
-                      0{i + 1}
-                    </span>
-                    <span className="mt-8 block text-base font-semibold tracking-tight">
                       {paso}
                     </span>
                   </Revelar>
@@ -140,10 +144,10 @@ export default function Landing() {
             </p>
           </Revelar>
 
-          <div className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-linea bg-linea sm:grid-cols-2">
-            <div className="bg-papel p-8 sm:p-10">
+          <div className="mt-20 grid gap-10 sm:grid-cols-2 sm:gap-0">
+            <div className="sm:pr-12">
               <Revelar>
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.25em] text-humo">
                   Vivir reaccionando
                 </span>
                 <p className="mt-5 text-xl leading-snug text-humo sm:text-2xl">
@@ -151,9 +155,9 @@ export default function Landing() {
                 </p>
               </Revelar>
             </div>
-            <div className="bg-tinta p-8 text-papel sm:p-10">
+            <div className="border-t border-linea pt-10 sm:border-l sm:border-t-0 sm:pl-12 sm:pt-0">
               <Revelar retraso={140}>
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-papel/60">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.25em]">
                   Vivir con dirección
                 </span>
                 <p className="mt-5 text-xl font-medium leading-snug sm:text-2xl">
@@ -166,6 +170,12 @@ export default function Landing() {
 
         <section className="border-t border-linea py-24 sm:py-32">
           <Revelar>
+            <h2 className="max-w-3xl text-3xl font-bold leading-[1.15] tracking-tight sm:text-5xl">
+              Se construye un martes cualquiera.
+            </h2>
+          </Revelar>
+
+          <Revelar retraso={120} className="mt-12">
             <DemoCascada />
           </Revelar>
         </section>

@@ -127,7 +127,7 @@ export function DemoCascada() {
     >
       <div aria-hidden>
         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
-          Objetivo a mediano plazo (1 año)
+          Objetivo a mediano plazo
         </span>
 
         <div className="mt-4 flex items-stretch gap-3">
