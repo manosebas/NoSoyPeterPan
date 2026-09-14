@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { CampoFlechas } from '@/components/CampoFlechas';
 import { DemoCascada } from '@/components/DemoCascada';
 import { FraseEscrita } from '@/components/FraseEscrita';
 import { Revelar } from '@/components/Revelar';
@@ -9,7 +10,8 @@ const CADENA = ['Algún día', '5 años', '1 año', '90 días', 'Esta semana', '
 export default function Landing() {
   return (
     <div className="mx-auto max-w-6xl px-6 sm:px-10">
-      <section className="flex min-h-dvh flex-col">
+      <section className="relative isolate flex min-h-dvh flex-col">
+        <CampoFlechas />
         <header className="flex items-center justify-between py-8">
           <div className="flex items-center gap-3">
             <Image src="/logo.png" alt="" width={40} height={40} className="h-10 w-10 object-contain" priority />
