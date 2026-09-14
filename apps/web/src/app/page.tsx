@@ -109,27 +109,27 @@ export default function Landing() {
             </h2>
           </Revelar>
 
-          <ol className="mt-12 grid grid-cols-2 gap-y-8 sm:grid-cols-3 lg:grid-cols-6 lg:gap-y-0">
+          <ol className="mt-12 flex flex-wrap items-center justify-center gap-x-3 gap-y-3">
             {CADENA.map((paso, i) => {
               const ultimo = i === CADENA.length - 1;
               return (
-                <li
-                  key={paso}
-                  className="border-t border-linea pr-4 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pr-2 lg:pt-0 lg:first:border-l-0 lg:first:pl-0"
-                >
+                <li key={paso} className="flex items-center gap-3">
                   <Revelar retraso={i * 90}>
-                    <span className="block text-xs tabular-nums text-humo">0{i + 1}</span>
                     <span
-                      className={`mt-3 block text-sm tracking-tight ${
-                        ultimo ? 'font-semibold' : 'font-medium'
+                      className={`rounded-full px-4 py-1.5 text-sm ${
+                        ultimo
+                          ? 'bg-tinta font-medium text-papel'
+                          : 'border border-linea text-humo'
                       }`}
-                      // La tinta se satura paso a paso: la cadena se ve avanzar
-                      // hacia hoy sin necesidad de una flecha.
-                      style={{ opacity: 0.45 + i * 0.11 }}
                     >
                       {paso}
                     </span>
                   </Revelar>
+                  {!ultimo && (
+                    <span aria-hidden className="text-sm text-humo">
+                      →
+                    </span>
+                  )}
                 </li>
               );
             })}
