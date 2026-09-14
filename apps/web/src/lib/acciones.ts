@@ -18,16 +18,74 @@ export type NuevoObjetivo = {
   venceEl: string | null;
 };
 
-export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<void> {
+/** Devuelve el id del objetivo creado, para poder ir a su pagina. */
+export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<string> {
   const supabase = createClienteNavegador();
-  const { error } = await supabase.from('objetivos').insert({
-    usuario_id: nuevo.usuarioId,
-    padre_id: nuevo.padreId,
-    categoria_id: nuevo.categoriaId,
-    titulo: nuevo.titulo.trim(),
-    detalle: nuevo.detalle.trim() || null,
-    vence_el: nuevo.venceEl,
-  });
+
+  // Lo nuevo entra al final de sus hermanos. Con `orden = 0` fijo quedaria
+  // arriba de todo en cuanto alguien haya reordenado esa lista.
+  const hermanos = supabase
+    .from('objetivos')
+    .select('orden')
+    .order('orden', { ascending: false })
+    .limit(1);
+  const { data: ultimo } = await (nuevo.padreId
+    ? hermanos.eq('padre_id', nuevo.padreId)
+    : hermanos.is('padre_id', null)
+  ).maybeSingle<{ orden: number }>();
+
+  const { data, error } = await supabase
+    .from('objetivos')
+    .insert({
+      usuario_id: nuevo.usuarioId,
+      padre_id: nuevo.padreId,
+      categoria_id: nuevo.categoriaId,
+      titulo: nuevo.titulo.trim(),
+      detalle: nuevo.detalle.trim() || null,
+      vence_el: nuevo.venceEl,
+      orden: (ultimo?.orden ?? -1) + 1,
+    })
+    .select('id')
+    .single<{ id: string }>();
+  if (error) throw error;
+  return data.id;
+}
+
+export type PasoNuevo = {
+  /** Generado en el navegador: los hijos necesitan el id del padre antes de guardar. */
+  id: string;
+  padreId: string;
+  titulo: string;
+  detalle: string;
+  venceEl: string | null;
+  /** Posicion entre sus hermanos. */
+  orden: number;
+};
+
+/**
+ * Guarda un desglose entero en un solo insert. Un insert de varias filas es
+ * atomico: entra todo o nada, sin arboles a medias. Los padres deben venir
+ * antes que sus hijos, porque el trigger de validacion busca al padre.
+ */
+export async function creaDesglose(
+  usuarioId: string,
+  categoriaId: string,
+  pasos: PasoNuevo[],
+): Promise<void> {
+  if (pasos.length === 0) return;
+  const supabase = createClienteNavegador();
+  const { error } = await supabase.from('objetivos').insert(
+    pasos.map((p) => ({
+      id: p.id,
+      usuario_id: usuarioId,
+      padre_id: p.padreId,
+      categoria_id: categoriaId,
+      titulo: p.titulo.trim(),
+      detalle: p.detalle.trim() || null,
+      vence_el: p.venceEl,
+      orden: p.orden,
+    })),
+  );
   if (error) throw error;
 }
 
@@ -54,6 +112,20 @@ export async function actualizaObjetivo(
 
   const { error } = await supabase.from('objetivos').update(fila).eq('id', id);
   if (error) throw error;
+}
+
+/**
+ * Deja a los hermanos en el orden dado. Se reescribe la lista entera y no un
+ * intercambio de dos: los objetivos nacen todos con `orden = 0`, y cambiar un
+ * cero por otro cero no mueve nada.
+ */
+export async function ordenaHermanos(ids: string[]): Promise<void> {
+  const supabase = createClienteNavegador();
+  const resultados = await Promise.all(
+    ids.map((id, orden) => supabase.from('objetivos').update({ orden }).eq('id', id)),
+  );
+  const fallo = resultados.find((r) => r.error);
+  if (fallo?.error) throw fallo.error;
 }
 
 /** Se lleva el desglose completo: lo dice `on delete cascade`. */

@@ -6,6 +6,8 @@ export type SeccionAjustes = {
   id: string;
   nombre: string;
   resumen: string;
+  /** Una barra bajo el resumen, de 0 a 100, visible sin abrir la seccion. */
+  medidor?: { etiqueta: string; porcentaje: number };
   contenido: React.ReactNode;
 };
 
@@ -55,6 +57,36 @@ export function PanelAjustes({ secciones }: { secciones: SeccionAjustes[] }) {
                   >
                     {s.resumen}
                   </span>
+
+                  {s.medidor && (
+                    <span className="mt-2.5 block">
+                      <span
+                        className={`flex justify-between text-[11px] ${
+                          seleccionada ? 'text-papel/70' : 'text-humo'
+                        }`}
+                      >
+                        <span>{s.medidor.etiqueta}</span>
+                        <span>{s.medidor.porcentaje}%</span>
+                      </span>
+                      <span
+                        role="progressbar"
+                        aria-label={s.medidor.etiqueta}
+                        aria-valuenow={s.medidor.porcentaje}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        className={`mt-1 block h-1 overflow-hidden rounded-full ${
+                          seleccionada ? 'bg-papel/20' : 'bg-linea'
+                        }`}
+                      >
+                        <span
+                          className={`block h-full rounded-full transition-[width] duration-500 ${
+                            seleccionada ? 'bg-papel' : 'bg-tinta'
+                          }`}
+                          style={{ width: `${s.medidor.porcentaje}%` }}
+                        />
+                      </span>
+                    </span>
+                  )}
                 </button>
               </li>
             );

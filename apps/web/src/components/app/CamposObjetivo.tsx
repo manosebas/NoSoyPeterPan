@@ -18,7 +18,11 @@ export const TOPE_DETALLE = 2000;
 
 /** La misma pregunta al crear y al editar: si difieren, una de las dos miente. */
 export const PIDE_DETALLE =
-  '¿De qué se trata y por dónde? «Ganar más dinero» no dice nada: ¿subiendo tarifas, cambiando de trabajo, vendiendo algo tuyo? Entre más claro lo escribas, mejor te va a poder recomendar.';
+  'Cuéntalo como se lo contarías a alguien que te va a ayudar: para qué lo quieres, fechas, con quién, cuánto tienes y qué ya intentaste. «Ir a Miami» no dice nada. «Viaje sorpresa en familia del 29 de diciembre al 7 de enero, somos 4, presupuesto de 5.000 dólares» sí.';
+
+/** Por que importa el detalle, dicho en una linea visible y no en el placeholder. */
+export const POR_QUE_DETALLE =
+  'Es lo que más importa. Con un buen detalle la IA te arma un desglose de verdad; sin él, uno genérico.';
 
 /**
  * Los campos de un objetivo: que es, de que se trata, a que rama aporta y para
@@ -69,16 +73,18 @@ export function CamposObjetivo({
       />
 
       {/* Opcional, pero es lo unico que sabra de este objetivo quien no eres tu
-          hoy: tu yo de dentro de un mes, o quien te vaya a recomendar algo. */}
+          hoy: tu yo de dentro de un mes, o la IA cuando lo desglose. */}
+      <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-humo">Detalle</p>
+      <p className="mt-1 text-xs text-humo">{POR_QUE_DETALLE}</p>
       <textarea
         value={detalle}
-        rows={3}
+        rows={4}
         maxLength={TOPE_DETALLE}
         placeholder={PIDE_DETALLE}
         onChange={(e) => onDetalle(e.target.value)}
         // 16px en movil: por debajo de eso iOS hace zoom al enfocar y deja la
         // pagina descuadrada.
-        className="mt-4 w-full resize-none rounded-lg border border-linea bg-transparent p-3 text-base leading-relaxed outline-none placeholder:text-humo focus:border-tinta sm:text-sm"
+        className="mt-2 w-full resize-none rounded-lg border border-linea bg-transparent p-3 text-base leading-relaxed outline-none placeholder:text-humo/70 focus:border-tinta sm:text-sm"
       />
 
       {onCategoria && (

@@ -12,12 +12,14 @@ import { Cabecera } from '@/components/Cabecera';
 import { AjustesObjetivo } from '@/components/app/AjustesObjetivo';
 import { Barra } from '@/components/app/Barra';
 import { Casilla } from '@/components/app/Casilla';
+import { DesgloseIA, type DisponibilidadIA } from '@/components/app/DesgloseIA';
 import { FilaObjetivo } from '@/components/app/FilaObjetivo';
 import { NuevoObjetivo } from '@/components/app/NuevoObjetivo';
 import { Pagina } from '@/components/Pagina';
 import { NOMBRE_PLAZO, textoFecha } from '@/lib/formato';
 import { cargaDatos, porId } from '@/lib/datos';
 import { obtenerSesionConPerfil } from '@/lib/perfil';
+import { cargaPlan, restanteIA } from '@/lib/plan';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +36,11 @@ function buscar(nodos: NodoObjetivo[], id: string): NodoObjetivo | null {
 
 export default async function Objetivo({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [sesion, datos] = await Promise.all([obtenerSesionConPerfil(), cargaDatos()]);
+  const [sesion, datos, plan] = await Promise.all([
+    obtenerSesionConPerfil(),
+    cargaDatos(),
+    cargaPlan(),
+  ]);
   if (!sesion || !datos) redirect(`/entrar?siguiente=/objetivo/${id}`);
 
   const nodo = buscar(construyeArbol(datos.objetivos), id);
@@ -50,6 +56,14 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
   const migas = camino(datos.objetivos, id).slice(0, -1);
   const padre = datos.objetivos.find((o) => o.id === nodo.padreId) ?? null;
   const volverA = padre ? `/objetivo/${padre.id}` : '/mapa';
+
+  // Lo que la pagina sabe es orientativo: el API vuelve a revisar el saldo.
+  const disponibilidad: DisponibilidadIA = !plan?.actual?.presupuestoUsd
+    ? 'sin_plan'
+    : restanteIA(plan) > 0
+      ? 'con_ia'
+      : 'sin_saldo';
+  const ordenInicial = Math.max(-1, ...nodo.hijos.map((h) => h.orden)) + 1;
 
   return (
     <Pagina>
@@ -102,6 +116,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
           <div className="shrink-0 pt-0.5">
             <AjustesObjetivo
               id={nodo.id}
+              titulo={nodo.titulo}
               categoriaId={nodo.categoriaId}
               detalle={nodo.detalle}
               venceEl={nodo.venceEl}
@@ -146,6 +161,20 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
           </div>
         )}
 
+        {nodo.profundidad < 5 && (
+          <div className="mt-6">
+            <DesgloseIA
+              objetivoId={nodo.id}
+              usuarioId={datos.usuarioId}
+              categoriaId={nodo.categoriaId}
+              venceEl={nodo.venceEl}
+              ordenInicial={ordenInicial}
+              dias={datos.plazos}
+              disponibilidad={disponibilidad}
+            />
+          </div>
+        )}
+
         {/* El desglose manda: se lleva todo el ancho. */}
         <div className="mt-8">
           <section>
@@ -163,6 +192,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
                       categorias={categorias}
                       dias={datos.plazos}
                       conVistaPrevia
+                      hermanos={nodo.hijos.map((h) => h.id)}
                     />
                   ))}
                 </ul>

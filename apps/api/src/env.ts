@@ -30,6 +30,7 @@ export interface Env {
   supabaseAnonKey: string;
   supabaseServiceRoleKey: string;
   corsOrigins: string[];
+  openaiApiKey: string;
 }
 
 export function cargarEnv(): Env {
@@ -51,5 +52,7 @@ export function cargarEnv(): Env {
       .split(',')
       .map((o) => o.trim())
       .filter(Boolean),
+    // Una key por ambiente, cada una en su proyecto de OpenAI con tope de gasto.
+    openaiApiKey: requerida('OPENAI_API_KEY'),
   };
 }
