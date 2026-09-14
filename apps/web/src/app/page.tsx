@@ -198,10 +198,6 @@ export default function Landing() {
           </Link>
         </section>
       </main>
-
-      <footer className="border-t border-linea py-8 text-sm text-humo">
-        No Soy Peter Pan — Un juego para salir de Nunca Jamás.
-      </footer>
     </div>
   );
 }
