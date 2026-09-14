@@ -40,7 +40,7 @@ Todo cambio va a `dev`. `main` solo se toca cuando se pide.
 
 | Servicio | dev | prod |
 | --- | --- | --- |
-| Frontend | `dev-nosoypeterpan.vercel.app` | `nosoypeterpan.vercel.app` |
+| Frontend | `dev-nosoypeterpan.vercel.app` | `nosoypeterpan.com` |
 | API | `nosoypeterpan-dev.up.railway.app` | `nosoypeterpan-production.up.railway.app` |
 | Supabase | `dev_NoSoyPeterPan` | `prod_NoSoyPeterPan` |
 

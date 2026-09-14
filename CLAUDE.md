@@ -147,6 +147,8 @@ La landing cuenta el argumento en cinco tramos —el hero a pantalla completa, P
 
 Cuatro pantallas con sesión: **Hoy** (lo vencido, lo de hoy y lo de esta semana del árbol, más los to-do), **Mapa** (dos modos de vista: cascada y categorías), **Perfil** (la vitrina de fortalezas) y la de **un objetivo**; más **Ajustes** en dos columnas. Autenticación con Supabase, foto de perfil en Storage y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
 
+Producción responde en **`nosoypeterpan.com`** (DNS en Cloudflare, sin `www` como principal). Los correos de Auth salen por **Resend** desde `hola@nosoypeterpan.com`, con plantilla de verificación propia, y el link deja al usuario dentro de la app. Verificado de punta a punta el 2026-09-14.
+
 Migraciones `0001` a `0009`, aplicadas en los dos proyectos. Verificado contra el esquema de `prod_NoSoyPeterPan` el 2026-09-14: están `preferencias`, `pendientes`, el índice único de votos y `emite_voto` con el borrado al desmarcar. La tabla de migraciones de Supabase no sirve para comprobarlo —el SQL se aplica a mano desde el dashboard y no queda registrado ahí—: hay que preguntarle al esquema. El detalle del modelo vive en `docs/JUEGO.md`.
 
 ### Próximos pasos
@@ -156,9 +158,6 @@ Migraciones `0001` a `0009`, aplicadas en los dos proyectos. Verificado contra e
 3. **Reordenar y renombrar** — `orden` existe en la tabla pero la UI todavía no lo mueve, y un objetivo no se puede renombrar sin borrarlo. El detalle sí se edita ya, desde el engranaje.
 4. **IA en la plataforma** — con estructura, no un chat pegado al costado: dónde ayuda de verdad a desglosar y qué parte es de pago. Sin definir todavía.
 5. **Mudar los objetivos propios de `dev` a `prod`** — el árbol real del usuario vive en `dev_NoSoyPeterPan` y hay que llevarlo a producción.
-6. **SMTP con Resend** — Supabase manda los correos con su servidor de cortesía, que tiene tope y no es de fiar para producción.
-7. **Dominio propio en Vercel** — hoy producción responde en el dominio que da Vercel.
-8. **Plantilla del correo de verificación** — la que llega es la de Supabase, en su tono y no en el nuestro.
 
 ### Decisiones pendientes
 

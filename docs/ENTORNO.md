@@ -44,8 +44,15 @@ Valor actual de `CORS_ORIGINS`:
 
 - dev: `https://*.vercel.app` — el comodin es necesario, cada push genera un
   dominio de preview distinto.
-- prod: `https://nosoypeterpan.vercel.app`. Cuando haya dominio propio se agrega
-  separado por coma.
+- prod: `https://nosoypeterpan.com,https://nosoypeterpan.vercel.app`. El segundo
+  solo redirige al primero; se puede quitar cuando no quede nadie entrando por ahi.
+  Si el principal pasara a ser `www`, hay que agregarlo: sin eso la web carga
+  pero toda llamada al API falla por CORS.
+
+## Fuera de Vercel y Railway
+
+La API key de **Resend** vive solo en Supabase prod (SMTP Settings). No es una
+variable de la app y ningun servicio nuestro la lee. Detalle en `DESPLIEGUE.md`.
 
 ## Donde se sacan las claves de Supabase
 

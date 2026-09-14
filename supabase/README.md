@@ -21,9 +21,21 @@ En **Authentication > URL Configuration**:
 
 - **Site URL**
   - dev: la URL estable del preview de la rama `dev` en Vercel.
-  - prod: el dominio de produccion.
-- **Redirect URLs**: agregar `https://*.vercel.app/**` en el proyecto de dev,
-  porque cada push genera un dominio de preview distinto.
+  - prod: `https://nosoypeterpan.com`.
+- **Redirect URLs**
+  - dev: `https://*.vercel.app/**`, porque cada push genera un dominio de
+    preview distinto.
+  - prod: `https://nosoypeterpan.com/**` y `https://www.nosoypeterpan.com/**`.
+
+Si la URL que pide la app no esta en *Redirect URLs*, Supabase la descarta
+**sin avisar** y manda al Site URL pelado con `?code=`. Nadie canjea ese codigo
+y el usuario queda en la landing sin sesion. Paso el 2026-09-14 al estrenar el
+dominio con `www`.
+
+## Correo (prod)
+
+SMTP propio con Resend y template de *Confirm signup* propio. Configuracion
+completa en `docs/DESPLIEGUE.md` > Correo.
 
 En **Authentication > Providers > Email**: en `dev_NoSoyPeterPan` conviene
 desactivar *Confirm email* para poder probar el alta sin salir del navegador.
