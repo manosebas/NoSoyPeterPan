@@ -103,9 +103,29 @@ Todo el producto existe para hacer que esa cadena sea fácil de crear, visible y
 
 Manifiesto fundacional. Cita textual, no parafrasear:
 
-> "Una vida, solo una, ¿por qué no corremos como si estuviéramos en llamas hacia nuestros sueños más salvajes? Tenemos una sola oportunidad en esto. Quiero que la gente me vea y diga: ese tipo está loco. Bien. Tengo una sola oportunidad en esta vida, prefiero que me llames loco y soñador que conformista. Estás hecho para destacar."
+> Tenemos una vida. Solo una.
+>
+> Entonces, ¿por qué no correr como si estuviéramos en llamas hacia nuestros sueños más salvajes?
+>
+> Tenemos una sola oportunidad en esto.
+>
+> Yo quiero que la gente me vea y diga: «Ese tipo está loco».
+>
+> Bien.
+>
+> Prefiero que me llamen loco. Soñador. Que me digan que estoy apuntando demasiado alto.
+>
+> Pero nunca conformista.
+>
+> Porque si solo tengo una oportunidad en esta vida, no pienso pasarla intentando encajar, jugando a lo seguro o viviendo una vida que no elegí.
+>
+> Tenemos una sola oportunidad.
+>
+> **Y estamos hechos para destacar.**
 
-Es la vara para medir tono y decisiones. Si un copy o una feature suena tibio, corporativo o conformista, contradice la frase.
+Firmado **— M**. Es la vara para medir tono y decisiones. Si un copy o una feature suena tibio, corporativo o conformista, contradice la frase.
+
+El texto vive en `apps/web/src/components/FraseEscrita.tsx`, que lo teclea al llegar a su sección de la landing. Ahí se edita, y en un solo sitio: la versión corta que estaba en `packages/shared` se eliminó el 2026-09-14 para que no hubiera dos.
 
 ---
 
