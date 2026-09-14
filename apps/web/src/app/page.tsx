@@ -1,16 +1,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { FRASE_DE_ORO } from '@nspp/shared';
+import { DemoCascada } from '@/components/DemoCascada';
 import { Revelar } from '@/components/Revelar';
 
 const CADENA = ['Algún día', '5 años', '1 año', '90 días', 'Esta semana', 'Hoy'];
-
-const PARADOJAS = [
-  ['Si nunca administras tu dinero', 'dependes del dinero.'],
-  ['Si nunca cuidas tu cuerpo', 'dependes de las consecuencias.'],
-  ['Si nunca construyes tu carrera', 'dependes de las oportunidades que aparezcan.'],
-  ['Si nunca decides qué quieres', 'dependes de lo que los demás quieran para ti.'],
-];
 
 export default function Landing() {
   return (
@@ -170,19 +164,10 @@ export default function Landing() {
           </div>
         </section>
 
-        <section className="border-t border-linea py-14">
-          <h2 className="text-2xl font-bold tracking-tight">La libertad exige responsabilidad</h2>
-          <dl className="mt-8 space-y-4">
-            {PARADOJAS.map(([condicion, consecuencia]) => (
-              <div key={condicion} className="flex flex-col gap-1 sm:flex-row sm:gap-4">
-                <dt className="text-humo sm:w-2/5">{condicion},</dt>
-                <dd className="font-medium sm:w-3/5">{consecuencia}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="mt-8 text-lg font-medium">
-            Crecer no significa dejar de jugar. Significa dejar de jugar con tu futuro.
-          </p>
+        <section className="border-t border-linea py-24 sm:py-32">
+          <Revelar>
+            <DemoCascada />
+          </Revelar>
         </section>
 
         <section className="border-t border-linea py-14">
