@@ -53,14 +53,19 @@ function laMaquinaDa(): boolean {
 }
 
 export function CampoFlechas() {
-  const lienzo = useRef<HTMLCanvasElement>(null);
+  const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = lienzo.current;
-    if (!canvas || !laMaquinaDa()) return;
+    if (!ref.current || !laMaquinaDa()) return;
 
-    const ctx = canvas.getContext('2d', { alpha: true });
-    if (!ctx) return;
+    const contexto = ref.current.getContext('2d', { alpha: true });
+    if (!contexto) return;
+
+    // Copias con tipo ya sin null: TypeScript no arrastra el descarte de arriba
+    // a las funciones de abajo, y sin esto cada uso vuelve a ser "posiblemente
+    // null".
+    const lienzo: HTMLCanvasElement = ref.current;
+    const pincel: CanvasRenderingContext2D = contexto;
 
     let ancho = 0;
     let alto = 0;
@@ -75,13 +80,13 @@ export function CampoFlechas() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     function rejilla() {
-      const caja = canvas.getBoundingClientRect();
+      const caja = lienzo.getBoundingClientRect();
       ancho = caja.width;
       alto = caja.height;
 
-      canvas.width = Math.floor(ancho * dpr);
-      canvas.height = Math.floor(alto * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      lienzo.width = Math.floor(ancho * dpr);
+      lienzo.height = Math.floor(alto * dpr);
+      pincel.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const columnas = Math.ceil(ancho / ESPACIO) + 1;
       const filas = Math.ceil(alto / ESPACIO) + 1;
@@ -111,27 +116,28 @@ export function CampoFlechas() {
       }
     }
 
-    function dibuja() {
-      ctx.clearRect(0, 0, ancho, alto);
-      ctx.strokeStyle = 'rgba(10, 10, 10, 0.22)';
-      ctx.lineWidth = 1.4;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+    function dibuja(): boolean {
+      pincel.clearRect(0, 0, ancho, alto);
+      pincel.strokeStyle = 'rgba(10, 10, 10, 0.22)';
+      pincel.lineWidth = 1.4;
+      pincel.lineCap = 'round';
+      pincel.lineJoin = 'round';
 
       let enMovimiento = false;
 
       for (let i = 0; i < xs.length; i += 1) {
-        const x = xs[i] as number;
-        const y = ys[i] as number;
+        const x = xs[i] ?? 0;
+        const y = ys[i] ?? 0;
+        const previo = angulos[i] ?? 0;
         const objetivo = Math.atan2(ratonY - y, ratonX - x);
 
         // Por el camino corto: sin esto, cruzar el eje da una vuelta entera.
-        let giro = objetivo - (angulos[i] as number);
+        let giro = objetivo - previo;
         while (giro < -Math.PI) giro += Math.PI * 2;
         while (giro > Math.PI) giro -= Math.PI * 2;
 
         if (Math.abs(giro) > 0.002) enMovimiento = true;
-        const angulo = (angulos[i] as number) + giro * SUAVIDAD;
+        const angulo = previo + giro * SUAVIDAD;
         angulos[i] = angulo;
 
         const cos = Math.cos(angulo);
@@ -139,19 +145,17 @@ export function CampoFlechas() {
         const largo = 7;
         const punta = 3.2;
 
-        const x1 = x - cos * largo;
-        const y1 = y - sen * largo;
         const x2 = x + cos * largo;
         const y2 = y + sen * largo;
 
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 - cos * punta - sen * punta, y2 - sen * punta + cos * punta);
-        ctx.moveTo(x2, y2);
-        ctx.lineTo(x2 - cos * punta + sen * punta, y2 - sen * punta - cos * punta);
-        ctx.stroke();
+        pincel.beginPath();
+        pincel.moveTo(x - cos * largo, y - sen * largo);
+        pincel.lineTo(x2, y2);
+        pincel.moveTo(x2, y2);
+        pincel.lineTo(x2 - cos * punta - sen * punta, y2 - sen * punta + cos * punta);
+        pincel.moveTo(x2, y2);
+        pincel.lineTo(x2 - cos * punta + sen * punta, y2 - sen * punta - cos * punta);
+        pincel.stroke();
       }
 
       return enMovimiento;
@@ -162,6 +166,15 @@ export function CampoFlechas() {
     let frames = 0;
     let desde = performance.now();
     let quieto = false;
+
+    function apaga() {
+      vivo = false;
+      cancelAnimationFrame(cuadro);
+      pincel.clearRect(0, 0, ancho, alto);
+      window.removeEventListener('mousemove', alMover);
+      window.removeEventListener('mouseout', alSalir);
+      observador.disconnect();
+    }
 
     function bucle() {
       if (!vivo) return;
@@ -199,7 +212,7 @@ export function CampoFlechas() {
     }
 
     function alMover(e: MouseEvent) {
-      const caja = canvas.getBoundingClientRect();
+      const caja = lienzo.getBoundingClientRect();
       ratonX = e.clientX - caja.left;
       ratonY = e.clientY - caja.top;
       despierta();
@@ -211,22 +224,13 @@ export function CampoFlechas() {
       despierta();
     }
 
-    function apaga() {
-      vivo = false;
-      cancelAnimationFrame(cuadro);
-      ctx.clearRect(0, 0, ancho, alto);
-      window.removeEventListener('mousemove', alMover);
-      window.removeEventListener('mouseout', alSalir);
-      observador.disconnect();
-    }
-
     const observador = new ResizeObserver(() => {
       rejilla();
       despierta();
     });
 
     rejilla();
-    observador.observe(canvas);
+    observador.observe(lienzo);
     window.addEventListener('mousemove', alMover, { passive: true });
     window.addEventListener('mouseout', alSalir);
     cuadro = requestAnimationFrame(bucle);
@@ -236,7 +240,7 @@ export function CampoFlechas() {
 
   return (
     <canvas
-      ref={lienzo}
+      ref={ref}
       aria-hidden
       // A todo el ancho de la ventana, no al del contenedor: el hero se lee
       // centrado pero el campo llega hasta los bordes.
