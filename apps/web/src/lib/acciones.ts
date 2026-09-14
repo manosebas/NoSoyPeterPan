@@ -4,7 +4,7 @@ import { mensajeError } from '@/lib/errores';
 import { createClienteNavegador } from '@/lib/supabase/client';
 
 /**
- * Escrituras del juego. Viven en el navegador y confian en RLS: la base
+ * Escrituras de la app. Viven en el navegador y confian en RLS: la base
  * rechaza lo que no es tuyo, y los triggers cuidan las reglas del arbol.
  */
 

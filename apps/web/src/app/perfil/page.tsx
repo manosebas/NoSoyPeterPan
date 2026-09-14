@@ -2,10 +2,10 @@ import { fuerzaDeRama, VOTOS_POR_NIVEL_DEFECTO } from '@nspp/shared';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
-import { Barra } from '@/components/juego/Barra';
+import { Barra } from '@/components/app/Barra';
 import { Pagina } from '@/components/Pagina';
 import { textoActividad } from '@/lib/formato';
-import { cargaJuego } from '@/lib/juego';
+import { cargaDatos } from '@/lib/datos';
 import { iniciales, nombreVisible, obtenerSesionConPerfil } from '@/lib/perfil';
 
 export const dynamic = 'force-dynamic';
@@ -15,22 +15,22 @@ export const metadata = { title: 'Tus fortalezas — No Soy Peter Pan' };
 const FECHA = new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short' });
 
 export default async function Perfil() {
-  const [sesion, juego] = await Promise.all([obtenerSesionConPerfil(), cargaJuego()]);
-  if (!sesion || !juego) redirect('/entrar?siguiente=/perfil');
+  const [sesion, datos] = await Promise.all([obtenerSesionConPerfil(), cargaDatos()]);
+  if (!sesion || !datos) redirect('/entrar?siguiente=/perfil');
 
   const nombre = nombreVisible(sesion.perfil, sesion.email);
 
-  const ramas = juego.categorias
+  const ramas = datos.categorias
     .map((categoria) => {
-      const meta = juego.metas[categoria.id] ?? VOTOS_POR_NIVEL_DEFECTO;
+      const meta = datos.metas[categoria.id] ?? VOTOS_POR_NIVEL_DEFECTO;
       return {
         categoria,
         meta,
         fuerza: fuerzaDeRama(
-          juego.votos.filter((v) => v.categoriaId === categoria.id),
+          datos.votos.filter((v) => v.categoriaId === categoria.id),
           meta,
         ),
-        abiertos: juego.objetivos.filter((o) => o.categoriaId === categoria.id && !o.completadoEn)
+        abiertos: datos.objetivos.filter((o) => o.categoriaId === categoria.id && !o.completadoEn)
           .length,
       };
     })
@@ -39,7 +39,7 @@ export default async function Perfil() {
   const vivas = ramas.filter((r) => r.fuerza.total > 0 || r.abiertos > 0);
   const dormidas = ramas.filter((r) => r.fuerza.total === 0 && r.abiertos === 0);
 
-  const ultimos = [...juego.votos]
+  const ultimos = [...datos.votos]
     .sort((a, b) => b.emitidoEn.localeCompare(a.emitidoEn))
     .slice(0, 6);
 
@@ -69,9 +69,9 @@ export default async function Perfil() {
 
           <p className="text-sm text-humo">
             <span className="text-2xl font-bold tracking-tight text-tinta">
-              {juego.votos.length}
+              {datos.votos.length}
             </span>{' '}
-            {juego.votos.length === 1 ? 'voto' : 'votos'} por la persona que quieres ser
+            {datos.votos.length === 1 ? 'voto' : 'votos'} por la persona que quieres ser
           </p>
         </header>
 
@@ -125,7 +125,7 @@ export default async function Perfil() {
                 </h2>
                 <ul className="mt-4 space-y-2.5">
                   {ultimos.map((voto) => {
-                    const categoria = juego.categorias.find((c) => c.id === voto.categoriaId);
+                    const categoria = datos.categorias.find((c) => c.id === voto.categoriaId);
 
                     return (
                       <li key={voto.id} className="flex items-baseline gap-3 text-sm">

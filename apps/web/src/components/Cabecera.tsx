@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { NavPrincipal } from '@/components/juego/NavPrincipal';
+import { NavPrincipal } from '@/components/app/NavPrincipal';
 import { MenuAvatar } from '@/components/MenuAvatar';
 import { iniciales, nombreVisible, type SesionConPerfil } from '@/lib/perfil';
 

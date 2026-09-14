@@ -1,6 +1,6 @@
 # No Soy Peter Pan
 
-> Un juego para salir de Nunca Jamás.
+> Una herramienta para salir de Nunca Jamás.
 > Algún día no existe.
 > Deja de vivir por accidente.
 
@@ -73,7 +73,7 @@ Algún día  →  5 años  →  1 año  →  90 días  →  esta semana  →  ho
 
 Todo el producto existe para hacer que esa cadena sea fácil de crear, visible y difícil de romper.
 
-**Cómo se implementa esa cadena**: los conceptos de la tabla no son entidades distintas. Son un mismo objetivo a distinta altura de un árbol. Un objetivo se desglosa en objetivos más chicos, y esos se vuelven a desglosar hasta llegar a algo que se pueda hacer hoy. El Norte es la raíz; una Misión es una hoja. Cada objetivo pertenece a una Categoría, que hereda de su padre salvo que se cambie a mano. Ver `docs/JUEGO.md`.
+**Cómo se implementa esa cadena**: los conceptos de la tabla no son entidades distintas. Son un mismo objetivo a distinta altura de un árbol. Un objetivo se desglosa en objetivos más chicos, y esos se vuelven a desglosar hasta llegar a algo que se pueda hacer hoy. El Norte es la raíz; una Misión es una hoja. Cada objetivo pertenece a una Categoría, que hereda de su padre salvo que se cambie a mano. Ver `docs/MODELO.md`.
 
 ---
 
@@ -85,8 +85,8 @@ Todo el producto existe para hacer que esa cadena sea fácil de crear, visible y
    - No terminaste una propuesta → *construiste una parte de tu futuro profesional*.
    - No ahorraste $200 → *compraste un poquito de libertad futura*.
 3. **La dirección primero, la ejecución después.** No se puede crear misiones antes de tener un Norte. El onboarding obliga a definir destino antes que to-dos.
-4. **Nunca Jamás es visible, no oculto.** El usuario debe *ver* su lista de "algún día" y sentir su peso. Es el antagonista del juego.
-5. **Juego sí, gamificación barata no.** Nada de badges vacíos ni streaks que castiguen. La recompensa es ver la trayectoria, no coleccionar confeti.
+4. **Nunca Jamás es visible, no oculto.** El usuario debe *ver* su lista de "algún día" y sentir su peso. Es el antagonista.
+5. **Herramienta, no juego.** No Soy Peter Pan no se presenta como juego ni se gamifica: nada de badges vacíos ni streaks que castiguen. La recompensa es ver la trayectoria, no coleccionar confeti.
 6. **Se conserva la espontaneidad.** Debe existir espacio explícito para aventura/curiosidad sin culpa. El producto no persigue el 100% de ocupación.
 7. **Honestidad con el usuario.** Si lleva 3 semanas sin avanzar en una Ruta, se dice. Sin humillar, sin maquillar.
 
@@ -141,15 +141,15 @@ El texto vive en `apps/web/src/components/FraseEscrita.tsx`, que lo teclea al ll
 
 Plataforma web donde la gente entra a organizar sus objetivos y cumplirlos. Ese es el core; todo lo demás es secundario hasta nuevo aviso.
 
-**Estado actual** (2026-09-14): el juego está jugable de punta a punta. Se crean objetivos, se desglosan hasta seis niveles, se marcan las hojas y cada marca emite un voto que hace crecer su rama. `main` y `dev` están a la par: lo que se ve en el preview es lo que hay en producción.
+**Estado actual** (2026-09-14): la herramienta funciona de punta a punta. Se crean objetivos, se desglosan hasta seis niveles, se marcan las hojas y cada marca emite un voto que hace crecer su rama. `main` y `dev` están a la par: lo que se ve en el preview es lo que hay en producción.
 
-La landing cuenta el argumento en cinco tramos —el hero a pantalla completa, Peter Pan, la conversión, un demo que se juega solo y el manifiesto que se teclea al llegar— y la app se usa en el teléfono sin que nada se salga de la pantalla.
+La landing cuenta el argumento en cinco tramos —el hero a pantalla completa, Peter Pan, la conversión, un demo que corre solo y el manifiesto que se teclea al llegar— y la app se usa en el teléfono sin que nada se salga de la pantalla.
 
 Cuatro pantallas con sesión: **Hoy** (lo vencido, lo de hoy y lo de esta semana del árbol, más los to-do), **Mapa** (dos modos de vista: cascada y categorías), **Perfil** (la vitrina de fortalezas) y la de **un objetivo**; más **Ajustes** en dos columnas. Autenticación con Supabase, foto de perfil en Storage y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
 
 Producción responde en **`nosoypeterpan.com`** (DNS en Cloudflare, sin `www` como principal). Los correos de Auth salen por **Resend** desde `hola@nosoypeterpan.com`, con plantilla de verificación propia, y el link deja al usuario dentro de la app. Verificado de punta a punta el 2026-09-14.
 
-Migraciones `0001` a `0009`, aplicadas en los dos proyectos. Verificado contra el esquema de `prod_NoSoyPeterPan` el 2026-09-14: están `preferencias`, `pendientes`, el índice único de votos y `emite_voto` con el borrado al desmarcar. La tabla de migraciones de Supabase no sirve para comprobarlo —el SQL se aplica a mano desde el dashboard y no queda registrado ahí—: hay que preguntarle al esquema. El detalle del modelo vive en `docs/JUEGO.md`.
+Migraciones `0001` a `0009`, aplicadas en los dos proyectos. Verificado contra el esquema de `prod_NoSoyPeterPan` el 2026-09-14: están `preferencias`, `pendientes`, el índice único de votos y `emite_voto` con el borrado al desmarcar. La tabla de migraciones de Supabase no sirve para comprobarlo —el SQL se aplica a mano desde el dashboard y no queda registrado ahí—: hay que preguntarle al esquema. El detalle del modelo vive en `docs/MODELO.md`.
 
 ### Próximos pasos
 
@@ -189,7 +189,7 @@ supabase/
   migrations/  SQL idempotente, se aplica desde el dashboard
   consultas/   SQL de diagnóstico, no se aplica
 docs/
-  JUEGO.md      qué se guarda, qué se calcula y qué se ve
+  MODELO.md     qué se guarda, qué se calcula y qué se ve
   ENTORNO.md    qué variable va en qué servicio
   DESPLIEGUE.md cómo se despliega y cómo se verifica
 ```

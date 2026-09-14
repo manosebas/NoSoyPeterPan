@@ -10,8 +10,8 @@ import {
 } from '@nspp/shared';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { CamposObjetivo, recorta, type Eleccion } from '@/components/juego/CamposObjetivo';
-import { Modal } from '@/components/juego/Modal';
+import { CamposObjetivo, recorta, type Eleccion } from '@/components/app/CamposObjetivo';
+import { Modal } from '@/components/app/Modal';
 import { creaObjetivo, mensajeError } from '@/lib/acciones';
 
 /**

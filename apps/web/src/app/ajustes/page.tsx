@@ -2,11 +2,11 @@ import { redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
 import { FormularioAjustes } from '@/components/FormularioAjustes';
 import { FormularioPerfil } from '@/components/FormularioPerfil';
-import { MetasCategoria } from '@/components/juego/MetasCategoria';
-import { PanelAjustes, type SeccionAjustes } from '@/components/juego/PanelAjustes';
+import { MetasCategoria } from '@/components/app/MetasCategoria';
+import { PanelAjustes, type SeccionAjustes } from '@/components/app/PanelAjustes';
 import { Pagina } from '@/components/Pagina';
-import { PlazosPorDefecto } from '@/components/juego/PlazosPorDefecto';
-import { cargaJuego } from '@/lib/juego';
+import { PlazosPorDefecto } from '@/components/app/PlazosPorDefecto';
+import { cargaDatos } from '@/lib/datos';
 import { iniciales, nombreVisible, obtenerSesionConPerfil } from '@/lib/perfil';
 
 export const dynamic = 'force-dynamic';
@@ -14,15 +14,15 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Ajustes — No Soy Peter Pan' };
 
 export default async function AjustesPagina() {
-  const [sesion, juego] = await Promise.all([obtenerSesionConPerfil(), cargaJuego()]);
-  if (!sesion || !juego) redirect('/entrar?siguiente=/ajustes');
+  const [sesion, datos] = await Promise.all([obtenerSesionConPerfil(), cargaDatos()]);
+  if (!sesion || !datos) redirect('/entrar?siguiente=/ajustes');
 
   const nombre = nombreVisible(sesion.perfil, sesion.email);
 
   const secciones: SeccionAjustes[] = [
     {
       id: 'nivel',
-      nombre: 'En qué nivel juegas la vida',
+      nombre: 'Qué tan alto apuntas',
       resumen: 'Cuánto dura cada plazo y cuánto cuesta subir una rama.',
       contenido: (
         <>
@@ -34,7 +34,7 @@ export default async function AjustesPagina() {
             escrita.
           </p>
           <div className="mt-3">
-            <PlazosPorDefecto usuarioId={juego.usuarioId} plazos={juego.plazos} />
+            <PlazosPorDefecto usuarioId={datos.usuarioId} plazos={datos.plazos} />
           </div>
 
           <p className="mt-10 text-xs font-semibold uppercase tracking-[0.16em] text-humo">
@@ -45,9 +45,9 @@ export default async function AjustesPagina() {
           </p>
           <div className="mt-3">
             <MetasCategoria
-              usuarioId={juego.usuarioId}
-              categorias={juego.categorias}
-              metas={juego.metas}
+              usuarioId={datos.usuarioId}
+              categorias={datos.categorias}
+              metas={datos.metas}
             />
           </div>
         </>

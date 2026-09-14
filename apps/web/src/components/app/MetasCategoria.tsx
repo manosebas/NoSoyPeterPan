@@ -11,7 +11,7 @@ const ATAJOS = [12, 30, 60, 90];
 /**
  * Cuantos objetivos cumplidos llenan la barra de cada rama.
  *
- * Es la unica perilla del juego, y existe porque el ritmo de cada rama es
+ * Es la unica perilla de la herramienta, y existe porque el ritmo de cada rama es
  * distinto: al gimnasio se va todos los dias, de trabajo no se cambia todos
  * los dias.
  */

@@ -45,7 +45,7 @@ Nada se hace porque sí. Cada acción de tu día debe responder a una pregunta:
 | --- | --- |
 | «¿Qué tengo que hacer hoy?» | **«¿Qué puedo hacer hoy para acercarme a los objetivos que tengo?»** |
 
-## Cómo se juega
+## Cómo funciona
 
 Todo empieza por un objetivo grande: quién quieres ser dentro de cinco años. Ese
 objetivo se desglosa en objetivos más chicos, y esos otra vez, hasta llegar a algo
@@ -95,20 +95,3 @@ completo, del Norte a hoy) y tu **Perfil** (las ramas que estás fortaleciendo).
   <strong>Tu yo de hoy es responsable<br>de la vida que recibe tu yo del futuro.</strong><br><br>
   <a href="https://nosoypeterpan.com">Empezar hoy →</a>
 </p>
-
----
-
-## Por dentro
-
-Monorepo con pnpm workspaces y Turborepo.
-
-```
-apps/
-  web/       Next.js 15 (App Router) + React 19 + Tailwind v4  → Vercel
-  api/       Fastify 5 + TypeScript                            → Railway
-packages/
-  shared/    Tipos del dominio y contratos HTTP
-```
-
-Autenticación, base de datos y almacenamiento en Supabase. Cero secretos en el
-repo: toda clave vive en las variables de cada servicio.

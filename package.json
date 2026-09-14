@@ -2,7 +2,7 @@
   "name": "nosoypeterpan",
   "version": "0.1.0",
   "private": true,
-  "description": "No Soy Peter Pan - un juego para salir de Nunca Jamas",
+  "description": "No Soy Peter Pan - una herramienta para salir de Nunca Jamas",
   "packageManager": "pnpm@10.18.0",
   "engines": {
     "node": ">=20.9.0"

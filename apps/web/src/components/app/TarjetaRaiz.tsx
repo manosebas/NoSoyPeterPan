@@ -1,7 +1,7 @@
 import { progreso, type Categoria, type DiasPlazo, type NodoObjetivo } from '@nspp/shared';
 import Link from 'next/link';
-import { ArbolMapa } from '@/components/juego/ArbolMapa';
-import { Barra } from '@/components/juego/Barra';
+import { ArbolMapa } from '@/components/app/ArbolMapa';
+import { Barra } from '@/components/app/Barra';
 import { textoFecha } from '@/lib/formato';
 
 /**

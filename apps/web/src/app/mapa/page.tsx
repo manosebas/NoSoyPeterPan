@@ -10,12 +10,12 @@ import {
 } from '@nspp/shared';
 import { redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
-import { Barra } from '@/components/juego/Barra';
-import { NuevoObjetivo } from '@/components/juego/NuevoObjetivo';
-import { TarjetaRaiz } from '@/components/juego/TarjetaRaiz';
-import { VistaMapa } from '@/components/juego/VistaMapa';
+import { Barra } from '@/components/app/Barra';
+import { NuevoObjetivo } from '@/components/app/NuevoObjetivo';
+import { TarjetaRaiz } from '@/components/app/TarjetaRaiz';
+import { VistaMapa } from '@/components/app/VistaMapa';
 import { Pagina } from '@/components/Pagina';
-import { cargaJuego, porId } from '@/lib/juego';
+import { cargaDatos, porId } from '@/lib/datos';
 import { obtenerSesionConPerfil } from '@/lib/perfil';
 
 export const dynamic = 'force-dynamic';
@@ -36,27 +36,27 @@ const SECCIONES = [
 ] as const;
 
 export default async function Mapa() {
-  const [sesion, juego] = await Promise.all([obtenerSesionConPerfil(), cargaJuego()]);
-  if (!sesion || !juego) redirect('/entrar?siguiente=/mapa');
+  const [sesion, datos] = await Promise.all([obtenerSesionConPerfil(), cargaDatos()]);
+  if (!sesion || !datos) redirect('/entrar?siguiente=/mapa');
 
-  const categorias = porId(juego.categorias);
+  const categorias = porId(datos.categorias);
 
   // Solo raices: lo que cuelga de un objetivo se ve dentro de su arbol, no
   // repetido en la seccion de su plazo.
-  const raices = construyeArbol(juego.objetivos);
+  const raices = construyeArbol(datos.objetivos);
 
   const porPlazo = SECCIONES.map((s) => ({
     ...s,
-    raices: raices.filter((r) => encajaEn(r, s.clave, juego.plazos)),
+    raices: raices.filter((r) => encajaEn(r, s.clave, datos.plazos)),
   }));
 
-  const porRama = juego.categorias
+  const porRama = datos.categorias
     .map((categoria) => ({
       categoria,
       raices: raices.filter((r) => r.categoriaId === categoria.id),
       fuerza: fuerzaDeRama(
-        juego.votos.filter((v) => v.categoriaId === categoria.id),
-        juego.metas[categoria.id] ?? VOTOS_POR_NIVEL_DEFECTO,
+        datos.votos.filter((v) => v.categoriaId === categoria.id),
+        datos.metas[categoria.id] ?? VOTOS_POR_NIVEL_DEFECTO,
       ),
     }))
     .filter((r) => r.raices.length > 0);
@@ -70,17 +70,17 @@ export default async function Mapa() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">El Mapa</h1>
             <p className="mt-1 text-sm text-humo">
-              De los {textoDuracion('largo', juego.plazos)} al paso de esta semana. Toca cualquiera
+              De los {textoDuracion('largo', datos.plazos)} al paso de esta semana. Toca cualquiera
               para partirlo en pasos más chicos.
             </p>
           </div>
 
           <NuevoObjetivo
-            usuarioId={juego.usuarioId}
+            usuarioId={datos.usuarioId}
             padreId={null}
-            categorias={juego.categorias}
+            categorias={datos.categorias}
             profundidad={0}
-            dias={juego.plazos}
+            dias={datos.plazos}
             comoModal
             destacado
             etiqueta="Agregar objetivo"
@@ -111,7 +111,7 @@ export default async function Mapa() {
                       duracion={
                         seccion.clave === 'sin_fecha'
                           ? null
-                          : textoDuracion(seccion.clave, juego.plazos)
+                          : textoDuracion(seccion.clave, datos.plazos)
                       }
                     />
 
@@ -125,7 +125,7 @@ export default async function Mapa() {
                             raiz={raiz}
                             categoria={categorias.get(raiz.categoriaId)}
                             categorias={categorias}
-                            dias={juego.plazos}
+                            dias={datos.plazos}
                           />
                         ))}
                       </div>
@@ -163,7 +163,7 @@ export default async function Mapa() {
                           raiz={raiz}
                           categoria={categoria}
                           categorias={categorias}
-                          dias={juego.plazos}
+                          dias={datos.plazos}
                           mostrarRama={false}
                         />
                       ))}

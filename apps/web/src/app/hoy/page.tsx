@@ -2,12 +2,12 @@ import { construyeArbol, fechaDePlazo, type NodoObjetivo, type Objetivo } from '
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
-import { HacerHoy } from '@/components/juego/HacerHoy';
-import { Pendientes } from '@/components/juego/Pendientes';
-import { TarjetaHoy } from '@/components/juego/TarjetaHoy';
+import { HacerHoy } from '@/components/app/HacerHoy';
+import { Pendientes } from '@/components/app/Pendientes';
+import { TarjetaHoy } from '@/components/app/TarjetaHoy';
 import { Pagina } from '@/components/Pagina';
 import { textoDia } from '@/lib/formato';
-import { cargaJuego, hoyISO, porId } from '@/lib/juego';
+import { cargaDatos, hoyISO, porId } from '@/lib/datos';
 import { obtenerSesionConPerfil } from '@/lib/perfil';
 
 export const dynamic = 'force-dynamic';
@@ -66,14 +66,14 @@ function ordena(lineas: Linea[]): Linea[] {
 }
 
 export default async function Hoy() {
-  const [sesion, juego] = await Promise.all([obtenerSesionConPerfil(), cargaJuego()]);
-  if (!sesion || !juego) redirect('/entrar?siguiente=/hoy');
+  const [sesion, datos] = await Promise.all([obtenerSesionConPerfil(), cargaDatos()]);
+  if (!sesion || !datos) redirect('/entrar?siguiente=/hoy');
 
   const hoy = hoyISO();
-  const finSemana = fechaDePlazo('semana', juego.plazos);
-  const categorias = porId(juego.categorias);
+  const finSemana = fechaDePlazo('semana', datos.plazos);
+  const categorias = porId(datos.categorias);
 
-  const lineas = recolecta(construyeArbol(juego.objetivos), hoy, finSemana);
+  const lineas = recolecta(construyeArbol(datos.objetivos), hoy, finSemana);
   const vencidas = ordena(lineas.filter((l) => l.grupo === 'vencido'));
   const deHoy = ordena(lineas.filter((l) => l.grupo === 'hoy'));
   const deSemana = ordena(lineas.filter((l) => l.grupo === 'semana'));
@@ -114,7 +114,7 @@ export default async function Hoy() {
 
             {vacio ? (
               <div className="mt-4 rounded-xl border border-linea bg-white p-6">
-                {juego.objetivos.length === 0 ? (
+                {datos.objetivos.length === 0 ? (
                   <>
                     <p className="text-lg">Todavía no le dijiste a nadie hacia dónde vas.</p>
                     <p className="mt-2 text-sm text-humo">
@@ -196,7 +196,7 @@ export default async function Hoy() {
             </p>
 
             <div className="mt-4">
-              <Pendientes usuarioId={juego.usuarioId} pendientes={juego.pendientes} />
+              <Pendientes usuarioId={datos.usuarioId} pendientes={datos.pendientes} />
             </div>
           </section>
         </div>
