@@ -196,6 +196,8 @@ docs/
 
 pnpm workspaces + Turborepo. Auth y base de datos en Supabase.
 
+`docs/` y `supabase/` están en `.gitignore` desde el 2026-09-14: viven solo en local y no se publican. Siguen siendo la referencia; si se pierden, no hay copia en GitHub (salvo en el historial anterior a esa fecha).
+
 ### Ambientes
 
 | Rama | Vercel | Railway | Supabase |

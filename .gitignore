@@ -26,3 +26,9 @@ Thumbs.db
 
 # mcp: lleva el access token de Supabase, jamas al repo.
 .mcp.json
+
+# documentacion interna y SQL: viven solo en local.
+# Anclados a la raiz: sin la `/` inicial tambien se ignoraria
+# apps/web/src/lib/supabase/, que es codigo.
+/docs/
+/supabase/
