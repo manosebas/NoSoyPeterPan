@@ -171,7 +171,7 @@ export default function Landing() {
         <section className="border-t border-linea py-24 sm:py-32">
           <Revelar>
             <h2 className="max-w-3xl text-3xl font-bold leading-[1.15] tracking-tight sm:text-5xl">
-              Se construye un martes cualquiera.
+              No necesitas estar listo. Necesitas empezar.
             </h2>
           </Revelar>
 
