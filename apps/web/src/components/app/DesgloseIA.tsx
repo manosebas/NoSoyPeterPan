@@ -175,18 +175,18 @@ export function DesgloseIA({
 
       {(fase === 'eligiendo' || fase === 'guardando') && (
         <Modal titulo="Tu desglose" onCerrar={fase === 'guardando' ? () => {} : descarta} ancho>
-          <p className="text-sm text-humo">
+          <p className="text-xs text-humo sm:text-sm">
             Quédate con lo que te sirve. Corrige lo que quieras: nada se guarda hasta que lo
             agregues.
           </p>
 
           {observacion && (
-            <p className="mt-4 rounded-lg border border-linea bg-papel p-3 text-sm leading-relaxed">
+            <p className="mt-3 rounded-lg border border-linea bg-papel p-2.5 text-xs leading-relaxed sm:p-3 sm:text-sm">
               {observacion}
             </p>
           )}
 
-          <div className="mt-5">
+          <div className="mt-4">
             <Rama pasos={pasos} padre={null} nivel={0} onCambia={cambia} onElige={elige} />
           </div>
 
@@ -197,7 +197,7 @@ export function DesgloseIA({
               type="button"
               disabled={fase === 'guardando'}
               onClick={descarta}
-              className="text-sm text-humo transition-colors hover:text-tinta disabled:opacity-40"
+              className="text-xs text-humo transition-colors hover:text-tinta disabled:opacity-40 sm:text-sm"
             >
               Descartar
             </button>
@@ -205,7 +205,7 @@ export function DesgloseIA({
               type="button"
               disabled={fase === 'guardando' || elegidos.length === 0 || faltaTitulo}
               onClick={guardar}
-              className="rounded-full bg-tinta px-5 py-2.5 text-sm font-semibold text-papel transition-opacity hover:opacity-80 disabled:opacity-30"
+              className="rounded-full bg-tinta px-4 py-2 text-xs font-semibold text-papel transition-opacity hover:opacity-80 disabled:opacity-30 sm:px-5 sm:py-2.5 sm:text-sm"
             >
               {fase === 'guardando'
                 ? 'Guardando…'
@@ -260,16 +260,16 @@ function Rama({
   if (hijos.length === 0) return null;
 
   return (
-    <ul className={nivel > 0 ? 'ml-3 border-l border-linea pl-4 sm:ml-4' : ''}>
+    <ul className={nivel > 0 ? 'ml-1.5 border-l border-linea pl-3 sm:ml-2 sm:pl-4' : ''}>
       {hijos.map((paso) => (
-        <li key={paso.ref} className="py-2">
-          <div className={`flex items-start gap-3 ${paso.elegido ? '' : 'opacity-40'}`}>
+        <li key={paso.ref} className="py-1.5">
+          <div className={`flex items-start gap-2.5 ${paso.elegido ? '' : 'opacity-40'}`}>
             <input
               type="checkbox"
               checked={paso.elegido}
               onChange={(e) => onElige(paso.ref, e.target.checked)}
               aria-label={`Incluir ${paso.titulo}`}
-              className="mt-1.5 h-4 w-4 shrink-0 accent-tinta"
+              className="mt-1 h-3.5 w-3.5 shrink-0 accent-tinta"
             />
 
             <div className="min-w-0 flex-1">
@@ -279,7 +279,7 @@ function Rama({
                 maxLength={200}
                 disabled={!paso.elegido}
                 onChange={(e) => onCambia(paso.ref, { titulo: e.target.value })}
-                className="w-full border-0 border-b border-transparent bg-transparent px-0 py-0.5 text-base font-medium outline-none focus:border-tinta sm:text-[15px]"
+                className="w-full border-0 border-b border-transparent bg-transparent px-0 py-0.5 text-sm font-medium leading-snug outline-none focus:border-tinta"
               />
               <textarea
                 value={paso.detalle}
@@ -287,13 +287,13 @@ function Rama({
                 maxLength={2000}
                 disabled={!paso.elegido}
                 onChange={(e) => onCambia(paso.ref, { detalle: e.target.value })}
-                className="mt-0.5 w-full resize-none border-0 border-b border-transparent bg-transparent px-0 text-base leading-relaxed text-humo outline-none focus:border-linea sm:text-sm"
+                className="w-full resize-none border-0 border-b border-transparent bg-transparent px-0 text-xs leading-relaxed text-humo outline-none focus:border-linea sm:text-[13px]"
               />
               <select
                 value={paso.plazo}
                 disabled={!paso.elegido}
                 onChange={(e) => onCambia(paso.ref, { plazo: e.target.value as Plazo })}
-                className="mt-1 rounded-full border border-linea bg-transparent px-2.5 py-0.5 text-xs text-humo outline-none focus:border-tinta"
+                className="rounded-full border border-linea bg-transparent px-2 py-0.5 text-[11px] text-humo outline-none focus:border-tinta"
               >
                 {PLAZOS.map((p) => (
                   <option key={p.clave} value={p.clave}>
