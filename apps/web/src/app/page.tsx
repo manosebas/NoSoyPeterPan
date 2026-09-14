@@ -20,43 +20,71 @@ const PARADOJAS = [
 
 export default function Landing() {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6">
-      <header className="flex items-center justify-between py-8">
-        <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="" width={40} height={40} className="h-10 w-10 object-contain" priority />
-          <span className="text-sm font-semibold tracking-tight">No Soy Peter Pan</span>
-        </div>
-        <Link
-          href="/entrar"
-          className="rounded-full border border-tinta px-5 py-2 text-sm font-medium transition-colors hover:bg-tinta hover:text-papel"
-        >
-          Entrar
-        </Link>
-      </header>
+    <div className="mx-auto max-w-3xl px-6">
+      <section className="flex min-h-dvh flex-col">
+        <header className="flex items-center justify-between py-8">
+          <div className="flex items-center gap-3">
+            <Image src="/logo.png" alt="" width={40} height={40} className="h-10 w-10 object-contain" priority />
+            <span className="text-sm font-semibold tracking-tight">No Soy Peter Pan</span>
+          </div>
+          <Link
+            href="/entrar"
+            className="rounded-full border border-tinta px-5 py-2 text-sm font-medium transition-colors hover:bg-tinta hover:text-papel"
+          >
+            Entrar
+          </Link>
+        </header>
 
-      <main className="flex-1">
-        <section className="py-16 sm:py-24">
+        <div className="flex flex-1 flex-col justify-center py-12">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-humo">
             Algún día no existe
           </p>
           <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight sm:text-7xl">
-            Deja de vivir
+            ¿Tu vida tiene
             <br />
-            por accidente.
+            dirección?
           </h1>
           <p className="mt-8 max-w-xl text-lg leading-relaxed text-humo">
-            Peter Pan vive aventura tras aventura, día tras día, sin trayectoria hacia ningún lado.
-            Puedes estar ocupadísimo y que nada de eso construya la vida que querías. Este es un
-            juego para salir de Nunca Jamás.
+            Te despiertas y el día empieza a decidir por ti. Llegas a la noche habiendo hecho mil
+            cosas, sin saber si alguna te acercó a la vida que quieres.
           </p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+          <div className="mt-10">
             <Link
               href="/entrar"
-              className="rounded-full bg-tinta px-7 py-3 text-sm font-semibold text-papel transition-opacity hover:opacity-80"
+              className="inline-block rounded-full bg-tinta px-7 py-3 text-sm font-semibold text-papel transition-opacity hover:opacity-80"
             >
               Salir de Nunca Jamás
             </Link>
-            <span className="text-sm text-humo">Se construye un martes cualquiera.</span>
+          </div>
+        </div>
+
+        <div aria-hidden className="pb-8 text-right text-humo">
+          ↓
+        </div>
+      </section>
+
+      <main>
+        <section className="border-t border-linea py-16">
+          <div className="max-w-xl space-y-6 text-lg leading-relaxed text-humo">
+            <p>
+              Peter Pan se niega rotundamente a crecer. No tiene responsabilidades, miedo al
+              compromiso, temor al fracaso, entre otras. Deja que cada día decida por él, sin
+              preocuparse por hacia dónde va.
+            </p>
+            <p className="font-medium text-tinta">
+              Y a veces nosotros hacemos exactamente lo mismo.
+            </p>
+            <p>
+              El trabajo, los mensajes, los pendientes, los problemas, lo urgente. Puedes estar
+              ocupadísimo y que nada de eso construya la vida que querías.
+            </p>
+            <p className="font-medium text-tinta">
+              No Soy Peter Pan es una herramienta para cambiar eso.
+            </p>
+            <p>
+              Decide hacia dónde quieres ir. Convierte tus objetivos en acciones. Lo que hagas hoy,
+              construye tu mañana.
+            </p>
           </div>
         </section>
 
