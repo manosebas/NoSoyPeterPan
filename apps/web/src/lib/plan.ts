@@ -1,6 +1,9 @@
 import type { PeriodoSuscripcion, Plan } from '@nspp/shared';
 import { createClienteServidor } from '@/lib/supabase/server';
 
+/** El plan de quien no tiene periodo vigente. Su id no cambia nunca. */
+const PLAN_GRATIS = 'free';
+
 type FilaPlan = {
   id: string;
   nombre: string;
@@ -56,10 +59,11 @@ export async function cargaPlan(): Promise<EstadoPlan | null> {
 
   const todos = planes.data.map(aPlan);
   const vigente = periodo.data ? aPeriodo(periodo.data) : null;
+  // Sin periodo vigente se es Free: los gratuitos no tienen fila. Se busca por
+  // id y no por "el plan de precio cero", que dejaria de ser unico el dia que
+  // haya otro, y sin mirar `activo`, que solo dice si se ofrece.
   const actual =
-    todos.find((p) => p.id === vigente?.planId) ??
-    todos.find((p) => p.activo && p.presupuestoUsd === 0 && p.precioUsd === 0) ??
-    null;
+    todos.find((p) => p.id === vigente?.planId) ?? todos.find((p) => p.id === PLAN_GRATIS) ?? null;
 
   return { actual, periodo: vigente, ofrecidos: todos.filter((p) => p.activo) };
 }
