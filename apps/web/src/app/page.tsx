@@ -78,9 +78,9 @@ export default function Landing() {
             <div className="space-y-10 sm:space-y-14">
               <Revelar>
                 <p className="max-w-2xl text-lg leading-relaxed text-humo sm:text-xl">
-                  Peter Pan se niega rotundamente a crecer. No tiene responsabilidades, miedo al
-                  compromiso, temor al fracaso, entre otras. Deja que cada día decida por él, sin
-                  preocuparse por hacia dónde va.
+                  Peter Pan se niega rotundamente a crecer. Huye de las responsabilidades y teme al
+                  compromiso y al fracaso. Deja que cada día decida por él, sin preocuparse por
+                  hacia dónde va.
                 </p>
               </Revelar>
 
