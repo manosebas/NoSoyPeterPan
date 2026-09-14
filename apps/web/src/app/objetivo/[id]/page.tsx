@@ -102,6 +102,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
           <div className="shrink-0 pt-0.5">
             <AjustesObjetivo
               id={nodo.id}
+              titulo={nodo.titulo}
               categoriaId={nodo.categoriaId}
               detalle={nodo.detalle}
               venceEl={nodo.venceEl}
@@ -163,6 +164,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
                       categorias={categorias}
                       dias={datos.plazos}
                       conVistaPrevia
+                      hermanos={nodo.hijos.map((h) => h.id)}
                     />
                   ))}
                 </ul>

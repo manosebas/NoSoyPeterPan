@@ -20,6 +20,19 @@ export type NuevoObjetivo = {
 
 export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<void> {
   const supabase = createClienteNavegador();
+
+  // Lo nuevo entra al final de sus hermanos. Con `orden = 0` fijo quedaria
+  // arriba de todo en cuanto alguien haya reordenado esa lista.
+  const hermanos = supabase
+    .from('objetivos')
+    .select('orden')
+    .order('orden', { ascending: false })
+    .limit(1);
+  const { data: ultimo } = await (nuevo.padreId
+    ? hermanos.eq('padre_id', nuevo.padreId)
+    : hermanos.is('padre_id', null)
+  ).maybeSingle<{ orden: number }>();
+
   const { error } = await supabase.from('objetivos').insert({
     usuario_id: nuevo.usuarioId,
     padre_id: nuevo.padreId,
@@ -27,6 +40,7 @@ export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<void> {
     titulo: nuevo.titulo.trim(),
     detalle: nuevo.detalle.trim() || null,
     vence_el: nuevo.venceEl,
+    orden: (ultimo?.orden ?? -1) + 1,
   });
   if (error) throw error;
 }
@@ -54,6 +68,20 @@ export async function actualizaObjetivo(
 
   const { error } = await supabase.from('objetivos').update(fila).eq('id', id);
   if (error) throw error;
+}
+
+/**
+ * Deja a los hermanos en el orden dado. Se reescribe la lista entera y no un
+ * intercambio de dos: los objetivos nacen todos con `orden = 0`, y cambiar un
+ * cero por otro cero no mueve nada.
+ */
+export async function ordenaHermanos(ids: string[]): Promise<void> {
+  const supabase = createClienteNavegador();
+  const resultados = await Promise.all(
+    ids.map((id, orden) => supabase.from('objetivos').update({ orden }).eq('id', id)),
+  );
+  const fallo = resultados.find((r) => r.error);
+  if (fallo?.error) throw fallo.error;
 }
 
 /** Se lleva el desglose completo: lo dice `on delete cascade`. */

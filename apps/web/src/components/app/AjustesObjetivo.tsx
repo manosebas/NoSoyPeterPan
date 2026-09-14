@@ -16,12 +16,14 @@ import { Modal, ModalConfirmar } from '@/components/app/Modal';
 import { actualizaObjetivo, borraObjetivo, mensajeError } from '@/lib/acciones';
 
 /**
- * Lo que se puede cambiar de un objetivo ya creado: de que se trata, a que
- * rama aporta, para cuando es, y si sigue existiendo. Vive detras del icono de ajustes porque no
- * es a lo que se viene: la pantalla es para desglosar y marcar.
+ * Lo que se puede cambiar de un objetivo ya creado: como se llama, de que se
+ * trata, a que rama aporta, para cuando es, y si sigue existiendo. Vive detras
+ * del icono de ajustes porque no es a lo que se viene: la pantalla es para
+ * desglosar y marcar.
  */
 export function AjustesObjetivo({
   id,
+  titulo,
   categoriaId,
   detalle,
   venceEl,
@@ -32,6 +34,7 @@ export function AjustesObjetivo({
   volverA,
 }: {
   id: string;
+  titulo: string;
   categoriaId: string;
   detalle: string | null;
   venceEl: string | null;
@@ -46,12 +49,25 @@ export function AjustesObjetivo({
   const [confirmando, setConfirmando] = useState(false);
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [nombre, setNombre] = useState(titulo);
   const [texto, setTexto] = useState(detalle ?? '');
 
   const lectura = leePlazo(venceEl, dias);
-  // Tras guardar, `router.refresh()` trae el detalle nuevo por prop y los dos
-  // vuelven a coincidir: el boton se apaga solo, sin avisos que celebrar.
-  const sinGuardar = texto.trim() !== (detalle ?? '');
+  // Tras guardar, `router.refresh()` trae lo nuevo por prop y los dos vuelven a
+  // coincidir: el boton se apaga solo, sin avisos que celebrar.
+  const cambiaNombre = nombre.trim() !== titulo;
+  const cambiaTexto = texto.trim() !== (detalle ?? '');
+  // Un objetivo sin nombre no existe: la base lo rechaza y la UI no lo ofrece.
+  const puedeGuardar = (cambiaNombre || cambiaTexto) && nombre.trim() !== '';
+
+  function guardar() {
+    return corre(() =>
+      actualizaObjetivo(id, {
+        ...(cambiaNombre && { titulo: nombre }),
+        ...(cambiaTexto && { detalle: texto.trim() || null }),
+      }),
+    );
+  }
 
   async function corre(accion: () => Promise<void>) {
     setOcupado(true);
@@ -111,7 +127,18 @@ export function AjustesObjetivo({
 
       {abierto && (
         <Modal titulo="Ajustar objetivo" onCerrar={() => setAbierto(false)}>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">Detalle</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">Nombre</p>
+          <input
+            type="text"
+            value={nombre}
+            maxLength={200}
+            placeholder="¿Qué quieres lograr?"
+            onChange={(e) => setNombre(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && puedeGuardar && !ocupado && guardar()}
+            className="mt-2 w-full border-0 border-b border-linea bg-transparent px-0 pb-2 text-base outline-none placeholder:text-humo focus:border-tinta"
+          />
+
+          <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-humo">Detalle</p>
           <textarea
             value={texto}
             rows={4}
@@ -123,11 +150,11 @@ export function AjustesObjetivo({
           <div className="mt-2 flex justify-end">
             <button
               type="button"
-              disabled={ocupado || !sinGuardar}
-              onClick={() => corre(() => actualizaObjetivo(id, { detalle: texto.trim() || null }))}
+              disabled={ocupado || !puedeGuardar}
+              onClick={guardar}
               className="rounded-full border border-linea px-4 py-1.5 text-xs font-medium transition-colors hover:border-tinta disabled:opacity-30"
             >
-              Guardar detalle
+              Guardar
             </button>
           </div>
 

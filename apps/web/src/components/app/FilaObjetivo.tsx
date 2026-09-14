@@ -2,9 +2,11 @@
 
 import { progreso, type Categoria, type DiasPlazo, type NodoObjetivo } from '@nspp/shared';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Barra, Punto } from '@/components/app/Barra';
 import { Casilla } from '@/components/app/Casilla';
+import { ordenaHermanos } from '@/lib/acciones';
 import { textoFecha } from '@/lib/formato';
 
 /** Cuantos nietos se asoman antes de mandar a "Ver todos". */
@@ -25,6 +27,7 @@ export function FilaObjetivo({
   categorias,
   dias,
   conVistaPrevia = false,
+  hermanos,
 }: {
   nodo: NodoObjetivo;
   categoria: Categoria | undefined;
@@ -32,7 +35,28 @@ export function FilaObjetivo({
   categorias?: Map<string, Categoria>;
   dias?: DiasPlazo;
   conVistaPrevia?: boolean;
+  /** Los ids de la lista en su orden actual. Con ellos la fila se puede mover. */
+  hermanos?: string[];
 }) {
+  const router = useRouter();
+  const [moviendo, setMoviendo] = useState(false);
+  const indice = hermanos?.indexOf(nodo.id) ?? -1;
+
+  async function mover(paso: -1 | 1) {
+    if (!hermanos) return;
+    const destino = indice + paso;
+    if (destino < 0 || destino >= hermanos.length) return;
+    const nuevos = [...hermanos];
+    [nuevos[indice], nuevos[destino]] = [nuevos[destino]!, nuevos[indice]!];
+    setMoviendo(true);
+    try {
+      await ordenaHermanos(nuevos);
+      router.refresh();
+    } finally {
+      setMoviendo(false);
+    }
+  }
+
   const color = categoria?.color ?? '#71717a';
   const hoja = nodo.hijos.length === 0;
   const avance = progreso(nodo);
@@ -133,6 +157,29 @@ export function FilaObjetivo({
             aria-label={`${nodo.hijos.length} pasos`}
           >
             › {nodo.hijos.length}
+          </span>
+        )}
+
+        {hermanos && hermanos.length > 1 && (
+          <span className="flex shrink-0 flex-col text-xs leading-none text-humo">
+            <button
+              type="button"
+              disabled={moviendo || indice === 0}
+              onClick={() => mover(-1)}
+              aria-label={`Subir ${nodo.titulo}`}
+              className="px-1.5 py-0.5 transition-colors hover:text-tinta disabled:opacity-25"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              disabled={moviendo || indice === hermanos.length - 1}
+              onClick={() => mover(1)}
+              aria-label={`Bajar ${nodo.titulo}`}
+              className="px-1.5 py-0.5 transition-colors hover:text-tinta disabled:opacity-25"
+            >
+              ↓
+            </button>
           </span>
         )}
       </div>
