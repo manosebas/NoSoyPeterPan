@@ -42,7 +42,7 @@ export function ArbolMapa({
 
             <Link
               href={`/objetivo/${nodo.id}`}
-              className="group flex items-baseline gap-2 rounded-md px-2 py-1 transition-colors hover:bg-papel"
+              className="group flex items-baseline gap-1.5 rounded-md px-1 py-1 transition-colors hover:bg-papel sm:gap-2 sm:px-2"
             >
               <span
                 aria-hidden
@@ -53,7 +53,7 @@ export function ArbolMapa({
               </span>
 
               <span
-                className={`min-w-0 flex-1 truncate text-sm transition-colors ${
+                className={`min-w-0 flex-1 truncate text-[13px] transition-colors sm:text-sm ${
                   cumplido ? 'text-humo line-through' : 'group-hover:text-tinta'
                 }`}
               >
@@ -66,8 +66,11 @@ export function ArbolMapa({
                 </span>
               )}
 
+              {/* En telefono la fecha se calla: con seis niveles de sangria, el
+                  icono, el avance y la fecha juntos no se encogen y empujan la
+                  tarjeta fuera de la pantalla. La fecha se lee al entrar. */}
               <span
-                className={`shrink-0 whitespace-nowrap text-[11px] sm:text-xs ${
+                className={`hidden shrink-0 whitespace-nowrap text-xs sm:inline ${
                   nodo.venceEl === null ? 'italic text-humo/70' : 'text-humo'
                 }`}
               >

@@ -18,6 +18,9 @@ body {
   background-color: var(--color-papel);
   color: var(--color-tinta);
   -webkit-font-smoothing: antialiased;
+  /* Red de seguridad: ninguna pantalla se desplaza de lado. Si algo se pasa de
+     ancho se recorta, que es feo, pero menos que una pagina que se arrastra. */
+  overflow-x: clip;
 }
 
 ::selection {

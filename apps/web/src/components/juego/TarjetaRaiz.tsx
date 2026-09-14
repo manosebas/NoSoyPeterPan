@@ -28,7 +28,7 @@ export function TarjetaRaiz({
 
   return (
     <article
-      className="rounded-xl border border-linea bg-white p-4 transition-shadow hover:shadow-sm"
+      className="overflow-hidden rounded-xl border border-linea bg-white p-3 transition-shadow hover:shadow-sm sm:p-4"
       style={{ borderLeft: `3px solid ${color}` }}
     >
       {mostrarRama && categoria && (

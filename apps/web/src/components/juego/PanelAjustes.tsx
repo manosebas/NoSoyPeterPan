@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export type SeccionAjustes = {
   id: string;
@@ -18,10 +18,17 @@ export type SeccionAjustes = {
  * con un boton para volver: dos columnas no caben, y media columna no sirve.
  */
 export function PanelAjustes({ secciones }: { secciones: SeccionAjustes[] }) {
-  // La primera seccion nace abierta: entrar a Ajustes y que te pidan elegir
-  // antes de mostrarte nada es un paso de mas.
-  const [activa, setActiva] = useState<string | null>(secciones[0]?.id ?? null);
+  const [activa, setActiva] = useState<string | null>(null);
   const abierta = secciones.find((s) => s.id === activa) ?? null;
+
+  // En escritorio la primera seccion nace abierta, porque la columna de la
+  // derecha estaria vacia esperando un click. En telefono no: ahi la seccion
+  // tapa la lista entera, y entrar a Ajustes sin ver que hay es peor que
+  // elegir. Se decide en el cliente, que es donde se sabe el ancho.
+  useEffect(() => {
+    if (!window.matchMedia('(min-width: 768px)').matches) return;
+    setActiva((previa) => previa ?? secciones[0]?.id ?? null);
+  }, [secciones]);
 
   return (
     <div className="flex h-full min-h-0 gap-8">
