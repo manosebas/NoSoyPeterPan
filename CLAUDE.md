@@ -111,8 +111,8 @@ Es la vara para medir tono y decisiones. Si un copy o una feature suena tibio, c
 
 ## 5. Identidad visual
 
-- **Logo**: `logo.png` — avión de papel de línea continua trazando una trayectoria ascendente. El juego (avión de papel, infancia) que *sube* con dirección. Resume la tesis entera.
-- **Estilo**: monocromo, mucho blanco, línea fina, sans-serif geométrica. Minimal y adulto, no infantil.
+- **Logo**: `logo.png` — una figura corriendo, envuelta en llamas, sobre negro. Es la frase de oro hecha imagen: *«¿por qué no corremos como si estuviéramos en llamas hacia nuestros sueños más salvajes?»*. Se usa recortado en cuadrado porque vive a 32–40 px en la cabecera y como favicon.
+- **Estilo**: el de la interfaz no cambia — monocromo, mucho blanco, línea fina, sans-serif geométrica. Minimal y adulto, no infantil. El logo es la única pieza con color, y por eso lo tiene.
 - Color de acento: pendiente de definir; usar con extrema moderación (solo para señalar dirección/progreso).
 
 ---
