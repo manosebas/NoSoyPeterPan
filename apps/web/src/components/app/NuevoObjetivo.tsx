@@ -70,7 +70,7 @@ export function NuevoObjetivo({
     setError(null);
 
     try {
-      await creaObjetivo({
+      const id = await creaObjetivo({
         usuarioId,
         padreId,
         categoriaId: categoriaHeredada ?? categoriaId,
@@ -78,6 +78,14 @@ export function NuevoObjetivo({
         detalle,
         venceEl: plazo === 'sin_fecha' ? null : recorta(fechaDePlazo(plazo, dias), padreVenceEl),
       });
+
+      // Un objetivo nuevo se va a desglosar: se abre su pagina. Un paso dentro
+      // de un desglose no, porque se agregan varios seguidos y saltar a cada
+      // uno cortaria esa racha.
+      if (padreId === null) {
+        router.push(`/objetivo/${id}`);
+        return;
+      }
 
       setTexto('');
       setDetalle('');

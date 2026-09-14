@@ -18,7 +18,8 @@ export type NuevoObjetivo = {
   venceEl: string | null;
 };
 
-export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<void> {
+/** Devuelve el id del objetivo creado, para poder ir a su pagina. */
+export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<string> {
   const supabase = createClienteNavegador();
 
   // Lo nuevo entra al final de sus hermanos. Con `orden = 0` fijo quedaria
@@ -33,16 +34,21 @@ export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<void> {
     : hermanos.is('padre_id', null)
   ).maybeSingle<{ orden: number }>();
 
-  const { error } = await supabase.from('objetivos').insert({
-    usuario_id: nuevo.usuarioId,
-    padre_id: nuevo.padreId,
-    categoria_id: nuevo.categoriaId,
-    titulo: nuevo.titulo.trim(),
-    detalle: nuevo.detalle.trim() || null,
-    vence_el: nuevo.venceEl,
-    orden: (ultimo?.orden ?? -1) + 1,
-  });
+  const { data, error } = await supabase
+    .from('objetivos')
+    .insert({
+      usuario_id: nuevo.usuarioId,
+      padre_id: nuevo.padreId,
+      categoria_id: nuevo.categoriaId,
+      titulo: nuevo.titulo.trim(),
+      detalle: nuevo.detalle.trim() || null,
+      vence_el: nuevo.venceEl,
+      orden: (ultimo?.orden ?? -1) + 1,
+    })
+    .select('id')
+    .single<{ id: string }>();
   if (error) throw error;
+  return data.id;
 }
 
 /** Marcar emite el voto por trigger; desmarcar no se lo lleva. */
