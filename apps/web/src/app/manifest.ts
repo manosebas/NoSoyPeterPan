@@ -11,7 +11,9 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'NoSoyPeterPan',
     description: 'Algún día no existe.',
     start_url: '/hoy',
-    display: 'standalone',
+    // Abre como pestaña normal: en modo app la sesion no se comparte con el
+    // navegador y el link del correo de verificacion caeria afuera.
+    display: 'browser',
     background_color: '#fafaf9',
     theme_color: '#0a0a0a',
     icons: [
