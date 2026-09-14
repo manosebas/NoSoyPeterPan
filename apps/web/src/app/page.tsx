@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { FRASE_DE_ORO } from '@nspp/shared';
+import { Revelar } from '@/components/Revelar';
 
 const CADENA = ['Algún día', '5 años', '1 año', '90 días', 'Esta semana', 'Hoy'];
 
@@ -20,7 +21,7 @@ const PARADOJAS = [
 
 export default function Landing() {
   return (
-    <div className="mx-auto max-w-3xl px-6">
+    <div className="mx-auto max-w-6xl px-6 sm:px-10">
       <section className="flex min-h-dvh flex-col">
         <header className="flex items-center justify-between py-8">
           <div className="flex items-center gap-3">
@@ -39,22 +40,24 @@ export default function Landing() {
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-humo">
             Algún día no existe
           </p>
-          <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight sm:text-7xl">
-            ¿Tu vida tiene
-            <br />
-            dirección?
-          </h1>
-          <p className="mt-8 max-w-xl text-lg leading-relaxed text-humo">
-            Te despiertas y el día empieza a decidir por ti. Llegas a la noche habiendo hecho mil
-            cosas, sin saber si alguna te acercó a la vida que quieres.
-          </p>
-          <div className="mt-10">
-            <Link
-              href="/entrar"
-              className="inline-block rounded-full bg-tinta px-7 py-3 text-sm font-semibold text-papel transition-opacity hover:opacity-80"
-            >
-              Salir de Nunca Jamás
-            </Link>
+          <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:items-end lg:gap-16">
+            <h1 className="text-5xl font-bold leading-[1.05] tracking-tight sm:text-7xl">
+              ¿Tu vida tiene
+              <br />
+              dirección?
+            </h1>
+            <div className="lg:pb-3">
+              <p className="max-w-md text-lg leading-relaxed text-humo">
+                Te despiertas y el día empieza a decidir por ti. Llegas a la noche habiendo hecho
+                mil cosas, sin saber si alguna te acercó a la vida que quieres.
+              </p>
+              <Link
+                href="/entrar"
+                className="mt-8 inline-block rounded-full bg-tinta px-7 py-3 text-sm font-semibold text-papel transition-opacity hover:opacity-80"
+              >
+                Salir de Nunca Jamás
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -64,27 +67,51 @@ export default function Landing() {
       </section>
 
       <main>
-        <section className="border-t border-linea py-16">
-          <div className="max-w-xl space-y-6 text-lg leading-relaxed text-humo">
-            <p>
-              Peter Pan se niega rotundamente a crecer. No tiene responsabilidades, miedo al
-              compromiso, temor al fracaso, entre otras. Deja que cada día decida por él, sin
-              preocuparse por hacia dónde va.
-            </p>
-            <p className="font-medium text-tinta">
-              Y a veces nosotros hacemos exactamente lo mismo.
-            </p>
-            <p>
-              El trabajo, los mensajes, los pendientes, los problemas, lo urgente. Puedes estar
-              ocupadísimo y que nada de eso construya la vida que querías.
-            </p>
-            <p className="font-medium text-tinta">
-              No Soy Peter Pan es una herramienta para cambiar eso.
-            </p>
-            <p>
-              Decide hacia dónde quieres ir. Convierte tus objetivos en acciones. Lo que hagas hoy,
-              construye tu mañana.
-            </p>
+        <section className="border-t border-linea py-24 sm:py-32">
+          <div className="grid gap-10 lg:grid-cols-[1fr_2fr] lg:gap-16">
+            <Revelar>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo lg:sticky lg:top-12">
+                Nunca Jamás
+              </h2>
+            </Revelar>
+
+            <div className="space-y-10 sm:space-y-14">
+              <Revelar>
+                <p className="max-w-2xl text-lg leading-relaxed text-humo sm:text-xl">
+                  Peter Pan se niega rotundamente a crecer. No tiene responsabilidades, miedo al
+                  compromiso, temor al fracaso, entre otras. Deja que cada día decida por él, sin
+                  preocuparse por hacia dónde va.
+                </p>
+              </Revelar>
+
+              <Revelar retraso={120}>
+                <p className="max-w-2xl text-3xl font-bold leading-[1.15] tracking-tight sm:text-5xl">
+                  Y a veces nosotros hacemos exactamente lo mismo.
+                </p>
+              </Revelar>
+
+              <Revelar retraso={240}>
+                <p className="max-w-2xl text-lg leading-relaxed text-humo sm:text-xl">
+                  El trabajo, los mensajes, los pendientes, los problemas, lo urgente. Puedes estar
+                  ocupadísimo y que nada de eso construya la vida que querías.
+                </p>
+              </Revelar>
+
+              <Revelar retraso={120}>
+                <p className="max-w-2xl text-3xl font-bold leading-[1.15] tracking-tight sm:text-5xl">
+                  No Soy Peter Pan es una herramienta para cambiar eso.
+                </p>
+              </Revelar>
+
+              <Revelar retraso={240}>
+                <p className="max-w-2xl text-lg leading-relaxed text-humo sm:text-xl">
+                  Decide hacia dónde quieres ir. Convierte tus objetivos en acciones.{' '}
+                  <em className="not-italic font-medium text-tinta">
+                    Lo que hagas hoy, construye tu mañana.
+                  </em>
+                </p>
+              </Revelar>
+            </div>
           </div>
         </section>
 
