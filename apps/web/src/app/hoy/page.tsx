@@ -167,10 +167,11 @@ export default async function Hoy() {
                   </div>
                 )}
 
-                {/* Plegado y sin casillas: se mira, no se marca. Si se pudiera
-                    marcar desde aqui, Hoy dejaria de ser hoy. */}
+                {/* Abierto de entrada, para que la semana se vea sin pedirla, y
+                    sin casillas: se mira, no se marca. Si se pudiera marcar
+                    desde aqui, Hoy dejaria de ser hoy. */}
                 {deSemana.length > 0 && (
-                  <details className="mt-8 border-t border-linea pt-4">
+                  <details open className="mt-8 border-t border-linea pt-4">
                     <summary className="cursor-pointer list-none text-xs font-semibold uppercase tracking-[0.2em] text-humo transition-colors hover:text-tinta">
                       Esta semana · {deSemana.length}
                     </summary>
