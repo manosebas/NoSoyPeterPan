@@ -23,7 +23,9 @@ export function ArbolMapa({
   color: string;
 }) {
   return (
-    <ul className="ml-1.5 border-l pl-4" style={{ borderColor: `${color}33` }}>
+    // Sangria corta en telefono: seis niveles a 4 de padding se comen la mitad
+    // del ancho y al titulo no le queda donde caber.
+    <ul className="ml-1 border-l pl-2.5 sm:ml-1.5 sm:pl-4" style={{ borderColor: `${color}33` }}>
       {nodos.map((nodo) => {
         const propio = categorias.get(nodo.categoriaId)?.color ?? color;
         const avance = progreso(nodo);
@@ -34,7 +36,7 @@ export function ArbolMapa({
           <li key={nodo.id} className="relative py-1">
             <span
               aria-hidden
-              className="absolute -left-4 top-[1.15rem] h-px w-3"
+              className="absolute -left-2.5 top-[1.15rem] h-px w-2 sm:-left-4 sm:w-3"
               style={{ backgroundColor: `${propio}55` }}
             />
 
@@ -65,7 +67,7 @@ export function ArbolMapa({
               )}
 
               <span
-                className={`shrink-0 text-xs ${
+                className={`shrink-0 whitespace-nowrap text-[11px] sm:text-xs ${
                   nodo.venceEl === null ? 'italic text-humo/70' : 'text-humo'
                 }`}
               >

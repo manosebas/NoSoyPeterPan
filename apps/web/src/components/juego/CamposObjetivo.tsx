@@ -76,7 +76,9 @@ export function CamposObjetivo({
         maxLength={TOPE_DETALLE}
         placeholder={PIDE_DETALLE}
         onChange={(e) => onDetalle(e.target.value)}
-        className="mt-4 w-full resize-none rounded-lg border border-linea bg-transparent p-3 text-sm leading-relaxed outline-none placeholder:text-humo focus:border-tinta"
+        // 16px en movil: por debajo de eso iOS hace zoom al enfocar y deja la
+        // pagina descuadrada.
+        className="mt-4 w-full resize-none rounded-lg border border-linea bg-transparent p-3 text-base leading-relaxed outline-none placeholder:text-humo focus:border-tinta sm:text-sm"
       />
 
       {onCategoria && (

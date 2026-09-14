@@ -89,7 +89,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
           )}
 
           <h1
-            className={`flex-1 text-2xl font-bold tracking-tight ${
+            className={`min-w-0 flex-1 break-words text-2xl font-bold tracking-tight ${
               nodo.completadoEn ? 'text-humo line-through' : ''
             }`}
           >

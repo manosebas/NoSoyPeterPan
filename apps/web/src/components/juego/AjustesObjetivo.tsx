@@ -118,7 +118,7 @@ export function AjustesObjetivo({
             maxLength={TOPE_DETALLE}
             placeholder={PIDE_DETALLE}
             onChange={(e) => setTexto(e.target.value)}
-            className="mt-2 w-full resize-none rounded-lg border border-linea bg-transparent p-3 text-sm leading-relaxed outline-none placeholder:text-humo focus:border-tinta"
+            className="mt-2 w-full resize-none rounded-lg border border-linea bg-transparent p-3 text-base leading-relaxed outline-none placeholder:text-humo focus:border-tinta sm:text-sm"
           />
           <div className="mt-2 flex justify-end">
             <button

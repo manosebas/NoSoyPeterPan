@@ -21,7 +21,7 @@ function Destino({ texto, activo }: { texto: string; activo: boolean }) {
 
   return (
     <span
-      className={`block rounded-full px-4 py-1.5 font-medium transition-colors ${
+      className={`block rounded-full px-3 py-1.5 font-medium transition-colors sm:px-4 ${
         activo ? 'bg-tinta text-papel' : pending ? 'bg-tinta/10 text-tinta' : 'text-humo'
       }`}
     >

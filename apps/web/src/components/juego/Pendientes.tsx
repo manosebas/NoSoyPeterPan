@@ -86,7 +86,7 @@ export function Pendientes({
           disabled={guardando}
           placeholder="Algo que hacer y olvidar"
           onChange={(e) => setTexto(e.target.value)}
-          className="min-w-0 flex-1 rounded-lg border border-linea bg-white px-4 py-2.5 text-sm outline-none placeholder:text-humo focus:border-tinta"
+          className="min-w-0 flex-1 rounded-lg border border-linea bg-white px-4 py-2.5 text-base outline-none placeholder:text-humo focus:border-tinta sm:text-sm"
         />
         <button
           type="submit"

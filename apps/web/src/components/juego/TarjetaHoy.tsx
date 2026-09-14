@@ -73,7 +73,9 @@ export function TarjetaHoy({
         </p>
       </div>
 
-      {accion}
+      {/* Sin shrink-0 el boton se comprime cuando el titulo es largo y en
+          telefono queda como una rebanada intocable. */}
+      {accion && <div className="shrink-0">{accion}</div>}
     </article>
   );
 }
