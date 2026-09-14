@@ -5,13 +5,6 @@ import { Revelar } from '@/components/Revelar';
 
 const CADENA = ['Algún día', '5 años', '1 año', '90 días', 'Esta semana', 'Hoy'];
 
-const CONTRASTES = [
-  {
-    peterPan: '«Hoy me desperté. ¿Qué tengo que hacer?»',
-    tu: '«Sé hacia dónde quiero ir. ¿Qué tengo que hacer hoy para acercarme?»',
-  },
-];
-
 const PARADOJAS = [
   ['Si nunca administras tu dinero', 'dependes del dinero.'],
   ['Si nunca cuidas tu cuerpo', 'dependes de las consecuencias.'],
@@ -115,51 +108,66 @@ export default function Landing() {
           </div>
         </section>
 
-        <section className="border-t border-linea py-14">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
-            La conversión
-          </h2>
-          <ol className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-3">
-            {CADENA.map((paso, i) => (
-              <li key={paso} className="flex items-center gap-3">
-                <span
-                  className={
-                    i === CADENA.length - 1
-                      ? 'rounded-full bg-tinta px-4 py-1.5 text-sm font-semibold text-papel'
-                      : 'rounded-full border border-linea px-4 py-1.5 text-sm'
-                  }
-                >
-                  {paso}
-                </span>
-                {i < CADENA.length - 1 && <span aria-hidden className="text-humo">→</span>}
-              </li>
-            ))}
-          </ol>
-          <p className="mt-6 max-w-xl text-humo">
-            Ninguna misión es huérfana. Cada acción del día responde a una sola pregunta:{' '}
-            <em className="not-italic text-tinta">
-              ¿a qué objetivo de mi vida está contribuyendo esto?
-            </em>
-          </p>
-        </section>
+        <section className="border-t border-linea py-24 sm:py-32">
+          <Revelar>
+            <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
+              La conversión
+            </h2>
+          </Revelar>
 
-        <section className="border-t border-linea py-14">
-          {CONTRASTES.map((c) => (
-            <div key={c.tu} className="grid gap-6 sm:grid-cols-2">
-              <blockquote className="border-l-2 border-linea pl-5 text-humo">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em]">
-                  El día decide por ti
+          <ol className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-linea bg-linea sm:grid-cols-3 lg:grid-cols-6">
+            {CADENA.map((paso, i) => {
+              const ultimo = i === CADENA.length - 1;
+              return (
+                <li key={paso} className={ultimo ? 'bg-tinta text-papel' : 'bg-papel'}>
+                  <Revelar retraso={i * 90} className="flex h-full flex-col justify-between p-5">
+                    <span
+                      className={`text-xs font-medium tabular-nums ${
+                        ultimo ? 'text-papel/60' : 'text-humo'
+                      }`}
+                    >
+                      0{i + 1}
+                    </span>
+                    <span className="mt-8 block text-base font-semibold tracking-tight">
+                      {paso}
+                    </span>
+                  </Revelar>
+                </li>
+              );
+            })}
+          </ol>
+
+          <Revelar retraso={120}>
+            <p className="mt-14 max-w-3xl text-2xl font-bold leading-[1.25] tracking-tight sm:text-3xl">
+              Nada se hace porque sí. Cada acción de tu día debe responder a una pregunta:{' '}
+              <em className="font-medium text-humo">
+                ¿esto me acerca a alguno de mis objetivos?
+              </em>
+            </p>
+          </Revelar>
+
+          <div className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-linea bg-linea sm:grid-cols-2">
+            <div className="bg-papel p-8 sm:p-10">
+              <Revelar>
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
+                  Vivir reaccionando
                 </span>
-                {c.peterPan}
-              </blockquote>
-              <blockquote className="border-l-2 border-tinta pl-5">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-humo">
-                  Decides tú
-                </span>
-                {c.tu}
-              </blockquote>
+                <p className="mt-5 text-xl leading-snug text-humo sm:text-2xl">
+                  «¿Qué tengo que hacer hoy?»
+                </p>
+              </Revelar>
             </div>
-          ))}
+            <div className="bg-tinta p-8 text-papel sm:p-10">
+              <Revelar retraso={140}>
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-papel/60">
+                  Vivir con dirección
+                </span>
+                <p className="mt-5 text-xl font-medium leading-snug sm:text-2xl">
+                  «¿Qué puedo hacer hoy para acercarme a la vida que quiero?»
+                </p>
+              </Revelar>
+            </div>
+          </div>
         </section>
 
         <section className="border-t border-linea py-14">
