@@ -98,9 +98,12 @@ export default async function Mapa() {
         ) : (
           <VistaMapa
             cascada={
-              <div className="grid gap-x-10 gap-y-10 lg:grid-cols-2">
+              // min-w-0 en cada celda: un item de grid nace con min-width auto y
+              // se niega a encoger por debajo de su contenido, asi que la
+              // columna crecia hasta empujar la pagina fuera del telefono.
+              <div className="grid min-w-0 gap-x-10 gap-y-10 lg:grid-cols-2">
                 {porPlazo.map((seccion) => (
-                  <section key={seccion.clave}>
+                  <section key={seccion.clave} className="min-w-0">
                     <EncabezadoSeccion
                       etiqueta={seccion.etiqueta}
                       explica={seccion.explica}
@@ -134,7 +137,7 @@ export default async function Mapa() {
             ramas={
               <div className="space-y-12">
                 {porRama.map(({ categoria, raices: propias, fuerza }) => (
-                  <section key={categoria.id}>
+                  <section key={categoria.id} className="min-w-0">
                     <div className="flex flex-wrap items-baseline justify-between gap-3">
                       <h2
                         className="text-sm font-semibold uppercase tracking-[0.18em]"
@@ -153,7 +156,7 @@ export default async function Mapa() {
                       <Barra fraccion={fuerza.fraccion} color={categoria.color} alto="h-1" />
                     </div>
 
-                    <div className="mt-5 grid gap-3 lg:grid-cols-2">
+                    <div className="mt-5 grid min-w-0 gap-3 lg:grid-cols-2">
                       {propias.map((raiz) => (
                         <TarjetaRaiz
                           key={raiz.id}

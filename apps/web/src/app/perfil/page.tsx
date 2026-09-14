@@ -60,7 +60,7 @@ export default async function Perfil() {
             </div>
 
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">{nombre}</h1>
+              <h1 className="break-words text-2xl font-bold tracking-tight">{nombre}</h1>
               <p className="mt-1 text-sm text-humo">
                 Esto no mide lo que te falta. Mide lo que ya construiste, y no baja.
               </p>
@@ -87,7 +87,7 @@ export default async function Perfil() {
           // Tarjetas: en dos columnas, el texto suelto no se lee como una rejilla.
           <ul className="mt-8 grid gap-4 md:grid-cols-2">
             {vivas.map(({ categoria, fuerza, meta, abiertos }) => (
-              <li key={categoria.id} className="rounded-xl border border-linea bg-white p-5">
+              <li key={categoria.id} className="min-w-0 rounded-xl border border-linea bg-white p-4 sm:p-5">
                 <div className="flex items-baseline justify-between gap-3">
                   <h2 className="text-base font-semibold" style={{ color: categoria.color }}>
                     {categoria.nombre}

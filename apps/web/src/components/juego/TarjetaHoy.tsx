@@ -34,7 +34,7 @@ export function TarjetaHoy({
 
   return (
     <article
-      className="flex items-start gap-3 rounded-xl border border-linea bg-white p-4"
+      className="flex min-w-0 items-start gap-3 rounded-xl border border-linea bg-white p-3 sm:p-4"
       style={{ borderLeft: `3px solid ${color}` }}
     >
       {conCasilla && (
@@ -46,7 +46,7 @@ export function TarjetaHoy({
       <div className="min-w-0 flex-1">
         <Link href={`/objetivo/${nodo.id}`} className="group block">
           <h3
-            className={`text-[15px] font-medium leading-snug transition-opacity group-hover:opacity-70 ${
+            className={`break-words text-[15px] font-medium leading-snug transition-opacity group-hover:opacity-70 ${
               cumplido ? 'text-humo line-through' : ''
             }`}
           >
@@ -58,10 +58,15 @@ export function TarjetaHoy({
           <span className="font-medium" style={{ color }}>
             {categoria?.nombre}
           </span>
+          {/* El camino puede ser largo y sus titulos tambien: cada tramo se
+              parte en vez de estirar la tarjeta. */}
           {camino.map((paso) => (
-            <span key={paso.id} className="flex items-center gap-x-1.5">
+            <span key={paso.id} className="flex min-w-0 items-center gap-x-1.5">
               <span aria-hidden>›</span>
-              <Link href={`/objetivo/${paso.id}`} className="transition-colors hover:text-tinta">
+              <Link
+                href={`/objetivo/${paso.id}`}
+                className="min-w-0 break-words transition-colors hover:text-tinta"
+              >
                 {paso.titulo}
               </Link>
             </span>

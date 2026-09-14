@@ -28,7 +28,7 @@ export function TarjetaRaiz({
 
   return (
     <article
-      className="overflow-hidden rounded-xl border border-linea bg-white p-3 transition-shadow hover:shadow-sm sm:p-4"
+      className="min-w-0 overflow-hidden rounded-xl border border-linea bg-white p-3 transition-shadow hover:shadow-sm sm:p-4"
       style={{ borderLeft: `3px solid ${color}` }}
     >
       {mostrarRama && categoria && (
@@ -42,7 +42,7 @@ export function TarjetaRaiz({
 
       <Link href={`/objetivo/${raiz.id}`} className="group block">
         <h3
-          className={`mt-1 text-[15px] font-semibold leading-snug transition-colors ${
+          className={`mt-1 break-words text-[15px] font-semibold leading-snug transition-colors ${
             cumplido ? 'text-humo line-through' : 'group-hover:opacity-70'
           }`}
         >

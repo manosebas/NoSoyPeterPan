@@ -67,9 +67,12 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
         <nav className="mt-4 flex flex-wrap items-center gap-1.5 text-xs text-humo">
           <span style={{ color }}>{categoria?.nombre}</span>
           {migas.map((m) => (
-            <span key={m.id} className="flex items-center gap-1.5">
+            <span key={m.id} className="flex min-w-0 items-center gap-1.5">
               <span aria-hidden>›</span>
-              <Link href={`/objetivo/${m.id}`} className="transition-colors hover:text-tinta">
+              <Link
+                href={`/objetivo/${m.id}`}
+                className="min-w-0 break-words transition-colors hover:text-tinta"
+              >
                 {m.titulo}
               </Link>
             </span>
@@ -128,7 +131,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
         </p>
 
         {nodo.detalle && (
-          <p className="mt-4 max-w-prose whitespace-pre-line text-sm leading-relaxed text-humo">
+          <p className="mt-4 max-w-prose whitespace-pre-line break-words text-sm leading-relaxed text-humo">
             {nodo.detalle}
           </p>
         )}

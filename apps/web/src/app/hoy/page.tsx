@@ -106,8 +106,8 @@ export default async function Hoy() {
         <p className="mt-1 text-sm text-humo first-letter:uppercase">{FECHA.format(new Date())}</p>
 
         {/* Lo que construye a la izquierda; lo que solo estorba, a un lado. */}
-        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <section>
+        <div className="mt-10 grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <section className="min-w-0">
             <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
               De tus objetivos
             </h2>
