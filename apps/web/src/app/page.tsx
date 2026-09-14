@@ -157,7 +157,7 @@ export default function Landing() {
                   Vivir con dirección
                 </span>
                 <p className="mt-5 text-xl font-medium leading-snug sm:text-2xl">
-                  «¿Qué puedo hacer hoy para acercarme a la vida que quiero?»
+                  «¿Qué puedo hacer hoy para acercarme a los objetivos que tengo?»
                 </p>
               </Revelar>
             </div>
