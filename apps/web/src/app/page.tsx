@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { FRASE_DE_ORO } from '@nspp/shared';
 import { DemoCascada } from '@/components/DemoCascada';
+import { FraseEscrita } from '@/components/FraseEscrita';
 import { Revelar } from '@/components/Revelar';
 
 const CADENA = ['Algún día', '5 años', '1 año', '90 días', 'Esta semana', 'Hoy'];
@@ -180,10 +180,8 @@ export default function Landing() {
           </Revelar>
         </section>
 
-        <section className="border-t border-linea py-14">
-          <blockquote className="text-xl font-medium leading-relaxed tracking-tight sm:text-2xl">
-            «{FRASE_DE_ORO}»
-          </blockquote>
+        <section className="border-t border-linea py-24 sm:py-32">
+          <FraseEscrita />
         </section>
 
         <section className="border-t border-linea py-16 text-center">
