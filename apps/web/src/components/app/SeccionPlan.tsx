@@ -1,6 +1,6 @@
 import type { Plan } from '@nspp/shared';
 import { Barra } from '@/components/app/Barra';
-import type { EstadoPlan } from '@/lib/plan';
+import { restanteIA, type EstadoPlan } from '@/lib/plan';
 
 const FECHA = new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long' });
 
@@ -26,9 +26,7 @@ export function SeccionPlan({ estado }: { estado: EstadoPlan | null }) {
   const otros = ofrecidos.filter((p) => p.id !== actual.id);
   const conIA = actual.presupuestoUsd > 0;
 
-  const usado =
-    periodo && periodo.presupuestoUsd > 0 ? periodo.consumidoUsd / periodo.presupuestoUsd : 0;
-  const queda = Math.max(0, Math.round((1 - usado) * 100));
+  const queda = restanteIA(estado);
 
   return (
     <>
@@ -48,7 +46,7 @@ export function SeccionPlan({ estado }: { estado: EstadoPlan | null }) {
               <span className="text-humo">Te queda el {queda}%</span>
             </div>
             <div className="mt-2">
-              <Barra fraccion={usado} color="var(--color-tinta)" alto="h-1.5" />
+              <Barra fraccion={queda / 100} color="var(--color-tinta)" alto="h-1.5" />
             </div>
             <p className="mt-2 text-xs text-humo">
               El mes cierra el {FECHA.format(new Date(`${periodo.terminaEl}T00:00:00`))}.

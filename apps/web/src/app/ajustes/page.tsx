@@ -9,7 +9,7 @@ import { PlazosPorDefecto } from '@/components/app/PlazosPorDefecto';
 import { SeccionPlan } from '@/components/app/SeccionPlan';
 import { cargaDatos } from '@/lib/datos';
 import { iniciales, nombreVisible, obtenerSesionConPerfil } from '@/lib/perfil';
-import { cargaPlan } from '@/lib/plan';
+import { cargaPlan, restanteIA } from '@/lib/plan';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +31,9 @@ export default async function AjustesPagina() {
       id: 'plan',
       nombre: 'Plan',
       resumen: plan?.actual ? `Tienes ${plan.actual.nombre}.` : 'Tu plan y los que hay.',
+      medidor: plan?.actual
+        ? { etiqueta: 'Uso de IA restante', porcentaje: restanteIA(plan) }
+        : undefined,
       contenido: <SeccionPlan estado={plan} />,
     },
     {

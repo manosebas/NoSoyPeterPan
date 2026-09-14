@@ -64,6 +64,18 @@ export async function cargaPlan(): Promise<EstadoPlan | null> {
   return { actual, periodo: vigente, ofrecidos: todos.filter((p) => p.activo) };
 }
 
+/**
+ * Cuanta IA le queda en el mes, de 0 a 100. Empieza en 100 y baja con el uso.
+ * Sin IA en el plan, o sin mes vigente, es 0: no hay nada que gastar.
+ */
+export function restanteIA(estado: EstadoPlan | null): number {
+  const periodo = estado?.periodo;
+  if (!estado?.actual || estado.actual.presupuestoUsd === 0) return 0;
+  if (!periodo || periodo.presupuestoUsd === 0) return 0;
+  const usado = periodo.consumidoUsd / periodo.presupuestoUsd;
+  return Math.max(0, Math.min(100, Math.round((1 - usado) * 100)));
+}
+
 // PostgREST puede devolver `numeric` como texto para no perder precision.
 function aPlan(f: FilaPlan): Plan {
   return {
