@@ -125,7 +125,7 @@ Manifiesto fundacional. Cita textual, no parafrasear:
 
 Firmado **— M**. Es la vara para medir tono y decisiones. Si un copy o una feature suena tibio, corporativo o conformista, contradice la frase.
 
-El texto vive en `apps/web/src/components/FraseEscrita.tsx`, que lo teclea al llegar a su sección de la landing. Ahí se edita, y en un solo sitio: la versión corta que estaba en `packages/shared` se eliminó el 2026-09-14 para que no hubiera dos.
+El texto vive en `apps/web/src/components/FraseEscrita.tsx`, que lo teclea al llegar a su sección de la landing. Ahí se edita, y en un solo sitio: la versión corta que estaba en `packages/shared` se eliminó para que no hubiera dos.
 
 ---
 
@@ -141,15 +141,15 @@ El texto vive en `apps/web/src/components/FraseEscrita.tsx`, que lo teclea al ll
 
 Plataforma web donde la gente entra a organizar sus objetivos y cumplirlos. Ese es el core; todo lo demás es secundario hasta nuevo aviso.
 
-**Estado actual** (2026-09-14): la herramienta funciona de punta a punta. Se crean objetivos, se desglosan hasta seis niveles, se marcan las hojas y cada marca emite un voto que hace crecer su rama. `main` y `dev` están a la par: lo que se ve en el preview es lo que hay en producción.
+**Estado actual**: la herramienta funciona de punta a punta. Se crean objetivos, se desglosan hasta seis niveles, se marcan las hojas y cada marca emite un voto que hace crecer su rama. `main` y `dev` están a la par: lo que se ve en el preview es lo que hay en producción.
 
 La landing cuenta el argumento en cinco tramos —el hero a pantalla completa, Peter Pan, la conversión, un demo que corre solo y el manifiesto que se teclea al llegar— y la app se usa en el teléfono sin que nada se salga de la pantalla.
 
 Cuatro pantallas con sesión: **Hoy** (lo vencido, lo de hoy y lo de esta semana del árbol, más los to-do), **Mapa** (dos modos de vista: cascada y categorías), **Perfil** (la vitrina de fortalezas) y la de **un objetivo**; más **Ajustes** en dos columnas. Autenticación con Supabase, foto de perfil en Storage y API en Railway validando el token. Los cuatro ambientes viven y se hablan entre sí; los dominios están en `docs/DESPLIEGUE.md`.
 
-Producción responde en **`nosoypeterpan.com`** (DNS en Cloudflare, sin `www` como principal). Los correos de Auth salen por **Resend** desde `hola@nosoypeterpan.com`, con plantilla de verificación propia, y el link deja al usuario dentro de la app. Verificado de punta a punta el 2026-09-14.
+Producción responde en **`nosoypeterpan.com`** (DNS en Cloudflare, sin `www` como principal). Los correos de Auth salen por **Resend** desde `hola@nosoypeterpan.com`, con plantilla de verificación propia, y el link deja al usuario dentro de la app.
 
-Migraciones `0001` a `0009`, aplicadas en los dos proyectos. Verificado contra el esquema de `prod_NoSoyPeterPan` el 2026-09-14: están `preferencias`, `pendientes`, el índice único de votos y `emite_voto` con el borrado al desmarcar. La tabla de migraciones de Supabase no sirve para comprobarlo —el SQL se aplica a mano desde el dashboard y no queda registrado ahí—: hay que preguntarle al esquema. El detalle del modelo vive en `docs/MODELO.md`.
+Migraciones `0001` a `0009`, aplicadas en los dos proyectos. En el esquema de `prod_NoSoyPeterPan` están `preferencias`, `pendientes`, el índice único de votos y `emite_voto` con el borrado al desmarcar. La tabla de migraciones de Supabase no sirve para comprobarlo —el SQL se aplica a mano desde el dashboard y no queda registrado ahí—: hay que preguntarle al esquema. El detalle del modelo vive en `docs/MODELO.md`.
 
 ### Próximos pasos
 
@@ -171,7 +171,6 @@ Migraciones `0001` a `0009`, aplicadas en los dos proyectos. Verificado contra e
 - `.github/workflows/ci.yml` existe en disco pero sin commitear: el token de GitHub no tiene scope `workflow`. Se habilita con `gh auth refresh -h github.com -s workflow`.
 - `sharp <0.35` marcado *high* por auditoría. Llega como transitiva de Next; no se fuerza porque un salto de minor en 0.x puede romper la optimización de imágenes, y en Vercel el runtime usa su propio `sharp`.
 - El repo es público. Con la política de cero secretos no hay exposición, pero conviene tenerlo presente.
-- Un despliegue de Vercel falló el 2026-09-08 y el log nunca se revisó; los builds posteriores desde la raíz compilan limpio. Si vuelve a pasar, guardar el log antes de tocar nada.
 - `.mcp.json` (servidores MCP de Supabase dev y prod) está en `.gitignore` porque lleva un access token de management. El flag `--read-only` lo respeta el servidor MCP, no el token: si sale de la máquina, hay que rotarlo.
 - `pnpm build` desde `apps/web` corre solo `next build` y no reconstruye `@nspp/shared`: los tipos quedan viejos y salen errores fantasma. Siempre desde la raíz.
 
@@ -196,7 +195,7 @@ docs/
 
 pnpm workspaces + Turborepo. Auth y base de datos en Supabase.
 
-`docs/` y `supabase/` están en `.gitignore` desde el 2026-09-14: viven solo en local y no se publican. Siguen siendo la referencia; si se pierden, no hay copia en GitHub (salvo en el historial anterior a esa fecha).
+`docs/` y `supabase/` están en `.gitignore`: viven solo en local y no se publican. Siguen siendo la referencia; si se pierden, no hay copia en GitHub.
 
 ### Ambientes
 
