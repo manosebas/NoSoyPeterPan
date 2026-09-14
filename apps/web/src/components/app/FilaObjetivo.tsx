@@ -3,8 +3,8 @@
 import { progreso, type Categoria, type DiasPlazo, type NodoObjetivo } from '@nspp/shared';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { Barra, Punto } from '@/components/juego/Barra';
-import { Casilla } from '@/components/juego/Casilla';
+import { Barra, Punto } from '@/components/app/Barra';
+import { Casilla } from '@/components/app/Casilla';
 import { textoFecha } from '@/lib/formato';
 
 /** Cuantos nietos se asoman antes de mandar a "Ver todos". */

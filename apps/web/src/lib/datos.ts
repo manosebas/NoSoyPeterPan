@@ -32,7 +32,7 @@ type FilaVoto = {
   emitido_en: string;
 };
 
-export type Juego = {
+export type Datos = {
   usuarioId: string;
   objetivos: Objetivo[];
   categorias: Categoria[];
@@ -52,7 +52,7 @@ export type Juego = {
  * que pedir un nivel por pantalla, y deja el progreso calculado en memoria sin
  * un solo contador que mantener sincronizado.
  */
-export async function cargaJuego(): Promise<Juego | null> {
+export async function cargaDatos(): Promise<Datos | null> {
   const supabase = await createClienteServidor();
   const {
     data: { user },

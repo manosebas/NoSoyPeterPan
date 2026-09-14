@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Demo que se juega solo: se escribe un objetivo de un año, se envía y de él
+ * Demo que corre solo: se escribe un objetivo de un año, se envía y de él
  * caen los tres plazos que lo aterrizan hasta hoy. Al terminar se borra y
  * vuelve a empezar.
  *
@@ -72,7 +72,7 @@ export function DemoCascada() {
         relojes.push(setTimeout(listo, ms));
       });
 
-    const jugar = async () => {
+    const reproducir = async () => {
       while (!cancelado) {
         setFase('escribe');
         setPasos(0);
@@ -108,7 +108,7 @@ export function DemoCascada() {
       }
     };
 
-    void jugar();
+    void reproducir();
 
     return () => {
       cancelado = true;

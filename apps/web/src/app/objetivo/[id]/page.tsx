@@ -9,14 +9,14 @@ import {
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
-import { AjustesObjetivo } from '@/components/juego/AjustesObjetivo';
-import { Barra } from '@/components/juego/Barra';
-import { Casilla } from '@/components/juego/Casilla';
-import { FilaObjetivo } from '@/components/juego/FilaObjetivo';
-import { NuevoObjetivo } from '@/components/juego/NuevoObjetivo';
+import { AjustesObjetivo } from '@/components/app/AjustesObjetivo';
+import { Barra } from '@/components/app/Barra';
+import { Casilla } from '@/components/app/Casilla';
+import { FilaObjetivo } from '@/components/app/FilaObjetivo';
+import { NuevoObjetivo } from '@/components/app/NuevoObjetivo';
 import { Pagina } from '@/components/Pagina';
 import { NOMBRE_PLAZO, textoFecha } from '@/lib/formato';
-import { cargaJuego, porId } from '@/lib/juego';
+import { cargaDatos, porId } from '@/lib/datos';
 import { obtenerSesionConPerfil } from '@/lib/perfil';
 
 export const dynamic = 'force-dynamic';
@@ -34,21 +34,21 @@ function buscar(nodos: NodoObjetivo[], id: string): NodoObjetivo | null {
 
 export default async function Objetivo({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [sesion, juego] = await Promise.all([obtenerSesionConPerfil(), cargaJuego()]);
-  if (!sesion || !juego) redirect(`/entrar?siguiente=/objetivo/${id}`);
+  const [sesion, datos] = await Promise.all([obtenerSesionConPerfil(), cargaDatos()]);
+  if (!sesion || !datos) redirect(`/entrar?siguiente=/objetivo/${id}`);
 
-  const nodo = buscar(construyeArbol(juego.objetivos), id);
+  const nodo = buscar(construyeArbol(datos.objetivos), id);
   if (!nodo) notFound();
 
-  const categorias = porId(juego.categorias);
+  const categorias = porId(datos.categorias);
   const categoria = categorias.get(nodo.categoriaId);
   const color = categoria?.color ?? '#71717a';
   const avance = progreso(nodo);
   const hoja = nodo.hijos.length === 0;
 
-  const lectura = leePlazo(nodo.venceEl, juego.plazos);
-  const migas = camino(juego.objetivos, id).slice(0, -1);
-  const padre = juego.objetivos.find((o) => o.id === nodo.padreId) ?? null;
+  const lectura = leePlazo(nodo.venceEl, datos.plazos);
+  const migas = camino(datos.objetivos, id).slice(0, -1);
+  const padre = datos.objetivos.find((o) => o.id === nodo.padreId) ?? null;
   const volverA = padre ? `/objetivo/${padre.id}` : '/mapa';
 
   return (
@@ -107,8 +107,8 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
               venceEl={nodo.venceEl}
               padreVenceEl={padre?.venceEl ?? null}
               tieneHijos={!hoja}
-              categorias={juego.categorias}
-              dias={juego.plazos}
+              categorias={datos.categorias}
+              dias={datos.plazos}
               volverA={volverA}
             />
           </div>
@@ -118,14 +118,14 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
             La rama no se repite porque ya va en las migas, y en color. */}
         <p className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-humo">
           <span className={nodo.venceEl === null ? 'italic' : ''}>
-            {textoFecha(nodo.venceEl, juego.plazos)}
+            {textoFecha(nodo.venceEl, datos.plazos)}
           </span>
           {lectura !== 'sin_fecha' && lectura !== 'vencido' && lectura !== 'hoy' && (
             <>
               <span aria-hidden>·</span>
               <span>{NOMBRE_PLAZO[lectura]}</span>
               <span aria-hidden>·</span>
-              <span>{textoDuracion(lectura, juego.plazos)}</span>
+              <span>{textoDuracion(lectura, datos.plazos)}</span>
             </>
           )}
         </p>
@@ -161,7 +161,7 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
                       nodo={hijo}
                       categoria={categorias.get(hijo.categoriaId)}
                       categorias={categorias}
-                      dias={juego.plazos}
+                      dias={datos.plazos}
                       conVistaPrevia
                     />
                   ))}
@@ -176,13 +176,13 @@ export default async function Objetivo({ params }: { params: Promise<{ id: strin
             <div className="mt-6">
               {nodo.profundidad < 5 ? (
                 <NuevoObjetivo
-                  usuarioId={juego.usuarioId}
+                  usuarioId={datos.usuarioId}
                   padreId={nodo.id}
                   padreVenceEl={nodo.venceEl}
                   categoriaHeredada={nodo.categoriaId}
-                  categorias={juego.categorias}
+                  categorias={datos.categorias}
                   profundidad={nodo.profundidad + 1}
-                  dias={juego.plazos}
+                  dias={datos.plazos}
                   etiqueta={hoja ? 'partir esto en pasos' : 'otro paso'}
                 />
               ) : (

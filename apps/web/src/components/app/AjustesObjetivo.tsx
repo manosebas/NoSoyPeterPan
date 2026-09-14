@@ -11,8 +11,8 @@ import {
 } from '@nspp/shared';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { PIDE_DETALLE, recorta, TOPE_DETALLE } from '@/components/juego/CamposObjetivo';
-import { Modal, ModalConfirmar } from '@/components/juego/Modal';
+import { PIDE_DETALLE, recorta, TOPE_DETALLE } from '@/components/app/CamposObjetivo';
+import { Modal, ModalConfirmar } from '@/components/app/Modal';
 import { actualizaObjetivo, borraObjetivo, mensajeError } from '@/lib/acciones';
 
 /**

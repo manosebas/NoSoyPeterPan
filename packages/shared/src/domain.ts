@@ -3,9 +3,9 @@
  *
  * Los nombres de dominio se conservan en espanol a proposito: son parte de la
  * identidad del producto, no vocabulario generico. Ver CLAUDE.md seccion 2 y
- * docs/JUEGO.md.
+ * docs/MODELO.md.
  *
- * El juego entero es un arbol: un objetivo se desglosa en objetivos mas chicos,
+ * La herramienta entera es un arbol: un objetivo se desglosa en objetivos mas chicos,
  * y esos se vuelven a desglosar hasta llegar a algo que se pueda hacer. El
  * Norte es la raiz; una Mision es una hoja. Misma entidad a distinta altura.
  */
@@ -55,7 +55,7 @@ export interface NodoObjetivo extends Objetivo {
 }
 
 /**
- * Los plazos del juego. `semana` dura siempre siete dias; los otros tres los
+ * Los plazos de la herramienta. `semana` dura siempre siete dias; los otros tres los
  * ajusta cada persona en Ajustes, porque largo plazo no significa lo mismo
  * para todos.
  */
@@ -212,7 +212,7 @@ export function camino(objetivos: Objetivo[], id: string): Objetivo[] {
 }
 
 /**
- * Un voto: un objetivo cumplido. Es la unidad de progreso del juego.
+ * Un voto: un objetivo cumplido. Es la unidad de progreso.
  * No se borra al desmarcar ni al borrar el objetivo: lo que ya creciste, creció.
  */
 export interface Voto {

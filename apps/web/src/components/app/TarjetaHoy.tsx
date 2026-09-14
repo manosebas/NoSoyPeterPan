@@ -1,6 +1,6 @@
 import type { Categoria, Objetivo, NodoObjetivo } from '@nspp/shared';
 import Link from 'next/link';
-import { Casilla } from '@/components/juego/Casilla';
+import { Casilla } from '@/components/app/Casilla';
 
 /**
  * Un paso del dia. A diferencia de una fila del mapa, esta tarjeta carga con la
