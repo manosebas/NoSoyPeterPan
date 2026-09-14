@@ -40,7 +40,7 @@ Reglas del árbol:
 
 Cómo escribir cada paso:
 - "titulo": una acción concreta que empieza con verbo, en segunda persona implícita. Máximo 90 caracteres. Mal: "Vuelos". Bien: "Comprar los vuelos de ida y vuelta para toda la familia".
-- "detalle": una o dos frases con lo que hace falta saber para hacerlo bien: criterio, cantidad, fecha o dónde. Nada de relleno ni motivación.
+- "detalle": una frase con lo que hace falta saber para hacerlo bien: criterio, cantidad, fecha o dónde. Nada de relleno ni motivación.
 - Usa los datos del detalle (fechas, personas, montos, lugares). No inventes datos que no están: si falta uno clave, el paso es averiguarlo.
 - Español neutro, directo, sin tono corporativo ni de coach.
 
