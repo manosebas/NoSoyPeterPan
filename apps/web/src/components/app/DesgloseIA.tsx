@@ -9,7 +9,7 @@ import {
   type PropuestaDesglose,
 } from '@nspp/shared';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { recorta } from '@/components/app/CamposObjetivo';
 import { Modal } from '@/components/app/Modal';
 import { creaDesglose, mensajeError, type PasoNuevo } from '@/lib/acciones';
@@ -19,7 +19,8 @@ export type DisponibilidadIA = 'con_ia' | 'sin_plan' | 'sin_saldo';
 
 type PasoEditable = PasoPropuesto & { elegido: boolean };
 
-type Fase = 'cerrado' | 'pensando' | 'eligiendo' | 'guardando';
+/** `actualizando`: ya se guardo y se espera a que la pagina traiga los pasos nuevos. */
+type Fase = 'cerrado' | 'pensando' | 'eligiendo' | 'guardando' | 'actualizando';
 
 const FRASES = [
   'Leyendo tu objetivo…',
@@ -58,8 +59,18 @@ export function DesgloseIA({
   const [error, setError] = useState<string | null>(null);
   const [observacion, setObservacion] = useState<string | null>(null);
   const [pasos, setPasos] = useState<PasoEditable[]>([]);
+  const [refrescando, refresca] = useTransition();
+
+  // El modal se cierra cuando los pasos nuevos ya estan en la pagina, no antes:
+  // con arboles grandes el refresco tarda y la pantalla parecia no reaccionar.
+  useEffect(() => {
+    if (fase !== 'actualizando' || refrescando) return;
+    setFase('cerrado');
+    setPasos([]);
+  }, [fase, refrescando]);
 
   const elegidos = pasos.filter((p) => p.elegido);
+  const ocupado = fase === 'guardando' || fase === 'actualizando';
   const faltaTitulo = elegidos.some((p) => p.titulo.trim() === '');
 
   async function desglosar() {
@@ -132,9 +143,8 @@ export function DesgloseIA({
 
     try {
       await creaDesglose(usuarioId, categoriaId, nuevos);
-      setFase('cerrado');
-      setPasos([]);
-      router.refresh();
+      setFase('actualizando');
+      refresca(() => router.refresh());
     } catch (e) {
       setError(mensajeError(e, 'No se pudo guardar el desglose.'));
       setFase('eligiendo');
@@ -173,8 +183,8 @@ export function DesgloseIA({
         </Modal>
       )}
 
-      {(fase === 'eligiendo' || fase === 'guardando') && (
-        <Modal titulo="Tu desglose" onCerrar={fase === 'guardando' ? () => {} : descarta} ancho>
+      {(fase === 'eligiendo' || ocupado) && (
+        <Modal titulo="Tu desglose" onCerrar={ocupado ? () => {} : descarta} ancho>
           <p className="text-xs text-humo sm:text-sm">
             Quédate con lo que te sirve. Corrige lo que quieras: nada se guarda hasta que lo
             agregues.
@@ -186,7 +196,7 @@ export function DesgloseIA({
             </p>
           )}
 
-          <div className="mt-4">
+          <div className={`mt-4 transition-opacity ${ocupado ? 'pointer-events-none opacity-40' : ''}`}>
             <Rama pasos={pasos} padre={null} nivel={0} onCambia={cambia} onElige={elige} />
           </div>
 
@@ -195,7 +205,7 @@ export function DesgloseIA({
           <div className="sticky bottom-0 -mx-6 mt-6 flex items-center justify-between gap-3 border-t border-linea bg-white px-6 pt-4">
             <button
               type="button"
-              disabled={fase === 'guardando'}
+              disabled={ocupado}
               onClick={descarta}
               className="text-xs text-humo transition-colors hover:text-tinta disabled:opacity-40 sm:text-sm"
             >
@@ -203,12 +213,12 @@ export function DesgloseIA({
             </button>
             <button
               type="button"
-              disabled={fase === 'guardando' || elegidos.length === 0 || faltaTitulo}
+              disabled={ocupado || elegidos.length === 0 || faltaTitulo}
               onClick={guardar}
               className="rounded-full bg-tinta px-4 py-2 text-xs font-semibold text-papel transition-opacity hover:opacity-80 disabled:opacity-30 sm:px-5 sm:py-2.5 sm:text-sm"
             >
-              {fase === 'guardando'
-                ? 'Guardando…'
+              {ocupado
+                ? 'Agregando al mapa…'
                 : `Agregar ${elegidos.length} ${elegidos.length === 1 ? 'paso' : 'pasos'} al mapa`}
             </button>
           </div>
