@@ -18,7 +18,9 @@ export type SeccionAjustes = {
  * con un boton para volver: dos columnas no caben, y media columna no sirve.
  */
 export function PanelAjustes({ secciones }: { secciones: SeccionAjustes[] }) {
-  const [activa, setActiva] = useState<string | null>(null);
+  // La primera seccion nace abierta: entrar a Ajustes y que te pidan elegir
+  // antes de mostrarte nada es un paso de mas.
+  const [activa, setActiva] = useState<string | null>(secciones[0]?.id ?? null);
   const abierta = secciones.find((s) => s.id === activa) ?? null;
 
   return (
@@ -54,7 +56,7 @@ export function PanelAjustes({ secciones }: { secciones: SeccionAjustes[] }) {
       </nav>
 
       <section className={`min-h-0 flex-1 overflow-y-auto pr-1 ${abierta ? '' : 'hidden md:block'}`}>
-        {abierta ? (
+        {abierta && (
           <>
             <button
               type="button"
@@ -69,8 +71,6 @@ export function PanelAjustes({ secciones }: { secciones: SeccionAjustes[] }) {
 
             <div className="mt-6 pb-4">{abierta.contenido}</div>
           </>
-        ) : (
-          <p className="pt-2 text-sm text-humo">Elige qué quieres configurar.</p>
         )}
       </section>
     </div>
