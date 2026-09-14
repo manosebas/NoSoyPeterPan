@@ -51,6 +51,44 @@ export async function creaObjetivo(nuevo: NuevoObjetivo): Promise<string> {
   return data.id;
 }
 
+export type PasoNuevo = {
+  /** Generado en el navegador: los hijos necesitan el id del padre antes de guardar. */
+  id: string;
+  padreId: string;
+  titulo: string;
+  detalle: string;
+  venceEl: string | null;
+  /** Posicion entre sus hermanos. */
+  orden: number;
+};
+
+/**
+ * Guarda un desglose entero en un solo insert. Un insert de varias filas es
+ * atomico: entra todo o nada, sin arboles a medias. Los padres deben venir
+ * antes que sus hijos, porque el trigger de validacion busca al padre.
+ */
+export async function creaDesglose(
+  usuarioId: string,
+  categoriaId: string,
+  pasos: PasoNuevo[],
+): Promise<void> {
+  if (pasos.length === 0) return;
+  const supabase = createClienteNavegador();
+  const { error } = await supabase.from('objetivos').insert(
+    pasos.map((p) => ({
+      id: p.id,
+      usuario_id: usuarioId,
+      padre_id: p.padreId,
+      categoria_id: categoriaId,
+      titulo: p.titulo.trim(),
+      detalle: p.detalle.trim() || null,
+      vence_el: p.venceEl,
+      orden: p.orden,
+    })),
+  );
+  if (error) throw error;
+}
+
 /** Marcar emite el voto por trigger; desmarcar no se lo lleva. */
 export async function marcaObjetivo(id: string, cumplido: boolean): Promise<void> {
   const supabase = createClienteNavegador();

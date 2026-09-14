@@ -32,10 +32,13 @@ export function Modal({
   titulo,
   onCerrar,
   children,
+  ancho = false,
 }: {
   titulo: string;
   onCerrar: () => void;
   children: React.ReactNode;
+  /** Para contenido que no cabe en un formulario angosto, como un arbol. */
+  ancho?: boolean;
 }) {
   const caja = useRef<HTMLDivElement>(null);
 
@@ -81,7 +84,7 @@ export function Modal({
         // Con tope de alto y scroll propio: el formulario largo crecia mas que
         // la pantalla del telefono y dejaba los botones fuera, sin manera de
         // llegar a ellos porque el fondo esta bloqueado.
-        className="max-h-[92dvh] w-full max-w-md overflow-y-auto overscroll-contain rounded-t-2xl border border-linea bg-white p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] outline-none sm:max-h-[85dvh] sm:rounded-2xl sm:pb-6"
+        className={`max-h-[92dvh] w-full ${ancho ? 'max-w-2xl' : 'max-w-md'} overflow-y-auto overscroll-contain rounded-t-2xl border border-linea bg-white p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] outline-none sm:max-h-[85dvh] sm:rounded-2xl sm:pb-6`}
       >
         <div className="flex items-start justify-between gap-4">
           <h2 className="text-lg font-semibold tracking-tight">{titulo}</h2>

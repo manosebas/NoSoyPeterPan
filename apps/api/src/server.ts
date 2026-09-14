@@ -4,7 +4,8 @@ import sensible from '@fastify/sensible';
 import authPlugin from './plugins/auth.js';
 import { creaValidadorOrigen } from './cors.js';
 import { cargarEnv, type Env } from './env.js';
-import { clienteAnon } from './supabase.js';
+import { clienteAdmin, clienteAnon } from './supabase.js';
+import { rutasIA } from './routes/ia.js';
 import { rutasSalud } from './routes/salud.js';
 import { rutasYo } from './routes/yo.js';
 
@@ -27,6 +28,7 @@ export async function construirServidor(env: Env = cargarEnv()): Promise<Fastify
 
   await app.register(rutasSalud(env));
   await app.register(rutasYo, { prefix: '/api' });
+  await app.register(rutasIA, { prefix: '/api', env, admin: clienteAdmin(env) });
 
   return app;
 }

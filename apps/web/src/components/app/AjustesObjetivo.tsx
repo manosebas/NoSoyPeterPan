@@ -11,7 +11,12 @@ import {
 } from '@nspp/shared';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { PIDE_DETALLE, recorta, TOPE_DETALLE } from '@/components/app/CamposObjetivo';
+import {
+  PIDE_DETALLE,
+  POR_QUE_DETALLE,
+  recorta,
+  TOPE_DETALLE,
+} from '@/components/app/CamposObjetivo';
 import { Modal, ModalConfirmar } from '@/components/app/Modal';
 import { actualizaObjetivo, borraObjetivo, mensajeError } from '@/lib/acciones';
 
@@ -139,6 +144,7 @@ export function AjustesObjetivo({
           />
 
           <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-humo">Detalle</p>
+          <p className="mt-1 text-xs text-humo">{POR_QUE_DETALLE}</p>
           <textarea
             value={texto}
             rows={4}
