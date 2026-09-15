@@ -15,7 +15,7 @@ export default function manifest(): MetadataRoute.Manifest {
     // navegador y el link del correo de verificacion caeria afuera.
     display: 'browser',
     background_color: '#fafaf9',
-    theme_color: '#0a0a0a',
+    theme_color: '#ffffff',
     icons: [
       { src: '/icono-192.png', sizes: '192x192', type: 'image/png' },
       { src: '/icono-512.png', sizes: '512x512', type: 'image/png' },
