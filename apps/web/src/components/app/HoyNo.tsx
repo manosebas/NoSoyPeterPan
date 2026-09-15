@@ -2,27 +2,24 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
-import { actualizaObjetivo, mensajeError } from '@/lib/acciones';
+import { mensajeError, pospone } from '@/lib/acciones';
 
 /**
- * Trae un paso de esta semana al dia de hoy. Es la decision que el producto
- * pide todas las mananas: no esperar a que algo se venza para hacerlo.
- *
- * Solo mueve la fecha de este paso. Su padre no se entera: lo que se hace hoy
- * es la hoja, no el objetivo grande del que cuelga.
+ * Saca un paso del foco hasta manana. No lo borra ni le cambia la fecha limite:
+ * solo dice "hoy no". Lo vencido no lo lleva: eso no se pospone.
  */
-export function HacerHoy({ id, hoy }: { id: string; hoy: string }) {
+export function HoyNo({ id, hoy, manana }: { id: string; hoy: string; manana: string }) {
   const router = useRouter();
-  const [pendiente, empieza] = useTransition();
+  const [refrescando, refresca] = useTransition();
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function traer() {
+  async function posponer() {
     setGuardando(true);
     setError(null);
     try {
-      await actualizaObjetivo(id, { venceEl: hoy });
-      empieza(() => router.refresh());
+      await pospone(id, manana, hoy);
+      refresca(() => router.refresh());
     } catch (e) {
       setError(mensajeError(e, 'No se pudo mover.'));
     } finally {
@@ -31,14 +28,14 @@ export function HacerHoy({ id, hoy }: { id: string; hoy: string }) {
   }
 
   return (
-    <div className="shrink-0 text-right">
+    <div className="text-right">
       <button
         type="button"
-        onClick={traer}
-        disabled={guardando || pendiente}
+        onClick={posponer}
+        disabled={guardando || refrescando}
         className="rounded-full border border-linea px-3 py-1 text-xs font-medium text-humo transition-colors hover:border-tinta hover:text-tinta disabled:opacity-40"
       >
-        {guardando || pendiente ? 'Un momento…' : 'Hacer hoy'}
+        {guardando || refrescando ? 'Un momento…' : 'Hoy no'}
       </button>
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
     </div>

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
 import { FormularioAjustes } from '@/components/FormularioAjustes';
 import { FormularioPerfil } from '@/components/FormularioPerfil';
+import { FocoDiario } from '@/components/app/FocoDiario';
 import { MetasCategoria } from '@/components/app/MetasCategoria';
 import { PanelAjustes, type SeccionAjustes } from '@/components/app/PanelAjustes';
 import { Pagina } from '@/components/Pagina';
@@ -39,10 +40,24 @@ export default async function AjustesPagina() {
     {
       id: 'nivel',
       nombre: 'Qué tan alto apuntas',
-      resumen: 'Cuánto dura cada plazo y cuánto cuesta subir una rama.',
+      resumen: 'Tu foco diario, cuánto dura cada plazo y cuánto cuesta subir una rama.',
       contenido: (
         <>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-humo">
+            Tu foco de cada día
+          </p>
+          <p className="mt-2 text-sm text-humo">
+            Pocos pasos y los correctos. Al terminarlos, mañana vienen los siguientes.
+          </p>
+          <div className="mt-3">
+            <FocoDiario
+              usuarioId={datos.usuarioId}
+              pasosPorDia={datos.foco.pasosPorDia}
+              modo={datos.foco.modo}
+            />
+          </div>
+
+          <p className="mt-10 text-xs font-semibold uppercase tracking-[0.16em] text-humo">
             Cuánto dura cada plazo
           </p>
           <p className="mt-2 text-sm text-humo">

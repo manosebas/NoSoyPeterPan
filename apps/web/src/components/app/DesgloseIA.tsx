@@ -119,17 +119,27 @@ export function DesgloseIA({
     const ids = new Map<string, string>();
     const fechas = new Map<string, string>();
     const hermanos = new Map<string | null, number>();
+    const hoy = new Date().toISOString().slice(0, 10);
+    const totales = new Map<string | null, number>();
+    for (const paso of elegidos) totales.set(paso.padre, (totales.get(paso.padre) ?? 0) + 1);
 
     const nuevos: PasoNuevo[] = elegidos.map((paso) => {
       const id = crypto.randomUUID();
       ids.set(paso.ref, id);
 
-      const topePadre = paso.padre ? (fechas.get(paso.padre) ?? null) : venceEl;
-      const venceElPaso = recorta(fechaDePlazo(paso.plazo, dias), topePadre);
-      fechas.set(paso.ref, venceElPaso);
-
       const posicion = hermanos.get(paso.padre) ?? 0;
       hermanos.set(paso.padre, posicion + 1);
+
+      const topePadre = paso.padre ? (fechas.get(paso.padre) ?? null) : venceEl;
+      const venceElPaso = fechaEscalonada({
+        hoy,
+        plazo: paso.plazo,
+        dias,
+        topePadre,
+        posicion,
+        total: totales.get(paso.padre) ?? 1,
+      });
+      fechas.set(paso.ref, venceElPaso);
 
       return {
         id,
@@ -226,6 +236,42 @@ export function DesgloseIA({
       )}
     </div>
   );
+}
+
+const DIA_MS = 86_400_000;
+
+/**
+ * La fecha de un paso nuevo. Los hermanos se reparten dentro de su ventana en
+ * el orden del desglose, en vez de vencer todos el mismo dia: si la ventana es
+ * de 30 dias y son tres, vencen el 10, el 20 y el 30.
+ *
+ * La ventana es la mas corta entre la fecha del padre y el plazo elegido.
+ * "Hoy" en un paso significa que se hace en un dia, no que vence hoy: su
+ * ventana es la del padre, o una semana si el padre no tiene fecha.
+ */
+function fechaEscalonada({
+  hoy,
+  plazo,
+  dias,
+  topePadre,
+  posicion,
+  total,
+}: {
+  hoy: string;
+  plazo: Plazo;
+  dias: DiasPlazo;
+  topePadre: string | null;
+  posicion: number;
+  total: number;
+}): string {
+  const delPlazo = plazo === 'hoy' ? null : fechaDePlazo(plazo, dias);
+  const limite =
+    (delPlazo ? recorta(delPlazo, topePadre) : topePadre) ?? fechaDePlazo('semana', dias);
+
+  const base = Date.parse(`${hoy}T00:00:00Z`);
+  const ventana = Math.max(0, Math.round((Date.parse(`${limite}T00:00:00Z`) - base) / DIA_MS));
+  const desplazamiento = Math.ceil((ventana * (posicion + 1)) / total);
+  return new Date(base + desplazamiento * DIA_MS).toISOString().slice(0, 10);
 }
 
 function Pensando() {

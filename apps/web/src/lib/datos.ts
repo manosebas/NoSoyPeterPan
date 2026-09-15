@@ -1,7 +1,9 @@
 import {
   DIAS_PLAZO_DEFECTO,
+  PASOS_POR_DIA_DEFECTO,
   type Categoria,
   type DiasPlazo,
+  type ModoFoco,
   type Objetivo,
   type Pendiente,
   type Voto,
@@ -18,6 +20,7 @@ type FilaObjetivo = {
   detalle: string | null;
   vence_el: string | null;
   completado_en: string | null;
+  pospuesto_hasta: string | null;
   orden: number;
   profundidad: number;
   creado_en: string;
@@ -43,6 +46,8 @@ export type Datos = {
   metas: Record<string, number>;
   /** Cuanto dura cada plazo para esta persona. */
   plazos: DiasPlazo;
+  /** Cuantos pasos entran al foco de Hoy y como se eligen. */
+  foco: { pasosPorDia: number; modo: ModoFoco };
 };
 
 /**
@@ -69,8 +74,14 @@ export async function cargaDatos(): Promise<Datos | null> {
       .returns<{ categoria_id: string; votos_por_nivel: number }[]>(),
     supabase
       .from('preferencias')
-      .select('dias_largo, dias_mediano, dias_corto')
-      .maybeSingle<{ dias_largo: number; dias_mediano: number; dias_corto: number }>(),
+      .select('dias_largo, dias_mediano, dias_corto, pasos_por_dia, modo_foco')
+      .maybeSingle<{
+        dias_largo: number;
+        dias_mediano: number;
+        dias_corto: number;
+        pasos_por_dia: number;
+        modo_foco: ModoFoco;
+      }>(),
     supabase
       .from('pendientes')
       .select('id, usuario_id, titulo, creado_en')
@@ -97,6 +108,10 @@ export async function cargaDatos(): Promise<Datos | null> {
           corto: preferencias.data.dias_corto,
         }
       : DIAS_PLAZO_DEFECTO,
+    foco: {
+      pasosPorDia: preferencias.data?.pasos_por_dia ?? PASOS_POR_DIA_DEFECTO,
+      modo: preferencias.data?.modo_foco ?? 'automatico',
+    },
   };
 }
 
@@ -110,6 +125,7 @@ function aObjetivo(f: FilaObjetivo): Objetivo {
     detalle: f.detalle,
     venceEl: f.vence_el,
     completadoEn: f.completado_en,
+    pospuestoHasta: f.pospuesto_hasta,
     orden: f.orden,
     profundidad: f.profundidad,
     creadoEn: f.creado_en,

@@ -34,7 +34,7 @@ Reglas del árbol:
 1. Entre 2 y 5 pasos directos debajo del objetivo, y entre 2 y 5 hijos por paso cuando se desglose.
 2. No más de 25 pasos en total. Mejor pocos y certeros que muchos genéricos.
 3. Profundidad máxima: "niveles_disponibles". Un paso directo del objetivo es el nivel 1.
-4. Cada rama termina en al menos un paso de plazo "hoy": algo que la persona puede hacer hoy mismo.
+4. Cada rama termina en pasos de plazo "hoy": tareas que se hacen en un solo día. "hoy" dice el tamaño del paso, no que venza hoy: la herramienta reparte las fechas en el orden que les des.
 5. Un hijo nunca tiene un plazo más largo que su padre. Orden de más largo a más corto: largo, mediano, corto, semana, hoy.
 6. Los pasos de un mismo padre van en el orden en que conviene hacerlos.
 
