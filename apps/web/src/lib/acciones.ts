@@ -151,6 +151,77 @@ export async function borraPendiente(id: string): Promise<void> {
   if (error) throw error;
 }
 
+/** "Hoy no": el paso sale del foco hasta `hasta`. En modo elegir, tambien de la eleccion. */
+export async function pospone(id: string, hasta: string, hoy: string): Promise<void> {
+  const supabase = createClienteNavegador();
+  const [objetivo, foco] = await Promise.all([
+    supabase.from('objetivos').update({ pospuesto_hasta: hasta }).eq('id', id),
+    supabase.from('foco').delete().eq('objetivo_id', id).eq('fecha', hoy),
+  ]);
+  if (objetivo.error) throw objetivo.error;
+  if (foco.error) throw foco.error;
+}
+
+/** Modo elegir: suma pasos al foco de un dia. */
+export async function eligeFoco(usuarioId: string, ids: string[], fecha: string): Promise<void> {
+  if (ids.length === 0) return;
+  const supabase = createClienteNavegador();
+  const { error } = await supabase
+    .from('foco')
+    .upsert(
+      ids.map((objetivo_id) => ({ objetivo_id, fecha, usuario_id: usuarioId })),
+      { onConflict: 'objetivo_id,fecha', ignoreDuplicates: true },
+    );
+  if (error) throw error;
+}
+
+export async function creaHabito(usuarioId: string, titulo: string): Promise<void> {
+  const supabase = createClienteNavegador();
+  const { error } = await supabase
+    .from('habitos')
+    .insert({ usuario_id: usuarioId, titulo: titulo.trim() });
+  if (error) throw error;
+}
+
+export async function borraHabito(id: string): Promise<void> {
+  const supabase = createClienteNavegador();
+  const { error } = await supabase.from('habitos').delete().eq('id', id);
+  if (error) throw error;
+}
+
+/** Marcar un habito guarda el dia; desmarcarlo lo borra. */
+export async function marcaHabito(
+  usuarioId: string,
+  habitoId: string,
+  fecha: string,
+  hecho: boolean,
+): Promise<void> {
+  const supabase = createClienteNavegador();
+  const { error } = hecho
+    ? await supabase
+        .from('habitos_hechos')
+        .upsert(
+          { habito_id: habitoId, fecha, usuario_id: usuarioId },
+          { onConflict: 'habito_id,fecha', ignoreDuplicates: true },
+        )
+    : await supabase.from('habitos_hechos').delete().eq('habito_id', habitoId).eq('fecha', fecha);
+  if (error) throw error;
+}
+
+export async function guardaFoco(
+  usuarioId: string,
+  foco: { pasosPorDia: number; modo: 'automatico' | 'elegir' },
+): Promise<void> {
+  const supabase = createClienteNavegador();
+  const { error } = await supabase
+    .from('preferencias')
+    .upsert(
+      { usuario_id: usuarioId, pasos_por_dia: foco.pasosPorDia, modo_foco: foco.modo },
+      { onConflict: 'usuario_id' },
+    );
+  if (error) throw error;
+}
+
 export async function guardaPlazos(
   usuarioId: string,
   dias: { largo: number; mediano: number; corto: number },

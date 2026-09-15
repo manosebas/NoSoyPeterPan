@@ -44,6 +44,8 @@ export interface Objetivo {
   detalle: string | null;
   venceEl: string | null;
   completadoEn: string | null;
+  /** "Hoy no": hasta esta fecha el paso no entra al foco del dia. */
+  pospuestoHasta: string | null;
   orden: number;
   profundidad: number;
   creadoEn: string;
@@ -105,7 +107,11 @@ export function fechaDePlazo(
   dias: DiasPlazo = DIAS_PLAZO_DEFECTO,
   hoy = new Date(),
 ): string {
-  const fecha = new Date(hoy.getTime() + diasDe(plazo, dias) * 86_400_000);
+  // "Esta semana" es la del calendario: hasta el domingo. Un domingo, hasta el
+  // siguiente. Contar siete dias desde hoy hacia que todo lo creado el mismo
+  // dia venciera junto una semana despues.
+  const cuantos = plazo === 'semana' ? 7 - hoy.getUTCDay() : diasDe(plazo, dias);
+  const fecha = new Date(hoy.getTime() + cuantos * 86_400_000);
   return fecha.toISOString().slice(0, 10);
 }
 
@@ -286,6 +292,19 @@ export function fuerzaDeRama(
  * Vive fuera de `objetivos` a proposito: si contara como voto, sacar la basura
  * pesaria lo mismo que terminar el portafolio.
  */
+/** Como se arma el foco de Hoy: solo, o eligiendo cada manana. */
+export type ModoFoco = 'automatico' | 'elegir';
+
+export const PASOS_POR_DIA_DEFECTO = 3;
+
+/** Un habito: vuelve sin marcar cada dia. Sin rama, sin fecha y sin voto. */
+export interface Habito {
+  id: string;
+  titulo: string;
+  /** Si ya se hizo hoy. */
+  hechoHoy: boolean;
+}
+
 export interface Pendiente {
   id: string;
   usuarioId: UsuarioId;

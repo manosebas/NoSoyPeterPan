@@ -1,13 +1,17 @@
-import { construyeArbol, fechaDePlazo, type NodoObjetivo, type Objetivo } from '@nspp/shared';
+import { construyeArbol } from '@nspp/shared';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Cabecera } from '@/components/Cabecera';
-import { HacerHoy } from '@/components/app/HacerHoy';
+import { ElegirFoco } from '@/components/app/ElegirFoco';
+import { Habitos } from '@/components/app/Habitos';
+import { HoyNo } from '@/components/app/HoyNo';
 import { Pendientes } from '@/components/app/Pendientes';
 import { TarjetaHoy } from '@/components/app/TarjetaHoy';
 import { Pagina } from '@/components/Pagina';
-import { textoDia } from '@/lib/formato';
 import { cargaDatos, hoyISO, porId } from '@/lib/datos';
+import { armaFoco, manana as diaSiguiente, type Linea } from '@/lib/foco';
+import { textoDia } from '@/lib/formato';
+import { cargaHoy } from '@/lib/hoy';
 import { obtenerSesionConPerfil } from '@/lib/perfil';
 
 export const dynamic = 'force-dynamic';
@@ -16,83 +20,63 @@ export const metadata = { title: 'Hoy — No Soy Peter Pan' };
 
 const FECHA = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' });
 
-/** En que bloque de Hoy cae una hoja, o en ninguno. */
-type Grupo = 'vencido' | 'hoy' | 'semana';
-
-/** Una hoja con el camino que explica por que esta ahi. */
-type Linea = { nodo: NodoObjetivo; camino: Objetivo[]; grupo: Grupo };
-
 /**
- * Solo entran hojas: un objetivo con desglose se cumple cuando se cumplen sus
- * pasos, no a mano. Lo sin fecha no entra nunca; eso es Nunca Jamas y vive en
- * el Mapa. Lo marcado hoy se queda hasta manana, para verlo tachado.
+ * Hoy no muestra todo lo que vence pronto: muestra lo vencido y el foco del
+ * dia, el siguiente paso de cada objetivo hasta llenar un cupo. Asi siempre hay
+ * algo que hacer, nunca demasiado, y al terminar manana hay mas. Las reglas
+ * viven en `lib/foco.ts`.
  */
-function clasifica(nodo: NodoObjetivo, hoy: string, finSemana: string): Grupo | null {
-  if (nodo.hijos.length > 0) return null;
-  if (nodo.completadoEn) return nodo.completadoEn.slice(0, 10) === hoy ? 'hoy' : null;
-  if (nodo.venceEl === null) return null;
-
-  if (nodo.venceEl < hoy) return 'vencido';
-  if (nodo.venceEl === hoy) return 'hoy';
-  return nodo.venceEl <= finSemana ? 'semana' : null;
-}
-
-/** Recorre el arbol juntando lo que toca, con sus ancestros a cuestas. */
-function recolecta(
-  nodos: NodoObjetivo[],
-  hoy: string,
-  finSemana: string,
-  ancestros: Objetivo[] = [],
-): Linea[] {
-  const salida: Linea[] = [];
-
-  for (const nodo of nodos) {
-    const grupo = clasifica(nodo, hoy, finSemana);
-    if (grupo) salida.push({ nodo, camino: ancestros, grupo });
-    salida.push(...recolecta(nodo.hijos, hoy, finSemana, [...ancestros, nodo]));
-  }
-
-  return salida;
-}
-
-/** Lo viejo primero, y lo ya hecho al final: deja de pedir nada. */
-function ordena(lineas: Linea[]): Linea[] {
-  return [...lineas].sort((a, b) => {
-    const hechoA = a.nodo.completadoEn ? 1 : 0;
-    const hechoB = b.nodo.completadoEn ? 1 : 0;
-    if (hechoA !== hechoB) return hechoA - hechoB;
-    return (a.nodo.venceEl ?? '').localeCompare(b.nodo.venceEl ?? '');
-  });
-}
-
-export default async function Hoy() {
-  const [sesion, datos] = await Promise.all([obtenerSesionConPerfil(), cargaDatos()]);
+export default async function Hoy({
+  searchParams,
+}: {
+  searchParams: Promise<{ mas?: string; elegir?: string }>;
+}) {
+  const hoy = hoyISO();
+  const [sesion, datos, datosHoy, parametros] = await Promise.all([
+    obtenerSesionConPerfil(),
+    cargaDatos(),
+    cargaHoy(hoy),
+    searchParams,
+  ]);
   if (!sesion || !datos) redirect('/entrar?siguiente=/hoy');
 
-  const hoy = hoyISO();
-  const finSemana = fechaDePlazo('semana', datos.plazos);
+  const { pasosPorDia, modo } = datos.foco;
+  // "Dame otro" en modo automatico: cuantos pasos de mas se pidieron hoy.
+  const extra = Math.max(0, Math.min(20, Number(parametros.mas) || 0));
   const categorias = porId(datos.categorias);
 
-  const lineas = recolecta(construyeArbol(datos.objetivos), hoy, finSemana);
-  const vencidas = ordena(lineas.filter((l) => l.grupo === 'vencido'));
-  const deHoy = ordena(lineas.filter((l) => l.grupo === 'hoy'));
-  const deSemana = ordena(lineas.filter((l) => l.grupo === 'semana'));
+  const foco = armaFoco({
+    raices: construyeArbol(datos.objetivos),
+    votos: datos.votos,
+    hoy,
+    pasosPorDia,
+    modo,
+    elegidos: datosHoy.elegidos,
+    extra,
+  });
 
-  // Lo que la semana trae no se cuenta como deuda de hoy: todavia no vence.
-  const pendientes = [...vencidas, ...deHoy].filter((l) => !l.nodo.completadoEn).length;
-  const vacio = lineas.length === 0;
+  const manana = diaSiguiente(hoy);
+  const porHacer = foco.vencidos.length + foco.enFoco.length;
+  const eligio = datosHoy.elegidos.size > 0;
+  // En modo elegir se elige al entrar, si queda cupo, o al pedir otro.
+  const tocaElegir =
+    modo === 'elegir' &&
+    foco.candidatos.length > 0 &&
+    (parametros.elegir === '1' || (!eligio && foco.cupoLibre > 0));
+  const focoListo = !tocaElegir && foco.enFoco.length === 0;
 
-  function tarjeta(linea: Linea, urgente = false, conCasilla = true, traible = false) {
+  function tarjeta(linea: Linea, tipo: 'vencido' | 'foco' | 'hecho') {
     return (
       <TarjetaHoy
         key={linea.nodo.id}
         nodo={linea.nodo}
         categoria={categorias.get(linea.nodo.categoriaId)}
         camino={linea.camino}
-        fecha={linea.nodo.completadoEn ? 'hecho hoy · un voto' : textoDia(linea.nodo.venceEl, hoy)}
-        urgente={urgente && !linea.nodo.completadoEn}
-        conCasilla={conCasilla}
-        accion={traible ? <HacerHoy id={linea.nodo.id} hoy={hoy} /> : undefined}
+        fecha={tipo === 'hecho' ? 'hecho hoy · un voto' : textoDia(linea.nodo.venceEl, hoy)}
+        urgente={tipo === 'vencido'}
+        accion={
+          tipo === 'foco' ? <HoyNo id={linea.nodo.id} hoy={hoy} manana={manana} /> : undefined
+        }
       />
     );
   }
@@ -112,93 +96,121 @@ export default async function Hoy() {
               De tus objetivos
             </h2>
 
-            {vacio ? (
+            {datos.objetivos.length === 0 ? (
               <div className="mt-4 rounded-xl border border-linea bg-white p-6">
-                {datos.objetivos.length === 0 ? (
-                  <>
-                    <p className="text-lg">Todavía no le dijiste a nadie hacia dónde vas.</p>
-                    <p className="mt-2 text-sm text-humo">
-                      Escribe el primero de tus objetivos grandes. Después lo partimos hasta que
-                      quepa en un martes cualquiera.
-                    </p>
-                    <Link
-                      href="/mapa"
-                      className="mt-5 inline-block rounded-full bg-tinta px-6 py-3 text-sm font-semibold text-papel transition-opacity hover:opacity-80"
-                    >
-                      Empezar el mapa
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-sm text-humo">
-                      Nada de tus objetivos vence esta semana. Si quieres avanzar igual, entra a uno
-                      y pártelo en un paso que quepa en esta tarde.
-                    </p>
-                    <Link
-                      href="/mapa"
-                      className="mt-4 inline-block text-sm underline underline-offset-4"
-                    >
-                      Ver el mapa
-                    </Link>
-                  </>
-                )}
+                <p className="text-lg">Todavía no le dijiste a nadie hacia dónde vas.</p>
+                <p className="mt-2 text-sm text-humo">
+                  Escribe el primero de tus objetivos grandes. Después lo partimos hasta que quepa
+                  en un martes cualquiera.
+                </p>
+                <Link
+                  href="/mapa"
+                  className="mt-5 inline-block rounded-full bg-tinta px-6 py-3 text-sm font-semibold text-papel transition-opacity hover:opacity-80"
+                >
+                  Empezar el mapa
+                </Link>
               </div>
             ) : (
               <>
                 <p className="mt-2 text-xs text-humo">
-                  {pendientes === 0
-                    ? 'Todo lo de hoy está hecho. Cada uno fue un voto.'
-                    : `${pendientes} ${pendientes === 1 ? 'paso' : 'pasos'} para acercarte. Cada uno vale un voto.`}
+                  {porHacer > 0
+                    ? `${porHacer} ${porHacer === 1 ? 'paso' : 'pasos'} para hoy. Cada uno vale un voto.`
+                    : foco.hechosHoy.length > 0
+                      ? 'Tu día está hecho. Cada paso fue un voto.'
+                      : 'Nada pendiente por ahora.'}
                 </p>
 
-                {/* Lo vencido va primero y se dice en color. Esconderlo entre lo
-                    de hoy seria maquillar el atraso: regla 7 de CLAUDE.md. */}
-                {vencidas.length > 0 && (
+                {/* Lo vencido va primero, en color y sin "Hoy no": esconderlo
+                    seria maquillar el atraso (regla 7). Ocupa cupo del dia. */}
+                {foco.vencidos.length > 0 && (
                   <div className="mt-6">
-                    <Bloque etiqueta="Vencido" cuenta={vencidas.length} acento />
-                    <div className="mt-3 space-y-3">{vencidas.map((l) => tarjeta(l, true))}</div>
-                  </div>
-                )}
-
-                {deHoy.length > 0 && (
-                  <div className="mt-8">
-                    <Bloque etiqueta="Hoy" cuenta={deHoy.length} />
-                    <div className="mt-3 space-y-3">{deHoy.map((l) => tarjeta(l))}</div>
-                  </div>
-                )}
-
-                {/* Abierto de entrada, para que la semana se vea sin pedirla, y
-                    sin casillas: se mira, no se marca. Si se pudiera marcar
-                    desde aqui, Hoy dejaria de ser hoy. */}
-                {deSemana.length > 0 && (
-                  <details open className="mt-8 border-t border-linea pt-4">
-                    <summary className="cursor-pointer list-none text-xs font-semibold uppercase tracking-[0.2em] text-humo transition-colors hover:text-tinta">
-                      Esta semana · {deSemana.length}
-                    </summary>
-                    <p className="mt-2 text-xs text-humo">
-                      Todavía no vence. Si lo vas a hacer hoy, tráelo: esperar a que se venza
-                      para hacerlo es dejar que el calendario decida por ti.
-                    </p>
+                    <Bloque etiqueta="Vencido" cuenta={foco.vencidos.length} acento />
                     <div className="mt-3 space-y-3">
-                      {deSemana.map((l) => tarjeta(l, false, false, true))}
+                      {foco.vencidos.map((l) => tarjeta(l, 'vencido'))}
                     </div>
-                  </details>
+                  </div>
                 )}
+
+                <div className="mt-8">
+                  <Bloque etiqueta="Tu foco" cuenta={foco.hechosHoy.length + foco.enFoco.length} />
+
+                  {tocaElegir && (
+                    <div className="mt-3">
+                      <ElegirFoco
+                        usuarioId={datos.usuarioId}
+                        hoy={hoy}
+                        candidatos={foco.candidatos}
+                        cupo={eligio ? Math.min(3, foco.candidatos.length) : foco.cupoLibre}
+                        categorias={Object.fromEntries(categorias)}
+                        sumando={eligio}
+                      />
+                    </div>
+                  )}
+
+                  {(foco.enFoco.length > 0 || foco.hechosHoy.length > 0) && (
+                    <div className="mt-3 space-y-3">
+                      {foco.enFoco.map((l) => tarjeta(l, 'foco'))}
+                      {foco.hechosHoy.map((l) => tarjeta(l, 'hecho'))}
+                    </div>
+                  )}
+
+                  {focoListo && (
+                    <div className="mt-3 rounded-xl border border-dashed border-linea p-4 text-sm text-humo">
+                      {foco.vencidos.length >= pasosPorDia && foco.candidatos.length > 0 ? (
+                        <p>Lo vencido llena tu día. Ponte al día y vuelven los pasos nuevos.</p>
+                      ) : foco.candidatos.length > 0 ? (
+                        <>
+                          <p>Tu foco de hoy está cumplido. Mañana hay más.</p>
+                          <Link
+                            href={modo === 'elegir' ? '/hoy?elegir=1' : `/hoy?mas=${extra + 1}`}
+                            className="mt-2 inline-block text-tinta underline underline-offset-4"
+                          >
+                            Dame otro
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <p>
+                            No hay pasos con fecha para avanzar. Entra a un objetivo y ponle fecha a
+                            su siguiente paso.
+                          </p>
+                          <Link
+                            href="/mapa"
+                            className="mt-2 inline-block text-tinta underline underline-offset-4"
+                          >
+                            Ver el mapa
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </section>
 
-          <section className="border-t border-linea pt-8 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
-            <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">To-do</h2>
-            <p className="mt-2 text-xs text-humo">
-              Lo que hay que hacer y no construye nada: sacar la basura, pagar la luz. No tiene rama
-              ni cuenta como voto, y al marcarlo desaparece.
-            </p>
+          <aside className="min-w-0 space-y-10 border-t border-linea pt-8 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+            <section>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">
+                Hábitos
+              </h2>
+              <p className="mt-2 text-xs text-humo">Lo que haces cada día. Mañana vuelve sin marcar.</p>
+              <div className="mt-4">
+                <Habitos usuarioId={datos.usuarioId} hoy={hoy} habitos={datosHoy.habitos} />
+              </div>
+            </section>
 
-            <div className="mt-4">
-              <Pendientes usuarioId={datos.usuarioId} pendientes={datos.pendientes} />
-            </div>
-          </section>
+            <section>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-humo">To-do</h2>
+              <p className="mt-2 text-xs text-humo">
+                Lo que hay que hacer y no construye nada: sacar la basura, pagar la luz. No tiene
+                rama ni cuenta como voto, y al marcarlo desaparece.
+              </p>
+              <div className="mt-4">
+                <Pendientes usuarioId={datos.usuarioId} pendientes={datos.pendientes} />
+              </div>
+            </section>
+          </aside>
         </div>
       </main>
     </Pagina>
